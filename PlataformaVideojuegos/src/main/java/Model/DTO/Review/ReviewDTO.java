@@ -1,12 +1,9 @@
-package Model.Review;
-
-import Model.Game.Game;
-import Model.User.User;
+package Model.DTO.Review;
 
 import java.time.Duration;
 import java.util.Date;
 
-public class Review {
+public class ReviewDTO {
 
     private int id;
     private int idUser;
@@ -86,7 +83,7 @@ public class Review {
     //Constructor
 
 
-    public Review(int id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlaid, Date publicationDate, Date lastEditionDate, ReviewState state) {
+    public ReviewDTO(int id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlaid, Date publicationDate, Date lastEditionDate, ReviewState state) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

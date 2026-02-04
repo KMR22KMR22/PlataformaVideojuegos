@@ -1,4 +1,4 @@
-package Model.Review;
+package Model.DTO.Review;
 
 public enum ReviewState {
 

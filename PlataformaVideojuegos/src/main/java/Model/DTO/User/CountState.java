@@ -1,4 +1,4 @@
-package Model.User;
+package Model.DTO.User;
 
 public enum CountState {
 

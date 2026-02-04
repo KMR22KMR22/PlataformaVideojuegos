@@ -1,4 +1,4 @@
-package Model.Purchase;
+package Model.DTO.Purchase;
 
 public enum PurchaseState {
 

@@ -1,17 +1,16 @@
 package Controller;
-import Model.User.User;
+import Model.DTO.User.UserDTO;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class UserController {
 
     List<String> errores = new ArrayList<>();
 
-    public void validateUser(User user) {
+    public void validateUser(UserDTO user) {
 
         //Nombre Usuario
         validateUserName(user);
@@ -26,7 +25,7 @@ public class UserController {
         validateRealName(user);
 
         //Pais
-        //validateCountry(user);
+        //validateCountry(userDTO);
 
         //Fecha de nacimiento
         validateBirthDate(user);
@@ -36,28 +35,28 @@ public class UserController {
 
     /**
      * Valida que el nombre de usuario se haya introducido correctamente
-     * @param user
+     * @param userDTO
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateUserName(User user) {
+    public List<String> validateUserName(UserDTO userDTO) {
 
         errores.clear();
 
 
-        if (Util.sheckCadena(user.getUserName())) {
+        if (Util.sheckCadena(userDTO.getUserName())) {
             errores.add("Nombre obligatorio");
         }
         //Falta  comprobar que no se repita
-        else if (user.getUserName().length() < 3) {
+        else if (userDTO.getUserName().length() < 3) {
             errores.add("El nombre de usuario debe tener minimo 3 caracteres");
         }
-        else if (user.getUserName().length() > 20) {
+        else if (userDTO.getUserName().length() > 20) {
             errores.add("El nombre de usuario debe tener maximo 20 caracteres");
         }
-        else if (!user.getUserName().matches("^[a-zA-Z0-9_-]+$")){
+        else if (!userDTO.getUserName().matches("^[a-zA-Z0-9_-]+$")){
             errores.add("Solo se admiten caracteres alfanuméricos, guiones y guiones bajos");
         }
-        else if (user.getUserName().matches("^[0-9].*")) {
+        else if (userDTO.getUserName().matches("^[0-9].*")) {
             errores.add("El nombre de usuario no puede empezar por numero");
         }
         return errores;
@@ -65,19 +64,22 @@ public class UserController {
 
     /**
      * Valida que el email de usuario se haya introducido correctamente
-     * @param user
+     * @param userDTO
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateEmail(User user) {
+    public List<String> validateEmail(UserDTO userDTO) {
 
         errores.clear();
 
-        if (Util.sheckCadena(user.getEmail())) {
+        var usuarios = repo.getUsuarios();
+        usuarios.stream().map(u -> u.getEmail()).filter(e -> e.equals(userDTO.getEmail())).find
+
+        if (Util.sheckCadena(userDTO.getEmail())) {
             errores.add("Email obligatorio");
         }
         //Falta comprobar que el email sea unico
 
-        else if (!user.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+        else if (!userDTO.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             errores.add("Debe ingresar un formato valido de email");
         }
         return errores;
@@ -85,21 +87,21 @@ public class UserController {
 
     /**
      * Valida que la contraseña se haya introducido correctamente
-     * @param user
+     * @param userDTO
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validatePassword(User user) {
+    public List<String> validatePassword(UserDTO userDTO) {
         errores.clear();
 
-        if (Util.sheckCadena(user.getPassword())) {
+        if (Util.sheckCadena(userDTO.getPassword())) {
             errores.add("Contraseña obligatoria");
         }
-        else if (user.getPassword().length() < 8) {
+        else if (userDTO.getPassword().length() < 8) {
             errores.add("La contraseña debe tener minimo 8 caracteres");
         }
-        else if (!user.getPassword().matches(".*[A-Z].*") ||
-                 !user.getPassword().matches(".*[a-z].*") ||
-                 !user.getPassword().matches(".*[0-9].*")) {
+        else if (!userDTO.getPassword().matches(".*[A-Z].*") ||
+                 !userDTO.getPassword().matches(".*[a-z].*") ||
+                 !userDTO.getPassword().matches(".*[0-9].*")) {
 
             errores.add("La contraseña debe contener al menos una mayúscula, una minúscula y un número");
         }
@@ -108,19 +110,19 @@ public class UserController {
 
     /**
      * Valida que el nombre real del usuario se haya introducido correctamente
-     * @param user
+     * @param userDTO
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateRealName(User user) {
+    public List<String> validateRealName(UserDTO userDTO) {
         errores.clear();
 
-        if (Util.sheckCadena(user.getRealName())) {
+        if (Util.sheckCadena(userDTO.getRealName())) {
             errores.add("Nombre obligatorio");
         }
-        else if (user.getRealName().length() < 2) {
+        else if (userDTO.getRealName().length() < 2) {
             errores.add("El nombre debe tener mas de 2 caracteres");
         }
-        else if (user.getRealName().length() > 50) {
+        else if (userDTO.getRealName().length() > 50) {
             errores.add("El nombre no puede tener mas de 50 caracteres");
         }
         return errores;
@@ -131,7 +133,7 @@ public class UserController {
      * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-   // public List<String> validateCountry(User user){
+   // public List<String> validateCountry(UserDTO user){
      //   errores.clear();
 
 //        if (Util.sheckCadena(user.getCountry())) {
@@ -141,19 +143,19 @@ public class UserController {
 
     /**
      * Valida que la feha de nacimiento del usuario se haya introducido correctamente
-     * @param user
+     * @param userDTO
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateBirthDate(User user){
+    public List<String> validateBirthDate(UserDTO userDTO){
         errores.clear();
 
-        if(user.getBirthDate() == null){
+        if(userDTO.getBirthDate() == null){
             errores.add("Debe ingresar su fecha de nacimiento");
         }
-        if(Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 13){
+        if(Period.between(userDTO.getBirthDate(), LocalDate.now()).getYears() < 13){
             errores.add("Debe tener al menos 13 años");
         }
-        if(user.getBirthDate().isAfter(LocalDate.now())){
+        if(userDTO.getBirthDate().isAfter(LocalDate.now())){
             errores.add("Fecha de nacimiento incorrecta");
         }
         return errores;
@@ -164,7 +166,7 @@ public class UserController {
      * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    //public List<String> validateRegistrationDate(User user){
+    //public List<String> validateRegistrationDate(UserDTO user){
       //  errores.clear();
 
 
@@ -175,17 +177,17 @@ public class UserController {
      * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    //public List<String> validateAvatar(User user){errores.clear();}
+    //public List<String> validateAvatar(UserDTO user){errores.clear();}
 
     /**
      * Valida que el saldo de la cartera del usuario se haya introducido correctamente
-     * @param user
+     * @param userDTO
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateMoney(User user){
+    public List<String> validateMoney(UserDTO userDTO){
         errores.clear();
 
-        if(user.getPortfolioBalance() != 0){
+        if(userDTO.getPortfolioBalance() != 0){
             errores.add("Debe ingresar su monto");
         }
     }

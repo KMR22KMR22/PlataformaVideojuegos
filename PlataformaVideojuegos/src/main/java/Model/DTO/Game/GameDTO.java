@@ -1,10 +1,10 @@
-package Model.Game;
+package Model.DTO.Game;
 
 import Model.Model;
 
 import java.time.LocalDate;
 
-public class Game extends Model {
+public class GameDTO extends Model {
 
     private int id;
     private String tittle;
@@ -90,7 +90,7 @@ public class Game extends Model {
     //Constructor
 
 
-    public Game(int id, String tittle, String description, String desarrollador, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, Enum state) {
+    public GameDTO(int id, String tittle, String description, String desarrollador, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, Enum state) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;

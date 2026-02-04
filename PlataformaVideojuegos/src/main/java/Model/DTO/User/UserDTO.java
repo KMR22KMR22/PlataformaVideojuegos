@@ -1,19 +1,20 @@
-package Model.User;
+package Model.DTO.User;
 
 import java.time.LocalDate;
 
-public class User {
+public class UserDTO {
 
-    private int id;
-    private String userName;
-    private String email;
-    private String password;
-    private String realName;
-    private Countries country;
-    private LocalDate birthDate;
-    private LocalDate registrationDate;
-    private float portfolioBalance;
-    private CountState accountState;
+    public Long id;
+    public String userName;
+    public String email;
+    public String password;
+    public String realName;
+    public Countries country;
+    public LocalDate birthDate;
+    public LocalDate registrationDate;
+    public String avatar;
+    public float portfolioBalance;
+    public CountState accountState;
 
 
 
@@ -21,7 +22,7 @@ public class User {
     //Getters
 
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -63,7 +64,7 @@ public class User {
 
     //Setters
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -107,7 +108,7 @@ public class User {
     //Constructor
 
 
-    public User(int id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
+    public UserDTO(Long id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;

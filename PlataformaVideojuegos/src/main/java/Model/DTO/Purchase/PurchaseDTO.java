@@ -1,11 +1,8 @@
-package Model.Purchase;
-
-import Model.Game.Game;
-import Model.User.User;
+package Model.DTO.Purchase;
 
 import java.time.LocalDate;
 
-public class Purchase {
+public class PurchaseDTO {
 
     private int id;
     private int idUser;
@@ -56,7 +53,7 @@ public class Purchase {
     //Constructor
 
 
-    public Purchase(int id, int idUser, int idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
+    public PurchaseDTO(int id, int idUser, int idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

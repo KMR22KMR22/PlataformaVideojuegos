@@ -1,12 +1,12 @@
-package Model.Library;
+package Model.DTO.Library;
 
-import Model.Game.Game;
+import Model.DTO.User.UserDTO;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Date;
 
-public class Library {
+public class LibraryDTO {
 
     private int id;
     private int idUser;
@@ -67,7 +67,7 @@ public class Library {
     //Constructor
 
 
-    public Library(int id, int idUser, int idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
+    public LibraryDTO(int id, int idUser, int idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
