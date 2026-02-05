@@ -1,4 +1,6 @@
-package Repository.Interface;
+package main.java.Repository.Interface;
+
+import main.java.Model.Entidad.UserEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import java.util.Optional;
     public interface ICrud<E, F, ID> {
         /**
          * Crea una nueva entidad a partir de un DTO.
+         *
          * @param dto Objeto de transferencia de datos con la información a persistir.
          * @return La entidad creada.
          */

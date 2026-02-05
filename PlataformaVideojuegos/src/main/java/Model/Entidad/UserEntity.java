@@ -1,7 +1,8 @@
-package Model.Entidad;
+package main.java.Model.Entidad;
 
-import Model.DTO.User.CountState;
-import Model.DTO.User.Countries;
+import main.java.Model.DTO.User.CountState;
+import main.java.Model.DTO.User.Countries;
+import main.java.Model.DTO.User.Countries;
 
 import java.time.LocalDate;
 
@@ -19,6 +20,7 @@ public class UserEntity {
     private String avatar;
     private float portfolioBalance;
     private CountState accountState;
+
 
 
     //Getters
@@ -56,7 +58,7 @@ public class UserEntity {
         return portfolioBalance;
     }
 
-    public Enum getAccountState() {
+    public CountState getAccountState() {
         return accountState;
     }
 

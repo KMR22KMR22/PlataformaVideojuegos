@@ -1,10 +1,10 @@
-package Model.DTO.Purchase;
+package main.java.Model.DTO.Purchase;
 
 import java.time.LocalDate;
 
 public class PurchaseDTO {
 
-    private int id;
+    private Long id;
     private int idUser;
     private int idGame;
     private LocalDate purchaseDate;
@@ -17,7 +17,7 @@ public class PurchaseDTO {
     //Getters
 
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -33,7 +33,7 @@ public class PurchaseDTO {
         return purchaseDate;
     }
 
-    public Enum getPaymentMethod() {
+    public PaymentMethods getPaymentMethod() {
         return paymentMethod;
     }
 
@@ -45,7 +45,7 @@ public class PurchaseDTO {
         return discountApplicated;
     }
 
-    public Enum getSatate() {
+    public PurchaseState getSatate() {
         return satate;
     }
 
@@ -53,7 +53,7 @@ public class PurchaseDTO {
     //Constructor
 
 
-    public PurchaseDTO(int id, int idUser, int idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
+    public PurchaseDTO(Long id, int idUser, int idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

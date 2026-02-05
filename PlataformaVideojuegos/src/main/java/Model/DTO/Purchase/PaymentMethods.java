@@ -1,4 +1,4 @@
-package Model.DTO.Purchase;
+package main.java.Model.DTO.Purchase;
 
 public enum PaymentMethods {
 

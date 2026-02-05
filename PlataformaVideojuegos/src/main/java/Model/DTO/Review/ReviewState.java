@@ -1,4 +1,4 @@
-package Model.DTO.Review;
+package main.java.Model.DTO.Review;
 
 public enum ReviewState {
 

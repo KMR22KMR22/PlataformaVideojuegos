@@ -1,5 +1,6 @@
-package Controller;
-import Model.DTO.User.UserDTO;
+package main.java.Controller;
+import main.java.Model.DTO.User.UserForm;
+import main.java.Repository.InMemory.UserRepoInMemory;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -8,9 +9,13 @@ import java.util.List;
 
 public class UserController {
 
-    List<String> errores = new ArrayList<>();
+    private List<String> errores = new ArrayList<>();
+    private UserRepoInMemory repository = new UserRepoInMemory();
 
-    public void validateUser(UserDTO user) {
+    public List<String>  validateUser(UserForm user) {
+
+        errores.clear();
+
 
         //Nombre Usuario
         validateUserName(user);
@@ -31,32 +36,34 @@ public class UserController {
         validateBirthDate(user);
 
 
+
+        return errores;
+
     }
 
     /**
      * Valida que el nombre de usuario se haya introducido correctamente
-     * @param userDTO
+     * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateUserName(UserDTO userDTO) {
+    public List<String> validateUserName(UserForm user) {
 
-        errores.clear();
-
-
-        if (Util.sheckCadena(userDTO.getUserName())) {
+        if (Util.checkCadena(user.getUserName())) {
             errores.add("Nombre obligatorio");
         }
-        //Falta  comprobar que no se repita
-        else if (userDTO.getUserName().length() < 3) {
+        else if (repository.obtenerTodos().stream().filter(u -> u.getUserName().equals(user.getUserName())).findFirst().isPresent()) {
+            errores.add("El nombre de usuario ya existe");
+        }
+        else if (user.getUserName().length() < 3) {
             errores.add("El nombre de usuario debe tener minimo 3 caracteres");
         }
-        else if (userDTO.getUserName().length() > 20) {
+        else if (user.getUserName().length() > 20) {
             errores.add("El nombre de usuario debe tener maximo 20 caracteres");
         }
-        else if (!userDTO.getUserName().matches("^[a-zA-Z0-9_-]+$")){
+        else if (!user.getUserName().matches("^[a-zA-Z0-9_-]+$")){
             errores.add("Solo se admiten caracteres alfanuméricos, guiones y guiones bajos");
         }
-        else if (userDTO.getUserName().matches("^[0-9].*")) {
+        else if (user.getUserName().matches("^[0-9].*")) {
             errores.add("El nombre de usuario no puede empezar por numero");
         }
         return errores;
@@ -64,22 +71,17 @@ public class UserController {
 
     /**
      * Valida que el email de usuario se haya introducido correctamente
-     * @param userDTO
+     * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateEmail(UserDTO userDTO) {
+    public List<String> validateEmail(UserForm user) {
 
-        errores.clear();
-
-        var usuarios = repo.getUsuarios();
-        usuarios.stream().map(u -> u.getEmail()).filter(e -> e.equals(userDTO.getEmail())).find
-
-        if (Util.sheckCadena(userDTO.getEmail())) {
+       if (Util.checkCadena(user.getEmail())) {
             errores.add("Email obligatorio");
         }
-        //Falta comprobar que el email sea unico
+        else if (repository.obtenerTodos().stream().filter(u -> u.getEmail().equals(user.getEmail())).findFirst().isPresent()) {
 
-        else if (!userDTO.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+        } else if (!user.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             errores.add("Debe ingresar un formato valido de email");
         }
         return errores;
@@ -87,21 +89,20 @@ public class UserController {
 
     /**
      * Valida que la contraseña se haya introducido correctamente
-     * @param userDTO
+     * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validatePassword(UserDTO userDTO) {
-        errores.clear();
+    public List<String> validatePassword(UserForm user) {
 
-        if (Util.sheckCadena(userDTO.getPassword())) {
+        if (Util.checkCadena(user.getPassword())) {
             errores.add("Contraseña obligatoria");
         }
-        else if (userDTO.getPassword().length() < 8) {
+        else if (user.getPassword().length() < 8) {
             errores.add("La contraseña debe tener minimo 8 caracteres");
         }
-        else if (!userDTO.getPassword().matches(".*[A-Z].*") ||
-                 !userDTO.getPassword().matches(".*[a-z].*") ||
-                 !userDTO.getPassword().matches(".*[0-9].*")) {
+        else if (!user.getPassword().matches(".*[A-Z].*") ||
+                 !user.getPassword().matches(".*[a-z].*") ||
+                 !user.getPassword().matches(".*[0-9].*")) {
 
             errores.add("La contraseña debe contener al menos una mayúscula, una minúscula y un número");
         }
@@ -110,19 +111,18 @@ public class UserController {
 
     /**
      * Valida que el nombre real del usuario se haya introducido correctamente
-     * @param userDTO
+     * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateRealName(UserDTO userDTO) {
-        errores.clear();
+    public List<String> validateRealName(UserForm user) {
 
-        if (Util.sheckCadena(userDTO.getRealName())) {
+        if (Util.checkCadena(user.getRealName())) {
             errores.add("Nombre obligatorio");
         }
-        else if (userDTO.getRealName().length() < 2) {
+        else if (user.getRealName().length() < 2) {
             errores.add("El nombre debe tener mas de 2 caracteres");
         }
-        else if (userDTO.getRealName().length() > 50) {
+        else if (user.getRealName().length() > 50) {
             errores.add("El nombre no puede tener mas de 50 caracteres");
         }
         return errores;
@@ -134,7 +134,6 @@ public class UserController {
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
    // public List<String> validateCountry(UserDTO user){
-     //   errores.clear();
 
 //        if (Util.sheckCadena(user.getCountry())) {
   //          errores.add("nombre obligatorio");
@@ -143,19 +142,18 @@ public class UserController {
 
     /**
      * Valida que la feha de nacimiento del usuario se haya introducido correctamente
-     * @param userDTO
+     * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateBirthDate(UserDTO userDTO){
-        errores.clear();
+    public List<String> validateBirthDate(UserForm user){
 
-        if(userDTO.getBirthDate() == null){
+        if(user.getBirthDate() == null){
             errores.add("Debe ingresar su fecha de nacimiento");
         }
-        if(Period.between(userDTO.getBirthDate(), LocalDate.now()).getYears() < 13){
+        if(Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 13){
             errores.add("Debe tener al menos 13 años");
         }
-        if(userDTO.getBirthDate().isAfter(LocalDate.now())){
+        if(user.getBirthDate().isAfter(LocalDate.now())){
             errores.add("Fecha de nacimiento incorrecta");
         }
         return errores;
@@ -167,7 +165,6 @@ public class UserController {
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
     //public List<String> validateRegistrationDate(UserDTO user){
-      //  errores.clear();
 
 
     //}
@@ -181,13 +178,12 @@ public class UserController {
 
     /**
      * Valida que el saldo de la cartera del usuario se haya introducido correctamente
-     * @param userDTO
+     * @param user
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateMoney(UserDTO userDTO){
-        errores.clear();
+    public List<String> validateMoney(UserForm user){
 
-        if(userDTO.getPortfolioBalance() != 0){
+        if(user.getPortfolioBalance() != 0){
             errores.add("Debe ingresar su monto");
         }
     }

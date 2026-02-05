@@ -1,8 +1,8 @@
-package Repository.InMemory;
+package main.java.Repository.InMemory;
 
-import Model.Entidad.UserEntity;
-import Model.Form.UserForm;
-import Repository.Interface.IUserRepo;
+import main.java.Model.Entidad.UserEntity;
+import main.java.Model.Form.UserForm;
+import main.java.Repository.Interface.IUserRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class UserRepoInMemory implements IUserRepo {
 
     @Override
     public Optional<UserEntity> crear(UserForm form) {
-        var user = new UserEntity(idCounter++, form.userName, form.email, form.password, form.realName, form.country, form.birthDate, form.registrationDate, form.avatar, form.portfolioBalance, form.accountState);
+        var user = new UserEntity(idCounter++, form.getUserName(), form.getEmail(), form.getPassword(), form.getRealName(), form.getCountry(), form.getBirthDate(), form.getRegistrationDate(), form.avatar, form.getPortfolioBalance(), form.getAccountState());
         users.add(user);
         return Optional.of(user);
     }
@@ -38,7 +38,7 @@ public class UserRepoInMemory implements IUserRepo {
     }
 
     @Override
-    public boolean eliminar(Long aLong) {
-        return false;
+    public boolean eliminar(Long id) {
+        return users.removeIf(u -> u.getId().equals(id));
     }
 }

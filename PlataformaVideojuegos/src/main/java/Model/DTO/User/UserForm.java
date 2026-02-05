@@ -1,8 +1,8 @@
-package Model.DTO.User;
+package main.java.Model.DTO.User;
 
 import java.time.LocalDate;
 
-public class UserDTO {
+public class UserForm {
 
     public Long id;
     public String userName;
@@ -108,7 +108,7 @@ public class UserDTO {
     //Constructor
 
 
-    public UserDTO(Long id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
+    public UserForm(Long id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;

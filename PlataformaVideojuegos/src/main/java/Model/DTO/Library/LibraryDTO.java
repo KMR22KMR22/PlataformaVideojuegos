@@ -1,6 +1,4 @@
-package Model.DTO.Library;
-
-import Model.DTO.User.UserDTO;
+package main.java.Model.DTO.Library;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -8,7 +6,7 @@ import java.util.Date;
 
 public class LibraryDTO {
 
-    private int id;
+    private Long id;
     private int idUser;
     private int idGame;
     private LocalDate adquisitionDate;
@@ -19,7 +17,7 @@ public class LibraryDTO {
 
     //Getters
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -43,7 +41,7 @@ public class LibraryDTO {
         return lastPlayed;
     }
 
-    public Enum getInstalationState() {
+    public InstalationState getInstalationState() {
         return instalationState;
     }
 
@@ -67,7 +65,7 @@ public class LibraryDTO {
     //Constructor
 
 
-    public LibraryDTO(int id, int idUser, int idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
+    public LibraryDTO(Long id, int idUser, int idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

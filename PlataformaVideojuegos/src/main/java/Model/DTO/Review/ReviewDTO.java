@@ -1,11 +1,11 @@
-package Model.DTO.Review;
+package main.java.Model.DTO.Review;
 
 import java.time.Duration;
 import java.util.Date;
 
 public class ReviewDTO {
 
-    private int id;
+    private Long id;
     private int idUser;
     private int idGame;
     private boolean recommended;
@@ -19,7 +19,7 @@ public class ReviewDTO {
     //Getters
 
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -83,7 +83,7 @@ public class ReviewDTO {
     //Constructor
 
 
-    public ReviewDTO(int id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlaid, Date publicationDate, Date lastEditionDate, ReviewState state) {
+    public ReviewDTO(Long id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlaid, Date publicationDate, Date lastEditionDate, ReviewState state) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

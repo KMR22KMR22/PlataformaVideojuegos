@@ -1,7 +1,7 @@
-package Repository.Interface;
+package main.java.Repository.Interface;
 
-import Model.Entidad.UserEntity;
-import Model.Form.UserForm;
+import main.java.Model.Entidad.UserEntity;
+import main.java.Model.Form.UserForm;
 
 public interface IUserRepo extends ICrud<UserEntity, UserForm, Long> {
 }

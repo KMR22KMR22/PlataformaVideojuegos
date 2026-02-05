@@ -1,12 +1,10 @@
-package Model.DTO.Game;
-
-import Model.Model;
+package main.java.Model.DTO.Game;
 
 import java.time.LocalDate;
 
-public class GameDTO extends Model {
+public class GameDTO {
 
-    private int id;
+    private Long id;
     private String tittle;
     private String description;
     private String desarrollador;
@@ -16,13 +14,13 @@ public class GameDTO extends Model {
     private GameCategory category;
     private AgeClasification ageClasification;
     private String[] availabeLanguages;
-    private Enum State;
+    private GameState State;
 
 
     //Getters
 
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -50,11 +48,11 @@ public class GameDTO extends Model {
         return currentDescount;
     }
 
-    public Enum getCategory() {
+    public GameCategory getCategory() {
         return category;
     }
 
-    public Enum getAgeClasification() {
+    public AgeClasification getAgeClasification() {
         return ageClasification;
     }
 
@@ -62,7 +60,7 @@ public class GameDTO extends Model {
         return availabeLanguages;
     }
 
-    public Enum getState() {
+    public GameState getState() {
         return State;
     }
 
@@ -82,7 +80,7 @@ public class GameDTO extends Model {
         this.availabeLanguages = availabeLanguages;
     }
 
-    public void setState(Enum state) {
+    public void setState(GameState state) {
         State = state;
     }
 
@@ -90,7 +88,7 @@ public class GameDTO extends Model {
     //Constructor
 
 
-    public GameDTO(int id, String tittle, String description, String desarrollador, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, Enum state) {
+    public GameDTO(Long id, String tittle, String description, String desarrollador, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, GameState state) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
