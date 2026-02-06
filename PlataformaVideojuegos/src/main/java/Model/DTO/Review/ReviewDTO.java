@@ -1,4 +1,4 @@
-package main.java.Model.DTO.Review;
+package Model.DTO.Review;
 
 import java.time.Duration;
 import java.util.Date;

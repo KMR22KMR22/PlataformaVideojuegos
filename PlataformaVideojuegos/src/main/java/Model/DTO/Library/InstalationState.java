@@ -1,4 +1,4 @@
-package main.java.Model.DTO.Library;
+package Model.DTO.Library;
 
 public enum InstalationState {
 

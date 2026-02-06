@@ -1,6 +1,6 @@
-package main.java.Model.Entidad;
+package Model.Entidad;
 
-import main.java.Model.DTO.Review.ReviewState;
+import Model.DTO.Review.ReviewState;
 
 import java.time.Duration;
 import java.util.Date;

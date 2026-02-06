@@ -1,6 +1,6 @@
-package main.java.Model.Entidad;
+package Model.Entidad;
 
-import main.java.Model.DTO.Library.InstalationState;
+import Model.DTO.Library.InstalationState;
 
 import java.time.Duration;
 import java.time.LocalDate;

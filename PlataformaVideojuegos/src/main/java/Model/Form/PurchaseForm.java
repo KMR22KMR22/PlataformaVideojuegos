@@ -1,7 +1,7 @@
-package main.java.Model.Form;
+package Model.Form;
 
-import main.java.Model.DTO.Purchase.PaymentMethods;
-import main.java.Model.DTO.Purchase.PurchaseState;
+import Model.DTO.Purchase.PaymentMethods;
+import Model.DTO.Purchase.PurchaseState;
 
 import java.time.LocalDate;
 

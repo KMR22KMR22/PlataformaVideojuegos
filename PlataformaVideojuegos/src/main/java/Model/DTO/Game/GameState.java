@@ -1,4 +1,4 @@
-package main.java.Model.DTO.Game;
+package Model.DTO.Game;
 
 public enum GameState {
 

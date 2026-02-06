@@ -1,8 +1,8 @@
-package main.java.Repository.InMemory;
+package Repository.InMemory;
 
-import main.java.Model.Entidad.ReviewEntity;
-import main.java.Model.Form.ReviewForm;
-import main.java.Repository.Interface.IReviewRepo;
+import Model.Entidad.ReviewEntity;
+import Model.Form.ReviewForm;
+import Repository.Interface.IReviewRepo;
 
 import java.util.ArrayList;
 import java.util.List;

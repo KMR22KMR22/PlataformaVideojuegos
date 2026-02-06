@@ -1,4 +1,4 @@
-package main.java.Controller;
+package Controller;
 
 import java.util.List;
 
@@ -10,14 +10,12 @@ public class Util {
      * @param cadena cadena a comprobar
      * @return true si no es nula o vacia, false en cualquier otro caso
      */
-    public static boolean checkCadena(String cadena){
+    public static boolean checkCadenaBlankOrEmpty(String cadena){
 
         return cadena == null || cadena.isBlank();
     }
 
-    public static boolean checkNotUnique(String cadena, List<String> list){
-
-        return list.stream()
-                .anyMatch(s -> s.equals(cadena));
+    public static boolean checkCadenaNotUnique(String cadena, List<String> list){
+        return list.stream().anyMatch(e -> e.equals(cadena));
     }
 }

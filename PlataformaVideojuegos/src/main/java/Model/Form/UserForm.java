@@ -1,11 +1,9 @@
-package main.java.Model.Form;
+package Model.Form;
 
-import main.java.Model.DTO.User.CountState;
-import main.java.Model.DTO.User.Countries;
-import main.java.Model.DTO.User.CountState;
-import main.java.Model.DTO.User.Countries;
+import Model.DTO.User.CountState;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserForm {
 
@@ -14,7 +12,7 @@ public class UserForm {
     private String email;
     private String password;
     private String realName;
-    private Countries country;
+    private String country;
     private LocalDate birthDate;
     private LocalDate registrationDate;
     public String avatar;
@@ -61,8 +59,12 @@ public class UserForm {
         return accountState;
     }
 
-    public main.java.Model.DTO.User.Countries getCountry() {
+    public String getCountry() {
         return country;
+    }
+
+    public String getAvatar() {
+        return avatar;
     }
 
     //Setters
@@ -87,10 +89,6 @@ public class UserForm {
         this.realName = realName;
     }
 
-    public void setCountry(main.java.Model.DTO.User.Countries country) {
-        this.country = country;
-    }
-
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
@@ -103,15 +101,16 @@ public class UserForm {
         this.portfolioBalance = portfolioBalance;
     }
 
-    public void setAccountState(main.java.Model.DTO.User.CountState accountState) {
-        this.accountState = accountState;
-    }
+    public void setCountry(String country) {this.country = country;}
 
+    public void setAvatar(String avatar) {this.avatar = avatar;}
+
+    public void setAccountState(CountState accountState) {this.accountState = accountState;}
 
     //Constructor
 
 
-    public UserForm(Long id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, String avatar, float portfolioBalance, CountState accountState) {
+    public UserForm(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, LocalDate registrationDate, String avatar, float portfolioBalance, CountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;

@@ -1,8 +1,8 @@
-package main.java.Repository.InMemory;
+package Repository.InMemory;
 
-import main.java.Model.Entidad.UserEntity;
-import main.java.Model.Form.UserForm;
-import main.java.Repository.Interface.IUserRepo;
+import Model.Entidad.UserEntity;
+import Model.Form.UserForm;
+import Repository.Interface.IUserRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.Optional;
 public class UserRepoInMemory implements IUserRepo {
     private static final List<UserEntity> users = new ArrayList<>();
     private static Long idCounter = 1L;
+    private List<String> countries = new ArrayList<>();
 
 
     @Override
@@ -40,5 +41,15 @@ public class UserRepoInMemory implements IUserRepo {
     @Override
     public boolean eliminar(Long id) {
         return users.removeIf(u -> u.getId().equals(id));
+    }
+
+    @Override
+    public List<String> getCountries() {
+        return countries;
+    }
+
+    @Override
+    public void addCountry(String country) {
+        countries.add(country);
     }
 }

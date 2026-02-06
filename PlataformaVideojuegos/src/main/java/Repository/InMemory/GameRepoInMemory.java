@@ -1,9 +1,8 @@
-package main.java.Repository.InMemory;
+package Repository.InMemory;
 
-import main.java.Model.Entidad.GameEntity;
-import main.java.Model.Form.GameForm;
-import main.java.Repository.Interface.ICrud;
-import main.java.Repository.Interface.IGameRepo;
+import Model.Entidad.GameEntity;
+import Model.Form.GameForm;
+import Repository.Interface.IGameRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,6 @@ public class GameRepoInMemory implements IGameRepo {
     private static Long idCounter = 1L;
 
 
-    public GameRepoInMemory(List<GameEntity> gameEntities) {}
     @Override
     public Optional<GameEntity> crear(GameForm form) {
         var game = new GameEntity(idCounter++, form.getTittle(), form.getDescription(), form.getDesarrollador(), form.getLaunchDate(), form.getBasePrice(), form.getCurrentDescount(), form.getCategory(), form.getAgeClasification(), form.getAvailabeLanguages(), form.getState());

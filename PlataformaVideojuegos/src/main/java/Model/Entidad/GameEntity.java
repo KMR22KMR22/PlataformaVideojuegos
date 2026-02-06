@@ -1,8 +1,8 @@
-package main.java.Model.Entidad;
+package Model.Entidad;
 
-import main.java.Model.DTO.Game.AgeClasification;
-import main.java.Model.DTO.Game.GameCategory;
-import main.java.Model.DTO.Game.GameState;
+import Model.DTO.Game.AgeClasification;
+import Model.DTO.Game.GameCategory;
+import Model.DTO.Game.GameState;
 
 import java.time.LocalDate;
 

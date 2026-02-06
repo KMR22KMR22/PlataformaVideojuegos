@@ -1,10 +1,9 @@
-package main.java.Model.Entidad;
+package Model.Entidad;
 
-import main.java.Model.DTO.User.CountState;
-import main.java.Model.DTO.User.Countries;
-import main.java.Model.DTO.User.Countries;
+import Model.DTO.User.CountState;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserEntity {
 
@@ -14,7 +13,7 @@ public class UserEntity {
     private String email;
     private String password;
     private String realName;
-    private Countries country;
+    private String country;
     private LocalDate birthDate;
     private LocalDate registrationDate;
     private String avatar;
@@ -62,7 +61,7 @@ public class UserEntity {
         return accountState;
     }
 
-    public Countries getCountry() {
+    public String getCountry() {
         return country;
     }
 
@@ -92,7 +91,7 @@ public class UserEntity {
         this.realName = realName;
     }
 
-    public void setCountry(Countries country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
@@ -119,7 +118,7 @@ public class UserEntity {
     //Constructor
 
 
-    public UserEntity(Long id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, String avatar, float portfolioBalance, CountState accountState) {
+    public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, LocalDate registrationDate, String avatar, float portfolioBalance, CountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;

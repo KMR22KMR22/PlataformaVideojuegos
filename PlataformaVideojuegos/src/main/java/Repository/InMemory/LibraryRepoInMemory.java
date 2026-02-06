@@ -1,8 +1,8 @@
-package main.java.Repository.InMemory;
+package Repository.InMemory;
 
-import main.java.Model.Entidad.LibraryEntity;
-import main.java.Model.Form.LibraryForm;
-import main.java.Repository.Interface.ILibraryRepo;
+import Model.Entidad.LibraryEntity;
+import Model.Form.LibraryForm;
+import Repository.Interface.ILibraryRepo;
 
 import java.util.ArrayList;
 import java.util.List;

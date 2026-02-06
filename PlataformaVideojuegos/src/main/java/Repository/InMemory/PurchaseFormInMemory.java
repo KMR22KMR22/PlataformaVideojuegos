@@ -1,11 +1,8 @@
-package main.java.Repository.InMemory;
+package Repository.InMemory;
 
-import main.java.Model.Entidad.LibraryEntity;
-import main.java.Model.Entidad.PurchaseEntity;
-import main.java.Model.Form.LibraryForm;
-import main.java.Model.Form.PurchaseForm;
-import main.java.Repository.Interface.ILibraryRepo;
-import main.java.Repository.Interface.IPurchaseRepo;
+import Model.Entidad.PurchaseEntity;
+import Model.Form.PurchaseForm;
+import Repository.Interface.IPurchaseRepo;
 
 import java.util.ArrayList;
 import java.util.List;

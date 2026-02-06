@@ -1,7 +1,7 @@
-package main.java.Repository.Interface;
+package Repository.Interface;
 
-import main.java.Model.Entidad.ReviewEntity;
-import main.java.Model.Form.ReviewForm;
+import Model.Entidad.ReviewEntity;
+import Model.Form.ReviewForm;
 
 public interface IReviewRepo extends ICrud<ReviewEntity, ReviewForm, Long>{
 }

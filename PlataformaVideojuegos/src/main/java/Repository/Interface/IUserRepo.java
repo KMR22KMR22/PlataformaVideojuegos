@@ -1,7 +1,13 @@
-package main.java.Repository.Interface;
+package Repository.Interface;
 
-import main.java.Model.Entidad.UserEntity;
-import main.java.Model.Form.UserForm;
+import Model.Entidad.UserEntity;
+import Model.Form.UserForm;
+
+import java.util.List;
 
 public interface IUserRepo extends ICrud<UserEntity, UserForm, Long> {
+
+    public List<String> getCountries();
+
+    public void addCountry(String country);
 }

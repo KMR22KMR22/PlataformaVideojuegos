@@ -1,4 +1,4 @@
-package main.java.Model.DTO.User;
+package Model.DTO.User;
 
 public enum CountState {
 

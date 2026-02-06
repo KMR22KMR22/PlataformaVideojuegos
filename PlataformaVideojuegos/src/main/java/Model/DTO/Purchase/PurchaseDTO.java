@@ -1,4 +1,4 @@
-package main.java.Model.DTO.Purchase;
+package Model.DTO.Purchase;
 
 import java.time.LocalDate;
 

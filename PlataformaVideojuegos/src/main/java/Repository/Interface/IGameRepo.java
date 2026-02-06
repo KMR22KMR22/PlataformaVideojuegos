@@ -1,7 +1,7 @@
-package main.java.Repository.Interface;
+package Repository.Interface;
 
-import main.java.Model.Entidad.GameEntity;
-import main.java.Model.Form.GameForm;
+import Model.Entidad.GameEntity;
+import Model.Form.GameForm;
 
 public interface IGameRepo extends ICrud<GameEntity, GameForm, Long> {
 }

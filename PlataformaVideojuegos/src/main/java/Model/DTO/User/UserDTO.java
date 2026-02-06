@@ -1,15 +1,16 @@
-package main.java.Model.DTO.User;
+package Model.DTO.User;
 
 import java.time.LocalDate;
+import java.util.List;
 
-public class UserForm {
+public class UserDTO {
 
     public Long id;
     public String userName;
     public String email;
     public String password;
     public String realName;
-    public Countries country;
+    public String country;
     public LocalDate birthDate;
     public LocalDate registrationDate;
     public String avatar;
@@ -54,11 +55,11 @@ public class UserForm {
         return portfolioBalance;
     }
 
-    public Enum getAccountState() {
+    public CountState getAccountState() {
         return accountState;
     }
 
-    public Countries getCountry() {
+    public String getCountry() {
         return country;
     }
 
@@ -84,7 +85,7 @@ public class UserForm {
         this.realName = realName;
     }
 
-    public void setCountry(Countries country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
@@ -108,7 +109,7 @@ public class UserForm {
     //Constructor
 
 
-    public UserForm(Long id, String userName, String email, String password, String realName, Countries country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
+    public UserDTO(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;

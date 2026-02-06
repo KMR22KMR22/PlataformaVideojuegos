@@ -1,6 +1,4 @@
-package main.java.Repository.Interface;
-
-import main.java.Model.Entidad.UserEntity;
+package Repository.Interface;
 
 import java.util.List;
 import java.util.Optional;
