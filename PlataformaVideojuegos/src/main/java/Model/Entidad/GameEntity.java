@@ -11,7 +11,7 @@ public class GameEntity {
     private Long id;
     private String tittle;
     private String description;
-    private String desarrollador;
+    private String developer;
     private LocalDate launchDate;
     private float basePrice;
     private float currentDescount;
@@ -36,8 +36,8 @@ public class GameEntity {
         return description;
     }
 
-    public String getDesarrollador() {
-        return desarrollador;
+    public String getDeveloper() {
+        return developer;
     }
 
     public LocalDate getLaunchDate() {
@@ -92,11 +92,11 @@ public class GameEntity {
     //Constructor
 
 
-    public GameEntity(Long id, String tittle, String description, String desarrollador, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, GameState state) {
+    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, GameState state) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
-        this.desarrollador = desarrollador;
+        this.developer = developer;
         this.launchDate = launchDate;
         this.basePrice = basePrice;
         this.currentDescount = currentDescount;

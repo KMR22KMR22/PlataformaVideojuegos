@@ -15,7 +15,7 @@ public class GameRepoInMemory implements IGameRepo {
 
     @Override
     public Optional<GameEntity> crear(GameForm form) {
-        var game = new GameEntity(idCounter++, form.getTittle(), form.getDescription(), form.getDesarrollador(), form.getLaunchDate(), form.getBasePrice(), form.getCurrentDescount(), form.getCategory(), form.getAgeClasification(), form.getAvailabeLanguages(), form.getState());
+        var game = new GameEntity(idCounter++, form.getTittle(), form.getDescription(), form.getDeveloper(), form.getLaunchDate(), form.getBasePrice(), form.getCurrentDescount(), form.getCategory(), form.getAgeClasification(), form.getAvailabeLanguages(), form.getState());
         games.add(game);
         return Optional.of(game);
     }
