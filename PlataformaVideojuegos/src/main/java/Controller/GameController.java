@@ -35,11 +35,14 @@ public class GameController {
         //Descuento actual
         validateCurrentDescount(game);
 
-        //Fecha de registro
-        validateRegistrationDate(user);
+        //Clasificacion de edad
+        validateAgeClasification(game);
 
-        //Avatar
-        validateAvatar(user);
+        //Idiomas
+        validateLanguages(game);
+
+        //Estado
+        validateState(game);
 
 
 
@@ -109,11 +112,30 @@ public class GameController {
     }
 
     /**
-     * Valida que descuento actual del juego se haya introducido correctamente
+     * Valida que el descuento actual del juego se haya introducido correctamente
      * @param game
      * */
     private void validateCurrentDescount(GameForm game) {
+        if(game.getCurrentDescount() > 0){
+            if(game.getBasePrice() < 0 ||  game.getBasePrice() > 100){
+                errores.add("El descuento debe estar entre 0 y 100");
+            }
+            //Falta comprobar que el descuneto sea entero.
+            if (game.getBasePrice() != 0){
 
+            }
+        }
+    }
+
+    /**
+     * Valida que la clasificacion del juego se haya introducido correctamente
+     * @param game
+     * */
+    private void validateAgeClasification(GameForm game) {
+        if(Util.checkCadenaBlankOrEmpty(game.getAgeClasification().name())){
+            errores.add("El juego debe llevar una clasificacion por edad");
+        }
+        //Falta comprobar que sea uno de los valores del enum
     }
 }
 

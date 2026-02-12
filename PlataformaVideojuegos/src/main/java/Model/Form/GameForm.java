@@ -14,7 +14,7 @@ public class GameForm {
     private String developer;
     private LocalDate launchDate;
     private float basePrice;
-    private float currentDescount;
+    private int currentDescount;
     private GameCategory category;
     private AgeClasification ageClasification;
     private String[] availabeLanguages;
@@ -48,7 +48,7 @@ public class GameForm {
         return basePrice;
     }
 
-    public float getCurrentDescount() {
+    public int getCurrentDescount() {
         return currentDescount;
     }
 
@@ -92,7 +92,7 @@ public class GameForm {
     //Constructor
 
 
-    public GameForm(int id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, float currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, GameState state) {
+    public GameForm(int id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, int currentDescount, GameCategory category, AgeClasification ageClasification, String[] availabeLanguages, GameState state) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;

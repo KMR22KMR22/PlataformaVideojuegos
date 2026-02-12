@@ -15,7 +15,7 @@ public class ReviewRepoInMemory implements IReviewRepo {
 
     @Override
     public Optional<ReviewEntity> crear(ReviewForm form) {
-        var review = new ReviewEntity(idCounter++, form.getIdUser(), form.getIdGame(), form.isRecommended(), form.getReviwText(), form.getHoursPlaid(), form.getPublicationDate(), form.getLastEditionDate(), form.getState());
+        var review = new ReviewEntity(idCounter++, form.getIdUser(), form.getIdGame(), form.isRecommended(), form.getReviwText(), form.getHoursPlayed(), form.getPublicationDate(), form.getLastEditionDate(), form.getState());
         reviews.add(review);
         return Optional.of(review);
     }

@@ -12,7 +12,7 @@ public class ReviewEntity {
     private int idGame;
     private boolean recommended;
     private String reviwText;
-    private Duration hoursPlaid;
+    private Duration hoursPlayed;
     private Date publicationDate;
     private Date lastEditionDate;
     private ReviewState state;
@@ -41,8 +41,8 @@ public class ReviewEntity {
         return reviwText;
     }
 
-    public Duration getHoursPlaid() {
-        return hoursPlaid;
+    public Duration getHoursPlayed() {
+        return hoursPlayed;
     }
 
     public Date getPublicationDate() {
@@ -69,8 +69,8 @@ public class ReviewEntity {
         this.reviwText = reviwText;
     }
 
-    public void setHoursPlaid(Duration hoursPlaid) {
-        this.hoursPlaid = hoursPlaid;
+    public void setHoursPlayed(Duration hoursPlayed) {
+        this.hoursPlayed = hoursPlayed;
     }
 
     public void setLastEditionDate(Date lastEditionDate) {
@@ -85,13 +85,13 @@ public class ReviewEntity {
     //Constructor
 
 
-    public ReviewEntity(Long id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlaid, Date publicationDate, Date lastEditionDate, ReviewState state) {
+    public ReviewEntity(Long id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlayed, Date publicationDate, Date lastEditionDate, ReviewState state) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
         this.recommended = recommended;
         this.reviwText = reviwText;
-        this.hoursPlaid = hoursPlaid;
+        this.hoursPlayed = hoursPlayed;
         this.publicationDate = publicationDate;
         this.lastEditionDate = lastEditionDate;
         this.state = state;

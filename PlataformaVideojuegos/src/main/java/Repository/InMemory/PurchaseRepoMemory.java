@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class PurchaseFormInMemory implements IPurchaseRepo {
+public class PurchaseRepoMemory implements IPurchaseRepo {
 
     private final List<PurchaseEntity> purchases = new ArrayList<>();
     private Long idCounter = 0L;
