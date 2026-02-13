@@ -1,0 +1,97 @@
+package org.example.Model.DTO.Review;
+
+import java.time.Duration;
+import java.util.Date;
+
+public class ReviewDTO {
+
+    private Long id;
+    private int idUser;
+    private int idGame;
+    private boolean recommended;
+    private String reviwText;
+    private Duration hoursPlayed;
+    private Date publicationDate;
+    private Date lastEditionDate;
+    private  ReviewState state;
+
+
+    //Getters
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public int getIdGame() {
+        return idGame;
+    }
+
+    public boolean isRecommended() {
+        return recommended;
+    }
+
+    public String getReviwText() {
+        return reviwText;
+    }
+
+    public Duration getHoursPlayed() {
+        return hoursPlayed;
+    }
+
+    public Date getPublicationDate() {
+        return publicationDate;
+    }
+
+    public Date getLastEditionDate() {
+        return lastEditionDate;
+    }
+
+    public ReviewState getState() {
+        return state;
+    }
+
+
+    //Setters
+
+
+    public void setRecommended(boolean recommended) {
+        this.recommended = recommended;
+    }
+
+    public void setReviwText(String reviwText) {
+        this.reviwText = reviwText;
+    }
+
+    public void setHoursPlayed(Duration hoursPlayed) {
+        this.hoursPlayed = hoursPlayed;
+    }
+
+    public void setLastEditionDate(Date lastEditionDate) {
+        this.lastEditionDate = lastEditionDate;
+    }
+
+    public void setState(ReviewState state) {
+        this.state = state;
+    }
+
+
+    //Constructor
+
+
+    public ReviewDTO(Long id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlayed, Date publicationDate, Date lastEditionDate, ReviewState state) {
+        this.id = id;
+        this.idUser = idUser;
+        this.idGame = idGame;
+        this.recommended = recommended;
+        this.reviwText = reviwText;
+        this.hoursPlayed = hoursPlayed;
+        this.publicationDate = publicationDate;
+        this.lastEditionDate = lastEditionDate;
+        this.state = state;
+    }
+}

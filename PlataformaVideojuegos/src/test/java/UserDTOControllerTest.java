@@ -1,9 +1,9 @@
-import Model.DTO.User.CountState;
+import org.example.Model.DTO.User.CountState;
 import Model.DTO.User.Countries;
-import Model.DTO.User.UserDTO;
+import org.example.Model.DTO.User.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import Controller.UserController;
+import org.example.Controller.UserController;
 
 import java.time.LocalDate;
 import java.util.List;
