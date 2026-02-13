@@ -114,11 +114,14 @@ public class UserForm {
         //Fecha de nacimiento
         validateBirthDate(user);
 
-        //Fecha de registro
-        validateRegistrationDate(user);
-
         //Avatar
         validateAvatar(user);
+
+        //Saldo de Cartera
+        validateMoney(user);
+
+        //Estado de la cuenta
+        validateAccountState(user);
 
 
 
@@ -233,14 +236,7 @@ public class UserForm {
         }
     }
 
-    /**
-     * Valida que la fecha de registro del usuario se haya introducido correctamente
-     * @param user
-     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
-     * */
-    public void validateRegistrationDate(UserForm user){
 
-    }
 
 
     /**
@@ -249,8 +245,10 @@ public class UserForm {
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
     public void validateAvatar(UserForm user){
-        if (user.getAvatar() != null & user.getAvatar().length() > 100) {
-            errores.add("La longitud del avatar debe ser mas pequeña");
+        if (user.getAvatar() != null){
+            if(user.getAvatar().length() > 100){
+                errores.add("La longitud del avatar debe ser mas pequeña");
+            }
         }
     }
 
@@ -261,9 +259,16 @@ public class UserForm {
      * */
     public void validateMoney(UserForm user){
 
-        if(user.getPortfolioBalance() != 0){
-            errores.add("Debe ingresar su monto");
-        }
+
+    }
+
+    /**
+     * Valida que el estado de la cuenta del usuario se haya introducido correctamente
+     * @param user
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
+     * */
+    private void validateAccountState(UserForm user) {
+
     }
 
 }

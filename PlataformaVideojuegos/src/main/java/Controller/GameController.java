@@ -7,136 +7,40 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class GameController {
 
     private GameRepoInMemory repository = new GameRepoInMemory();
     private List<String> errores = new ArrayList<>();
 
-    public List<String>  validateGame(GameForm game) {
+    public List<String>  validateGameCreation(GameForm game) {
 
         errores.clear();
 
-
-        //Titulo Game
-        validateGameTittle(game);
-
-        //Descripcion Game (opcional)
-        validateDescription(game);
-
-        //Desarrollador
-        validateDeveloper(game);
-
-        //Fecha de lanzamiento
-        validateLunchDate(game);
-
-        //Pais
-        validateBasePrice(game);
-
-        //Descuento actual
-        validateCurrentDescount(game);
-
-        //Clasificacion de edad
-        validateAgeClasification(game);
-
-        //Idiomas
-        validateLanguages(game);
-
-        //Estado
-        validateState(game);
-
+        if (repository.obtenerTodos().stream().anyMatch(g -> g.equals(game.getTittle()))) {
+            errores.add("Ese titulo de juego ya existe");
+        }
 
 
         return errores;
     }
 
-    /**
-     * Valida que el titulo del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateGameTittle(GameForm game) {
-        if(Util.checkCadenaBlankOrEmpty(game.getTittle())){
-            errores.add("El juego debe tener un titulo");
-        }
-        if(game.getTittle().length() > 100){
-            errores.add("El nombre del juego no puede tener mas de 100 caracteres");
-        }
-        if (repository.obtenerTodos().stream().anyMatch(g -> g.equals(game.getTittle()))) {
-            errores.add("Ese titulo de juego ya existe");
-        }
-    }
 
-    /**
-     * Valida que la descripcion del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateDescription(GameForm game) {
-        if (!Util.checkCadenaBlankOrEmpty(game.getDescription()) & game.getDescription().length() > 2000 ) {
-            errores.add("La longitud de la descripcion no puede ser mayor a 2000 caracteres");
-        }
-    }
+    //Validaciones que no dependen del usuario (Reglas de inicializacion)
 
-    /**
-     * Valida que el desarrollador del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateDeveloper(GameForm game) {
-        if(Util.checkCadenaBlankOrEmpty(game.getDeveloper())){
-            errores.add("El juego debe tener un desarrollador");
-        }
-        if(game.getDeveloper().length() < 2 || game.getDeveloper().length() > 100){
-            errores.add("El desarrollador debe tener entre 2 y 100 caracteres");
-        }
-    }
+    //Descuento por defecto 0
+    //Estado por defecto DISPONIBLE
 
-    /**
-     * Valida que la fecha de lanzamiento del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateLunchDate(GameForm game) {
-        //Falta fecha obligatoria
 
-    }
 
-    /**
-     * Valida que el precio base del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateBasePrice(GameForm game) {
-        if(game.getBasePrice() < 0 ||  game.getBasePrice() > 999.99){
-            errores.add("El precio base del juego debe estar entre 0 y 999.99");
-        }
-        var value = BigDecimal.valueOf((game.getBasePrice()));
-        if(value.scale() > 2){
-            errores.add("El precio no puede tener mas de dos decimales");
-        }
-    }
 
-    /**
-     * Valida que el descuento actual del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateCurrentDescount(GameForm game) {
-        if(game.getCurrentDescount() > 0){
-            if(game.getBasePrice() < 0 ||  game.getBasePrice() > 100){
-                errores.add("El descuento debe estar entre 0 y 100");
-            }
-            //Falta comprobar que el descuneto sea entero.
-            if (game.getBasePrice() != 0){
 
-            }
-        }
-    }
 
-    /**
-     * Valida que la clasificacion del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateAgeClasification(GameForm game) {
-        if(Util.checkCadenaBlankOrEmpty(game.getAgeClasification().name())){
-            errores.add("El juego debe llevar una clasificacion por edad");
-        }
-        //Falta comprobar que sea uno de los valores del enum
-    }
+
+
 }
 
 

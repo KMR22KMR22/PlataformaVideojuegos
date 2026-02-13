@@ -11,7 +11,7 @@ import java.util.Optional;
 public class UserRepoInMemory implements IUserRepo {
     private static final List<UserEntity> users = new ArrayList<>();
     private static Long idCounter = 1L;
-    private List<String> countries = new ArrayList<>();
+
 
 
     @Override
@@ -43,13 +43,4 @@ public class UserRepoInMemory implements IUserRepo {
         return users.removeIf(u -> u.getId().equals(id));
     }
 
-    @Override
-    public List<String> getCountries() {
-        return countries;
-    }
-
-    @Override
-    public void addCountry(String country) {
-        countries.add(country);
-    }
 }
