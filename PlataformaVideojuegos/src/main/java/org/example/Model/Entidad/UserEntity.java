@@ -1,6 +1,6 @@
 package org.example.Model.Entidad;
 
-import org.example.Model.DTO.User.CountState;
+import org.example.Model.DTO.User.AccountState;
 
 import java.time.LocalDate;
 
@@ -17,7 +17,7 @@ public class UserEntity {
     private LocalDate registrationDate;
     private String avatar;
     private float portfolioBalance;
-    private CountState accountState;
+    private AccountState accountState;
 
 
 
@@ -56,7 +56,7 @@ public class UserEntity {
         return portfolioBalance;
     }
 
-    public CountState getAccountState() {
+    public AccountState getAccountState() {
         return accountState;
     }
 
@@ -68,54 +68,8 @@ public class UserEntity {
         return avatar;
     }
 
-    //Setters
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setRealName(String realName) {
-        this.realName = realName;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public void setRegistrationDate(LocalDate registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
-    public void setPortfolioBalance(float portfolioBalance) {
-        this.portfolioBalance = portfolioBalance;
-    }
-
-    public void setAccountState(CountState accountState) {
-        this.accountState = accountState;
-    }
-
-    public void setAvatar(String avatar) {
-    }
-
 
     //Constructor
-
 
     public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar) {
         this.id = id;
@@ -128,7 +82,7 @@ public class UserEntity {
         this.registrationDate = LocalDate.now();
         this.avatar = avatar;
         this.portfolioBalance = 0;
-        this.accountState = CountState.ACTIVE;
+        this.accountState = AccountState.ACTIVE;
     }
 }
 

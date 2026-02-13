@@ -13,7 +13,7 @@ public class UserDTO {
     public LocalDate registrationDate;
     public String avatar;
     public float portfolioBalance;
-    public CountState accountState;
+    public AccountState accountState;
 
 
 
@@ -49,7 +49,7 @@ public class UserDTO {
         return portfolioBalance;
     }
 
-    public CountState getAccountState() {
+    public AccountState getAccountState() {
         return accountState;
     }
 
@@ -93,15 +93,14 @@ public class UserDTO {
         this.portfolioBalance = portfolioBalance;
     }
 
-    public void setAccountState(CountState accountState) {
+    public void setAccountState(AccountState accountState) {
         this.accountState = accountState;
     }
 
 
     //Constructor
 
-
-    public UserDTO(Long id, String userName, String email, String realName, String country, LocalDate birthDate, LocalDate registrationDate, float portfolioBalance, CountState accountState) {
+    public UserDTO(Long id, String userName, String email, String realName, String country, LocalDate birthDate, LocalDate registrationDate, String avatar, float portfolioBalance, AccountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;
@@ -109,6 +108,7 @@ public class UserDTO {
         this.country = country;
         this.birthDate = birthDate;
         this.registrationDate = registrationDate;
+        this.avatar = avatar;
         this.portfolioBalance = portfolioBalance;
         this.accountState = accountState;
     }

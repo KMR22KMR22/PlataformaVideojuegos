@@ -1,4 +1,4 @@
-import org.example.Model.DTO.User.CountState;
+import org.example.Model.DTO.User.AccountState;
 import Model.DTO.User.Countries;
 import org.example.Model.DTO.User.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ public class UserDTOControllerTest {
                 LocalDate.of(2005, 3, 15),
                 LocalDate.now(),
                 2500.75f,
-                CountState.ACTIVE
+                AccountState.ACTIVE
         );
     }
 

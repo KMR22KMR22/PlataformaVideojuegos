@@ -2,7 +2,6 @@ package org.example.Model.Form;
 
 import org.example.Controller.Util;
 import org.example.Model.DTO.Game.AgeClasification;
-import org.example.Model.DTO.Game.GameCategory;
 import org.example.Model.DTO.Game.GameState;
 
 import java.math.BigDecimal;
@@ -12,14 +11,14 @@ import java.util.List;
 
 public class GameForm {
 
-    private int id;
+    private Long id;
     private String tittle;
     private String description;
     private String developer;
     private LocalDate launchDate;
     private float basePrice;
     private int currentDescount;
-    private GameCategory category;
+    private String category;
     private AgeClasification ageClasification;
     private List<String> availabeLanguages;
     private GameState State;
@@ -30,7 +29,7 @@ public class GameForm {
     //Getters
 
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -58,7 +57,7 @@ public class GameForm {
         return currentDescount;
     }
 
-    public GameCategory getCategory() {
+    public String getCategory() {
         return category;
     }
 
@@ -78,18 +77,18 @@ public class GameForm {
     //Constructor
 
 
-    public GameForm(int id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, int currentDescount, GameCategory category, AgeClasification ageClasification, List<String> availabeLanguages, GameState state) {
+    public GameForm(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, AgeClasification ageClasification, List<String> availabeLanguages) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
         this.developer = developer;
         this.launchDate = launchDate;
         this.basePrice = basePrice;
-        this.currentDescount = currentDescount;
+        this.currentDescount = 0;
         this.category = category;
         this.ageClasification = ageClasification;
         this.availabeLanguages = availabeLanguages;
-        State = state;
+        State = GameState.DISPONIBLE;
     }
 
 

@@ -1,8 +1,8 @@
 package org.example.Model.Entidad;
 
 import org.example.Model.DTO.Game.AgeClasification;
-import org.example.Model.DTO.Game.GameCategory;
 import org.example.Model.DTO.Game.GameState;
+import org.example.Model.DTO.User.AccountState;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +16,7 @@ public class GameEntity {
     private LocalDate launchDate;
     private float basePrice;
     private int currentDescount;
-    private GameCategory category;
+    private String category;
     private AgeClasification ageClasification;
     private List<String> availabeLanguages;
     private GameState State;
@@ -53,57 +53,37 @@ public class GameEntity {
         return currentDescount;
     }
 
-    public Enum getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public Enum getAgeClasification() {
+    public AgeClasification getAgeClasification() {
         return ageClasification;
     }
 
-    public String[] getAvailabeLanguages() {
+    public List<String> getAvailabeLanguages() {
         return availabeLanguages;
     }
 
-    public Enum getState() {
+    public GameState getState() {
         return State;
-    }
-
-
-    //Setters
-
-
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setAvailabeLanguages(String[] availabeLanguages) {
-        this.availabeLanguages = availabeLanguages;
-    }
-
-    public void setState(GameState state) {
-        State = state;
     }
 
 
     //Constructor
 
 
-    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, int currentDescount, GameCategory category, AgeClasification ageClasification, List<String> availabeLanguages, GameState state) {
+    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, AgeClasification ageClasification, List<String> availabeLanguages) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
         this.developer = developer;
         this.launchDate = launchDate;
         this.basePrice = basePrice;
-        this.currentDescount = currentDescount;
+        this.currentDescount = 0;
         this.category = category;
         this.ageClasification = ageClasification;
         this.availabeLanguages = availabeLanguages;
-        State = state;
+        State = GameState.DISPONIBLE;
     }
 }

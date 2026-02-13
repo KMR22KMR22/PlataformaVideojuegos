@@ -1,6 +1,6 @@
 package org.example.Model.DTO.User;
 
-public enum CountState {
+public enum AccountState {
 
     ACTIVE,
     SUSPENDED,
