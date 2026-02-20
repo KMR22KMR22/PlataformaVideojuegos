@@ -1,9 +1,9 @@
 package org.example.Model.Form;
 
 import org.example.Controller.Util;
+import org.example.Model.Errors.GenericErrors;
+import org.example.Model.Errors.UserErrors;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -68,8 +68,11 @@ public class UserForm {
 
 
     //Validaciones
-
-    public List<String>  validateUser(UserForm user) {
+    /**
+     * Valida que los datos del juego se hayan introducido correctamente
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
+     * */
+    public List<String>  validate() {
 
         List<String> errores = new ArrayList<>();
 
@@ -95,13 +98,6 @@ public class UserForm {
         //Avatar
         errores.addAll(validateAvatar());
 
-        //Saldo de Cartera
-        errores.addAll(validateMoney());
-
-        //Estado de la cuenta
-        errores.addAll(validateAccountState());
-
-
 
         return errores;
 
@@ -115,19 +111,19 @@ public class UserForm {
         List<String> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(userName)) {
-            errores.add("Nombre obligatorio");
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
         if (userName.length() < 3) {
-            errores.add("El nombre de usuario debe tener minimo 3 caracteres");
+            errores.add(GenericErrors.TOO_SHORT.getMessage());
         }
         if (userName.length() > 20) {
-            errores.add("El nombre de usuario debe tener maximo 20 caracteres");
+            errores.add(GenericErrors.TOO_LONG.getMessage());
         }
         if (!userName.matches("^[a-zA-Z0-9_-]+$")){
-            errores.add("Solo se admiten caracteres alfanuméricos, guiones y guiones bajos");
+            errores.add(UserErrors.USERNAME_INVALID_FORMAT.getMessage());
         }
         if (userName.matches("^[0-9].*")) {
-            errores.add("El nombre de usuario no puede empezar por numero");
+            errores.add(UserErrors.USERNAME_STARTS_WITH_NUMBER.getMessage());
         }
 
         return errores;
@@ -141,10 +137,10 @@ public class UserForm {
         List<String> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(email)) {
-            errores.add("Email obligatorio");
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
-        else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            errores.add("Debe ingresar un formato valido de email");
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            errores.add(GenericErrors.INVALID_FORMAT.getMessage());
         }
         return errores;
     }
@@ -157,15 +153,15 @@ public class UserForm {
         List<String> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(password)) {
-            errores.add("Contraseña obligatoria");
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
-        else if (password.length() < 8) {
-            errores.add("La contraseña debe tener minimo 8 caracteres");
+        if (password.length() < 8) {
+            errores.add(GenericErrors.TOO_SHORT.getMessage());
         }
-        else if (!password.matches(".*[A-Z].*") ||
+        if (!password.matches(".*[A-Z].*") ||
                 !password.matches(".*[a-z].*") ||
                 !password.matches(".*[0-9].*")) {
-            errores.add("La contraseña debe contener al menos una mayúscula, una minúscula y un número");
+            errores.add(UserErrors.PASSWORD_WEAK.getMessage());
         }
 
         return errores;
@@ -179,13 +175,13 @@ public class UserForm {
         List<String> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(realName)) {
-            errores.add("Nombre obligatorio");
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
-        else if (realName.length() < 2) {
-            errores.add("El nombre debe tener mas de 2 caracteres");
+        if (realName.length() < 2) {
+            errores.add(GenericErrors.TOO_SHORT.getMessage());
         }
-        else if (realName.length() > 50) {
-            errores.add("El nombre no puede tener mas de 50 caracteres");
+        if (realName.length() > 50) {
+            errores.add(GenericErrors.TOO_LONG.getMessage());
         }
         return errores;
     }
@@ -198,7 +194,7 @@ public class UserForm {
         List<String> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(country)) {
-            errores.add("Pais obligatorio");
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
         return errores;
     }
@@ -211,13 +207,13 @@ public class UserForm {
         List<String> errores = new ArrayList<>();
 
         if(birthDate == null){
-            errores.add("Debe ingresar su fecha de nacimiento");
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
         if(Period.between(birthDate, LocalDate.now()).getYears() < 13){
-            errores.add("Debe tener al menos 13 años");
+            errores.add(UserErrors.BIRTHDATE_UNDERAGE.getMessage());
         }
         if(birthDate.isAfter(LocalDate.now())){
-            errores.add("Fecha de nacimiento incorrecta");
+            errores.add(UserErrors.BIRTHDATE_FUTURE.getMessage());
         }
         return errores;
     }
@@ -234,29 +230,9 @@ public class UserForm {
 
         if (avatar != null){
             if(avatar.length() > 100){
-                errores.add("La longitud del avatar debe ser mas pequeña");
+                errores.add(UserErrors.AVATAR_TOO_LONG.getMessage());
             }
         }
-        return errores;
-    }
-
-    /**
-     * Valida que el saldo de la cartera del usuario se haya introducido correctamente
-     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
-     * */
-    public List<String> validateMoney(){
-        List<String> errores = new ArrayList<>();
-
-        return errores;
-    }
-
-    /**
-     * Valida que el estado de la cuenta del usuario se haya introducido correctamente
-     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
-     * */
-    private List<String> validateAccountState() {
-        List<String> errores = new ArrayList<>();
-
         return errores;
     }
 

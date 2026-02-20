@@ -19,8 +19,6 @@ public class LibraryForm {
     private Date lastPlayed;
     private InstalationState instalationState;
 
-    private List<String> errores = new ArrayList<>();
-
 
     //Getters
 
@@ -72,29 +70,35 @@ public class LibraryForm {
     //Constructor
 
 
-    public LibraryForm(Long id, Long idUser, Long idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
+    public LibraryForm(Long id, Long idUser, Long idGame, LocalDate adquisitionDate, Date lastPlayed) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
         this.adquisitionDate = adquisitionDate;
-        this.timePlaying = timePlaying;
+        this.timePlaying = Duration.ofHours(0);
         this.lastPlayed = lastPlayed;
-        this.instalationState = instalationState;
+        this.instalationState = InstalationState.NO_INSTALADO;
     }
 
 
 
     //Validaciones
 
-    public List<String> validateLibraryForm(LibraryForm library) {
-        errores.clear();
+    /**
+     * Valida que los datos del juego se hayan introducido correctamente
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
+     * */
+    public List<String> validateLibraryForm() {
+        List<String> errores = new ArrayList<>();
 
         //Usuario
-        if(library.getIdGame() == null || library.getIdGame() <= 0){
-            errores.add("Debe tener un juego")
+        if(idGame == null || idGame <= 0){
+            errores.add("Debe tener un juego");
         }
 
         //
+
+        return errores;
     }
 
 }

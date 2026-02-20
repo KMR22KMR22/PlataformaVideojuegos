@@ -69,9 +69,56 @@ public class UserEntity {
     }
 
 
+    //Setters
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public void setPortfolioBalance(float portfolioBalance) {
+        this.portfolioBalance = portfolioBalance;
+    }
+
+    public void setAccountState(AccountState accountState) {
+        this.accountState = accountState;
+    }
+
+
     //Constructor
 
-    public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar) {
+    public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar, float portfolioBalance, AccountState accountState) {
         this.id = id;
         this.userName = userName;
         this.email = email;
@@ -81,8 +128,8 @@ public class UserEntity {
         this.birthDate = birthDate;
         this.registrationDate = LocalDate.now();
         this.avatar = avatar;
-        this.portfolioBalance = 0;
-        this.accountState = AccountState.ACTIVE;
+        this.portfolioBalance = portfolioBalance;
+        this.accountState = accountState;
     }
 }
 

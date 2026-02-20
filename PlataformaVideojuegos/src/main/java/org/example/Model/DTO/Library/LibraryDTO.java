@@ -54,6 +54,8 @@ public class LibraryDTO {
 
     public Long getIdGame() {return idGame;}
 
+
+
     //Setters
 
 
@@ -73,10 +75,12 @@ public class LibraryDTO {
     //Constructor
 
 
-    public LibraryDTO(Long id, UserDTO User, GameDTO Game, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
+    public LibraryDTO(Long id, Long idUser, UserDTO user, Long idGame, GameDTO game, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
         this.id = id;
-        this.User = User;
-        this.Game = Game;
+        this.idUser = idUser;
+        User = user;
+        this.idGame = idGame;
+        Game = game;
         this.adquisitionDate = adquisitionDate;
         this.timePlaying = timePlaying;
         this.lastPlayed = lastPlayed;

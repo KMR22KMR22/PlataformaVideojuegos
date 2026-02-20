@@ -3,6 +3,8 @@ package org.example.Model.Form;
 import org.example.Controller.Util;
 import org.example.Model.DTO.Game.AgeClasification;
 import org.example.Model.DTO.Game.GameState;
+import org.example.Model.Errors.GameErrors;
+import org.example.Model.Errors.GenericErrors;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,8 +24,6 @@ public class GameForm {
     private AgeClasification ageClasification;
     private List<String> availabeLanguages;
     private GameState State;
-
-    private List<String> errores = new ArrayList<>();
 
 
     //Getters
@@ -93,38 +93,35 @@ public class GameForm {
 
 
     //Validaciones
-    public List<String>  validateGame(GameForm game) {
+    /**
+     * Valida que los datos del juego se hayan introducido correctamente
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
+     * */
+    public List<String>  validateGame() {
 
-        errores.clear();
+        List<String> errores = new ArrayList<>();
 
 
         //Titulo Game
-        validateGameTittle(game);
+        errores.addAll(validateGameTittle());
 
         //Descripcion Game (opcional)
-        validateDescription(game);
+        errores.addAll(validateDescription());
 
         //Desarrollador
-        validateDeveloper(game);
+        errores.addAll(validateDeveloper());
 
         //Fecha de lanzamiento
-        validateLunchDate(game);
+        errores.addAll(validateLunchDate());
 
         //Pais
-        validateBasePrice(game);
-
-        //Descuento actual
-        validateCurrentDescount(game);
+        errores.addAll(validateBasePrice());
 
         //Clasificacion de edad
-        validateAgeClasification(game);
+        errores.addAll(validateAgeClasification());
 
         //Idiomas
-        validateLanguages(game);
-
-        //Estado
-        validateState(game);
-
+        errores.addAll(validateLanguages());
 
 
         return errores;
@@ -133,104 +130,111 @@ public class GameForm {
 
     /**
      * Valida que el titulo del juego se haya introducido correctamente
-     * @param game
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private void validateGameTittle(GameForm game) {
-        if(Util.checkCadenaBlankOrEmpty(game.getTittle())){
-            errores.add("El juego debe tener un titulo");
-        }
-        if(game.getTittle().length() > 100){
-            errores.add("El nombre del juego no puede tener mas de 100 caracteres");
-        }
+    private List<String> validateGameTittle() {
+        List<String> errores = new ArrayList<>();
 
+        if(Util.checkCadenaBlankOrEmpty(tittle)){
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+        }
+        if(tittle.length() > 100){
+            errores.add(GenericErrors.TOO_LONG.getMessage());
+        }
+        return errores;
     }
 
     /**
      * Valida que la descripcion del juego se haya introducido correctamente
-     * @param game
+     *  @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private void validateDescription(GameForm game) {
-        if (!Util.checkCadenaBlankOrEmpty(game.getDescription())){
-            if(game.getDescription().length() > 2000 ){
-                errores.add("La longitud de la descripcion no puede ser mayor a 2000 caracteres");
+    private List<String> validateDescription() {
+        List<String> errores = new ArrayList<>();
+
+        if (!Util.checkCadenaBlankOrEmpty(description)){
+            if(description.length() > 2000 ){
+                errores.add(GenericErrors.TOO_LONG.getMessage());
             }
         }
+        return errores;
     }
 
     /**
      * Valida que el desarrollador del juego se haya introducido correctamente
-     * @param game
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private void validateDeveloper(GameForm game) {
-        if(Util.checkCadenaBlankOrEmpty(game.getDeveloper())){
-            errores.add("El juego debe tener un desarrollador");
+    private List<String> validateDeveloper() {
+        List<String> errores = new ArrayList<>();
+
+        if(Util.checkCadenaBlankOrEmpty(developer)){
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
-        if(game.getDeveloper().length() < 2 || game.getDeveloper().length() > 100){
-            errores.add("El desarrollador debe tener entre 2 y 100 caracteres");
+        if(developer.length() < 2){
+            errores.add(GenericErrors.TOO_SHORT.getMessage());
         }
+        if(developer.length() > 100){
+            errores.add(GenericErrors.TOO_LONG.getMessage());
+        }
+        return errores;
     }
 
     /**
      * Valida que la fecha de lanzamiento del juego se haya introducido correctamente
-     * @param game
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private void validateLunchDate(GameForm game) {
-        if(game.getLaunchDate() == null){
-            errores.add("Debe ingresar la fecha de lanzamiento");
-        }
-        if(game.getLaunchDate().isBefore(LocalDate.now())){
-            errores.add("No puede ingresar una fecha pasada");
-        }
+    private List<String> validateLunchDate() {
+        List<String> errores = new ArrayList<>();
 
+        if(launchDate == null){
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+        }
+        if(launchDate.isBefore(LocalDate.now())){
+            errores.add(GameErrors.LAUNCH_DATE_PAST.getMessage());
+        }
+        return errores;
     }
 
     /**
      * Valida que el precio base del juego se haya introducido correctamente
-     * @param game
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private void validateBasePrice(GameForm game) {
-        if(game.getBasePrice() < 0 ||  game.getBasePrice() > 999.99){
-            errores.add("El precio base del juego debe estar entre 0 y 999.99");
+    private List<String> validateBasePrice() {
+        List<String> errores = new ArrayList<>();
+
+        if(basePrice < 0 ||  basePrice > 999.99){
+            errores.add(GameErrors.BASE_PRICE_INVALID.getMessage());
         }
-        var value = BigDecimal.valueOf((game.getBasePrice()));
+        var value = BigDecimal.valueOf((basePrice));
         if(value.scale() > 2){
-            errores.add("El precio no puede tener mas de dos decimales");
+            errores.add(GameErrors.BASE_PRICE_DECIMALS.getMessage());
         }
-    }
-
-    /**
-     * Valida que el descuento actual del juego se haya introducido correctamente
-     * @param game
-     * */
-    private void validateCurrentDescount(GameForm game) {
-        if(game.getCurrentDescount() > 0){
-            if(game.getBasePrice() < 0 ||  game.getBasePrice() > 100){
-                errores.add("El descuento debe estar entre 0 y 100");
-            }
-            //Falta comprobar que el descuneto sea entero.
-
-        }
+        return errores;
     }
 
     /**
      * Valida que la clasificacion del juego se haya introducido correctamente
-     * @param game
+     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private void validateAgeClasification(GameForm game) {
-        if(Util.checkCadenaBlankOrEmpty(game.getAgeClasification().name())){
-            errores.add("El juego debe llevar una clasificacion por edad");
+    private List<String> validateAgeClasification() {
+        List<String> errores = new ArrayList<>();
+
+        if(Util.checkCadenaBlankOrEmpty(ageClasification.name())){
+            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
-        //Falta comprobar que sea uno de los valores del enum
+        return errores;
     }
 
     /**
      * Valida que los idiomas del juego se haya introducido correctamente
-     * @param game
+     * @return Lista de errores
      * */
-    private void validateLanguages(GameForm game) {
+    private List<String> validateLanguages() {
+        List<String> errores = new ArrayList<>();
+
         //Si el array no es null en la posicion cero es que el usuario le puso idiomas al juego, y si no es que esta vacio
-        if(game.getAvailabeLanguages().getFirst() != null){
-            if(game.getAvailabeLanguages().stream().filter(l -> l)) {}
+        if(availabeLanguages.getFirst() != null){
+            if(availabeLanguages.) {}
         }
+        return errores;
     }
 }

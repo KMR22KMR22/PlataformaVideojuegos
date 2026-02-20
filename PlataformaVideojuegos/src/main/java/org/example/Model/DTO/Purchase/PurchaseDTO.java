@@ -1,12 +1,17 @@
 package org.example.Model.DTO.Purchase;
 
+import org.example.Model.DTO.Game.GameDTO;
+import org.example.Model.DTO.User.UserDTO;
+
 import java.time.LocalDate;
 
 public class PurchaseDTO {
 
     private Long id;
-    private int idUser;
-    private int idGame;
+    private Long idUser;
+    private UserDTO user;
+    private Long idGame;
+    private GameDTO game;
     private LocalDate purchaseDate;
     private PaymentMethods paymentMethod;
     private float priceWithoutDiscount;
@@ -21,11 +26,11 @@ public class PurchaseDTO {
         return id;
     }
 
-    public int getIdUser() {
+    public Long getIdUser() {
         return idUser;
     }
 
-    public int getIdGame() {
+    public Long getIdGame() {
         return idGame;
     }
 
@@ -53,7 +58,7 @@ public class PurchaseDTO {
     //Constructor
 
 
-    public PurchaseDTO(Long id, int idUser, int idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
+    public PurchaseDTO(Long id, Long idUser, Long idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

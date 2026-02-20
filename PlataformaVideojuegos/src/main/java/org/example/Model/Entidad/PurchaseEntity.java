@@ -56,14 +56,14 @@ public class PurchaseEntity {
     //Constructor
 
 
-    public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, Integer discountApplicated, PurchaseState satate) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, PaymentMethods paymentMethod, float priceWithoutDiscount, Integer discountApplicated) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
-        this.purchaseDate = purchaseDate;
+        this.purchaseDate = LocalDate.now();
         this.paymentMethod = paymentMethod;
         this.priceWithoutDiscount = priceWithoutDiscount;
         this.discountApplicated = discountApplicated;
-        this.satate = satate;
+        this.satate = PurchaseState.PENDIENTE;
     }
 }
