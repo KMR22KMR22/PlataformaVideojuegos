@@ -1,4 +1,5 @@
 package org.example.Controller;
+import org.example.Exeptions.GenericExeption;
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Errors.GenericErrors;
@@ -7,7 +8,6 @@ import org.example.Model.Form.UserForm;
 import org.example.Repository.InMemory.CountryRepoInMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
 
-import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,30 +20,25 @@ public class UserController {
 
 
     /**Crea un nuevo usuario
-     * @param user
+     * @param userForm
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> registerNewUser(UserForm user) {
+    public List<String> registerNewUser(UserForm userForm) {
 
         List<String> errores = new ArrayList<>();
 
         //LLamo al validate del formulario y guardo la lista de errores
-        errores.addAll(user.validate());
+        errores.addAll(userForm.validate());
         //LLamo al validate del controlador y guardo la lista de errores
-        errores.addAll(validate(user));
+        errores.addAll(validate(userForm));
 
         //Si no se detectaron errores en el formulario se llamo a la funcion de cear nueva UserEntity que esta en el repositorio
         if (errores.isEmpty()) {
-            userRepository.crear(user);
+            userRepository.crear(userForm);
         }
 
         return errores;
     }
-
-
-
-
-
 
 
 
@@ -53,25 +48,13 @@ public class UserController {
      * */
     public List<String> viewProfileByID(Long id){
 
-        List<String> autput = new ArrayList<>();
+        //Aqui busco al usuario y lo guardo si lo encuentra, si no se encuentra habra un null, por lo qeu voy a devolver una exepcion
+        UserEntity user = userRepository.obtenerPorId(id).orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
 
-        //Aqui busco al usuario y lo guardo como optional ya que si no lo encuentra me dara un null
-        Optional<UserEntity> user = userRepository.obtenerPorId(id);
-
-
-        //El isPresent es para comprobar si un optional tiene algun valor dentro
-        //Para acceder al valor que esta dentro del optional hay que usar un get, y luego ya uso los getters normales para otener cada atributo que necesito mostrar del usuario
-        if(user.isPresent()){
-            autput.add(user.get().getUserName());
-            autput.add(user.get().getAvatar());
-            autput.add(user.get().getCountry());
-            autput.add(user.get().getRegistrationDate().toString());
-            autput.add(user.get().getUserName());
-        }else {
-            autput.add(GenericErrors.NOT_FOUND.getMessage());
-        }
-        return autput;
+        //Me falta mostrar biblioteca y estadisticas de juego
+        return List.of(user.getUserName(), user.getAvatar(), user.getCountry(), user.getRegistrationDate().toString());
     }
+
 
     /**Muestra la informacion de un usuario especifico
      * @param userName
@@ -79,20 +62,11 @@ public class UserController {
      * */
     public List<String> viewProfileByUserName(String userName){
 
-        List<String> autput = new ArrayList<>();
-
         Optional<UserEntity> user = userRepository.obtenerTodos().stream().filter(u->u.getUserName().equals(userName)).findFirst();
 
-        if(user.isPresent()){
-            autput.add(user.get().getUserName());
-            autput.add(user.get().getAvatar());
-            autput.add(user.get().getCountry());
-            autput.add(user.get().getRegistrationDate().toString());
-            autput.add(user.get().getUserName());
-        }else {
-            autput.add(GenericErrors.NOT_FOUND.getMessage());
-        }
-        return autput;
+        UserEntity userOpt = user.orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
+
+        return List.of(userOpt.getUserName(), userOpt.getAvatar(), userOpt.getCountry(), userOpt.getRegistrationDate().toString());
     }
 
 
@@ -102,40 +76,37 @@ public class UserController {
      * @param id, cantidad
      * @return Nuevo saldo de la cartera o mensaje de error
      * */
-    public String addBalanceToWallet(Long id, Optional<Float> money){
+    public float addBalanceToWallet(Long id, Optional<Float> money){
+        UserEntity user;
 
         try {
-            UserEntity user = userRepository.actualizarMoney(id, money);
-            return "Su nuevo saldo es: " + user.getPortfolioBalance();
-        }catch (IllegalArgumentException e){
-            return e.getMessage();
+          user  = userRepository.updatePortafolioBalance(id,  money);
+        }catch (Exception e){
+            throw e;
         }
+
+        return user.getPortfolioBalance();
+    }
+
+
+    /**Comprueba dinero en la cartera virtual de Steam del usuario
+     * @param id
+     * @return Saldo actual de la cartera
+     * */
+    public float showBalanceFromWallet(Long id){
+
+        UserEntity user = userRepository.obtenerPorId(id).orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
+        return user.getPortfolioBalance();
     }
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //Validaciones que dependen del usuario, pero requieren acceso a datos
+    /**Realiza las validaciones del UserForm que necesitan acceso a datos
+     * @param user
+     * @return Lista con errores en caso de haber
+     * */
     public List<String>  validate(UserForm user) {
 
         List<String> errores = new ArrayList<>();
@@ -152,43 +123,6 @@ public class UserController {
         if (countryRepository.getCountries().stream().noneMatch(c -> c.equals(user.getCountry()))) {
             errores.add(GenericErrors.NOT_EXISTS.getMessage());
         }
-
         return errores;
-
     }
-
-    //Validaciones para modificaiones del usuario
-
-    public List<String> validateUserUpdate(UserEntity user) {
-        List<String> errores = new ArrayList<>();
-
-        //Valida que el saldo de la cuenta del usuario sea positivo o cero
-        if(user.getPortfolioBalance() < 0){
-            errores.add(UserErrors.MONEY_BELOW_CERO.getMessage());
-        }
-        //Falta comprobar que el saldo tenga maximo 2 decimales
-
-        //El estado de la cuenta debe ser uno entre los valores del enum
-        if(Arrays.stream(AccountState.values()).noneMatch(s -> s.equals(user.getAccountState()) )) {
-            errores.add(GenericErrors.NOT_EXISTS.getMessage());
-        }
-
-        return errores;
-
-    }
-
-    //Validaciones que no dependen del usuario (Reglas de inicializacion)
-
-    //Fecha de registro automatica
-    //Saldo valor por defecto 0 y maximo 2 decimales
-    //Estado de la cuenta por defecto activa
-
-
-
-
-
-
-
-
-
 }

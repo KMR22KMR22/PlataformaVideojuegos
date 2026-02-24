@@ -1,7 +1,7 @@
 package org.example.Model.Form;
 
 import org.example.Controller.Util;
-import org.example.Model.DTO.Game.AgeClasification;
+import org.example.Model.DTO.Game.GameAgeClasification;
 import org.example.Model.DTO.Game.GameState;
 import org.example.Model.Errors.GameErrors;
 import org.example.Model.Errors.GenericErrors;
@@ -21,7 +21,7 @@ public class GameForm {
     private float basePrice;
     private int currentDescount;
     private String category;
-    private AgeClasification ageClasification;
+    private GameAgeClasification gameAgeClasification;
     private List<String> availabeLanguages;
     private GameState State;
 
@@ -61,8 +61,8 @@ public class GameForm {
         return category;
     }
 
-    public AgeClasification getAgeClasification() {
-        return ageClasification;
+    public GameAgeClasification getAgeClasification() {
+        return gameAgeClasification;
     }
 
     public List<String> getAvailabeLanguages() {
@@ -77,7 +77,7 @@ public class GameForm {
     //Constructor
 
 
-    public GameForm(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, AgeClasification ageClasification, List<String> availabeLanguages) {
+    public GameForm(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
@@ -86,7 +86,7 @@ public class GameForm {
         this.basePrice = basePrice;
         this.currentDescount = 0;
         this.category = category;
-        this.ageClasification = ageClasification;
+        this.gameAgeClasification = gameAgeClasification;
         this.availabeLanguages = availabeLanguages;
         State = GameState.DISPONIBLE;
     }
@@ -97,7 +97,7 @@ public class GameForm {
      * Valida que los datos del juego se hayan introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String>  validateGame() {
+    public List<String> validate() {
 
         List<String> errores = new ArrayList<>();
 
@@ -218,7 +218,7 @@ public class GameForm {
     private List<String> validateAgeClasification() {
         List<String> errores = new ArrayList<>();
 
-        if(Util.checkCadenaBlankOrEmpty(ageClasification.name())){
+        if(Util.checkCadenaBlankOrEmpty(gameAgeClasification.name())){
             errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
         }
         return errores;

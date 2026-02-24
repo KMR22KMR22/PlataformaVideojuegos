@@ -30,11 +30,6 @@ public class GameRepoInMemory implements IGameRepo {
     }
 
     @Override
-    public Optional<GameEntity> actualizar(Long aLong, GameForm dto) {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean eliminar(Long aLong) {
         return false;
     }

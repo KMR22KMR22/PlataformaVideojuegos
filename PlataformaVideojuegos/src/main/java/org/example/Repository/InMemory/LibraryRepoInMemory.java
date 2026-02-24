@@ -30,11 +30,6 @@ public class LibraryRepoInMemory implements ILibraryRepo<LibraryEntity, LibraryF
     }
 
     @Override
-    public Optional<LibraryEntity> actualizar(Long aLong, LibraryForm dto) {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean eliminar(Long aLong) {
         return false;
     }

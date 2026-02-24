@@ -1,8 +1,7 @@
 package org.example.Model.Entidad;
 
-import org.example.Model.DTO.Game.AgeClasification;
+import org.example.Model.DTO.Game.GameAgeClasification;
 import org.example.Model.DTO.Game.GameState;
-import org.example.Model.DTO.User.AccountState;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,7 +16,7 @@ public class GameEntity {
     private float basePrice;
     private int currentDescount;
     private String category;
-    private AgeClasification ageClasification;
+    private GameAgeClasification gameAgeClasification;
     private List<String> availabeLanguages;
     private GameState State;
 
@@ -57,8 +56,8 @@ public class GameEntity {
         return category;
     }
 
-    public AgeClasification getAgeClasification() {
-        return ageClasification;
+    public GameAgeClasification getAgeClasification() {
+        return gameAgeClasification;
     }
 
     public List<String> getAvailabeLanguages() {
@@ -73,7 +72,7 @@ public class GameEntity {
     //Constructor
 
 
-    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, AgeClasification ageClasification, List<String> availabeLanguages) {
+    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
@@ -82,7 +81,7 @@ public class GameEntity {
         this.basePrice = basePrice;
         this.currentDescount = 0;
         this.category = category;
-        this.ageClasification = ageClasification;
+        this.gameAgeClasification = gameAgeClasification;
         this.availabeLanguages = availabeLanguages;
         State = GameState.DISPONIBLE;
     }

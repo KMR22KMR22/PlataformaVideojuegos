@@ -30,10 +30,7 @@ public class PurchaseRepoMemory implements IPurchaseRepo {
     public List<PurchaseEntity> obtenerTodos() {return new ArrayList<>(purchases);
     }
 
-    @Override
-    public Optional<PurchaseEntity> actualizar(Long aLong, PurchaseForm dto) {
-        return Optional.empty();
-    }
+
 
     @Override
     public boolean eliminar(Long aLong) {

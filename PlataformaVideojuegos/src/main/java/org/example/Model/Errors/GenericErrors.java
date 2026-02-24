@@ -13,7 +13,11 @@ public enum GenericErrors {
 
 
     //Errores de Busqueda
-    NOT_FOUND("No encontrado");
+    NOT_FOUND("No encontrado"),
+    NO_PARAMETERS("No se ha ingresado ningun parametro de busqueda"),
+
+    //Error de null
+    NOT_VALUE("No se ingreso ningún valor");
 
 
     private final String message;

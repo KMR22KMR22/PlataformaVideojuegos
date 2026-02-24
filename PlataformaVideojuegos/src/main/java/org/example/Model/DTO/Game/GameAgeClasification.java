@@ -1,6 +1,6 @@
 package org.example.Model.DTO.Game;
 
-public enum AgeClasification {
+public enum GameAgeClasification {
 
     PEGI_3,
     PEGI_7,

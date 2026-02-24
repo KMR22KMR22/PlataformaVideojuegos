@@ -6,14 +6,14 @@ import java.util.List;
 public class GameDTO {
 
     private Long id;
-    private String tittle;
+    private String title;
     private String description;
     private String developer;
     private LocalDate launchDate;
     private float basePrice;
     private int currentDescount;
     private String category;
-    private AgeClasification ageClasification;
+    private GameAgeClasification gameAgeClasification;
     private List<String> availabeLanguages;
     private GameState State;
 
@@ -25,8 +25,8 @@ public class GameDTO {
         return id;
     }
 
-    public String getTittle() {
-        return tittle;
+    public String getTitle() {
+        return title;
     }
 
     public String getDescription() {
@@ -53,8 +53,8 @@ public class GameDTO {
         return category;
     }
 
-    public AgeClasification getAgeClasification() {
-        return ageClasification;
+    public GameAgeClasification getAgeClasification() {
+        return gameAgeClasification;
     }
 
     public List<String> getAvailabeLanguages() {
@@ -69,8 +69,8 @@ public class GameDTO {
     //Setters
 
 
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setDescription(String description) {
@@ -89,16 +89,16 @@ public class GameDTO {
     //Constructor
 
 
-    public GameDTO(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, int currentDescount, String category, AgeClasification ageClasification, List<String> availabeLanguages, GameState state) {
+    public GameDTO(Long id, String title, String description, String developer, LocalDate launchDate, float basePrice, int currentDescount, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages, GameState state) {
         this.id = id;
-        this.tittle = tittle;
+        this.title = title;
         this.description = description;
         this.developer = developer;
         this.launchDate = launchDate;
         this.basePrice = basePrice;
         this.currentDescount = currentDescount;
         this.category = category;
-        this.ageClasification = ageClasification;
+        this.gameAgeClasification = gameAgeClasification;
         this.availabeLanguages = availabeLanguages;
         State = state;
     }

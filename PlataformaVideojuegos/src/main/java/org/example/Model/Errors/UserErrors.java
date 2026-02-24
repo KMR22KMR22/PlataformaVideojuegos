@@ -21,7 +21,9 @@ public enum UserErrors {
 
     //Account State
     ACCOUNT_NOT_ACTIVE("La cuenta no esta activa"),
-    IMMPORT_NOT_VALID("El importe debe ser entre 5 y 500");
+
+    //Money added
+    INVALID_IMMPORT("El importe debe ser entre 5 y 500");
 
 
     private final String message;

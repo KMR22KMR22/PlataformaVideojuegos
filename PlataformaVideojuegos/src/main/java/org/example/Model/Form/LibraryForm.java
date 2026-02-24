@@ -88,7 +88,7 @@ public class LibraryForm {
      * Valida que los datos del juego se hayan introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateLibraryForm() {
+    public List<String> validate() {
         List<String> errores = new ArrayList<>();
 
         //Usuario

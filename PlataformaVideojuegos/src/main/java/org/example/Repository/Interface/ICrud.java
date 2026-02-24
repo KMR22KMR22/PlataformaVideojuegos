@@ -31,13 +31,6 @@ import java.util.Optional;
          */
         List<E> obtenerTodos();
 
-        /**
-         * Actualiza una entidad existente a partir de su identificador y un DTO.
-         * @param id Identificador de la entidad a actualizar.
-         * @param dto Objeto de transferencia de datos con la información actualizada.
-         * @return La entidad actualizada.
-         */
-        Optional<E> actualizar(ID id, F dto);
 
         /**
          * Elimina una entidad por su identificador único.

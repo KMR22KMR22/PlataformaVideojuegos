@@ -30,11 +30,6 @@ public class ReviewRepoInMemory implements IReviewRepo {
     }
 
     @Override
-    public Optional<ReviewEntity> actualizar(Long aLong, ReviewForm dto) {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean eliminar(Long aLong) {
         return false;
     }
