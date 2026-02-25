@@ -106,6 +106,38 @@ public class GameController {
     }
 
 
+    /**Establece un porcentaje de descuento temporal a un juego
+     * @param id id del juego a buscar
+     * @param percent porciento a descontar del precio del juego (opcional)
+     * @return Precio con el descuento aplicado
+     * */
+    public GameEntity applayDiscount(Long id, Optional<Integer> percent){
+        GameEntity game;
+        try{
+            game = gameRepo.update(id, null, percent);
+        }catch (GenericExeption e){
+            throw e;
+        }
+        return game;
+    }
+
+
+    /** Modifica el estado de disponibilidad de un juego
+     * @param id id del juego a buscar
+     * @param newState nuevo estado al que se va a cambiar el juego (opcional)
+     * @return Confirmación del cambio de estado o mensaje de error
+     * */
+    public GameEntity changeGameState(Long id, Optional<GameState> newState){
+        GameEntity game;
+        try{
+            game = gameRepo.update(id, newState, null);
+        }catch (GenericExeption e){
+            throw e;
+        }
+        return game;
+    }
+
+
 
     /**Muestra toda la información completa de un juego específico
      * @param id id del juego a buscar
@@ -114,7 +146,7 @@ public class GameController {
     public GameEntity consultGameDetails(Long id){
         GameEntity game = gameRepo.obtenerPorId(id).orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
 
-        return
+        return //Aqui me falta sacar las estadisticas y las reseñas destacadas
     }
 
 

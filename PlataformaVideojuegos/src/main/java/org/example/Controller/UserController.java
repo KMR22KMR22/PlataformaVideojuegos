@@ -1,15 +1,12 @@
 package org.example.Controller;
 import org.example.Exeptions.GenericExeption;
-import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Errors.GenericErrors;
-import org.example.Model.Errors.UserErrors;
 import org.example.Model.Form.UserForm;
 import org.example.Repository.InMemory.CountryRepoInMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +17,7 @@ public class UserController {
 
 
     /**Crea un nuevo usuario
-     * @param userForm
+     * @param userForm Formulario con los datos introducidos por el usuario
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
     public List<String> registerNewUser(UserForm userForm) {
@@ -43,7 +40,7 @@ public class UserController {
 
 
     /**Muestra la informacion de un usuario especifico
-     * @param id
+     * @param id id del usuario
      * @return Lista con los datos del usuario, o con el mensaje de usuario no encontrado
      * */
     public List<String> viewProfileByID(Long id){
@@ -57,7 +54,7 @@ public class UserController {
 
 
     /**Muestra la informacion de un usuario especifico
-     * @param userName
+     * @param userName Nombre del usuairio
      * @return Lista con los datos del usuario, o con el mensaje de usuario no encontrado
      * */
     public List<String> viewProfileByUserName(String userName){
@@ -80,7 +77,7 @@ public class UserController {
         UserEntity user;
 
         try {
-          user  = userRepository.updatePortafolioBalance(id,  money);
+          user  = userRepository.update(id,  money);
         }catch (Exception e){
             throw e;
         }
@@ -90,7 +87,7 @@ public class UserController {
 
 
     /**Comprueba dinero en la cartera virtual de Steam del usuario
-     * @param id
+     * @param id id del usuaio
      * @return Saldo actual de la cartera
      * */
     public float showBalanceFromWallet(Long id){
@@ -104,7 +101,7 @@ public class UserController {
 
     //Validaciones que dependen del usuario, pero requieren acceso a datos
     /**Realiza las validaciones del UserForm que necesitan acceso a datos
-     * @param user
+     * @param user Formulario con los datos introducidos por el usuario
      * @return Lista con errores en caso de haber
      * */
     public List<String>  validate(UserForm user) {

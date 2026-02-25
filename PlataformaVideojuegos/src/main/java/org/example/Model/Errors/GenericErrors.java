@@ -17,7 +17,10 @@ public enum GenericErrors {
     NO_PARAMETERS("No se ha ingresado ningun parametro de busqueda"),
 
     //Error de null
-    NOT_VALUE("No se ingreso ningún valor");
+    NOT_VALUE("No se ingreso ningún valor"),
+
+    //Rango de valores
+    INVALID_RANGE("Rango incorrecto");
 
 
     private final String message;

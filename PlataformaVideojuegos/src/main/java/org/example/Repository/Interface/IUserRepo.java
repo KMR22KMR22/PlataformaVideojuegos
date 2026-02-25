@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface IUserRepo extends ICrud<UserEntity, UserForm, Long> {
 
-    UserEntity updatePortafolioBalance(Long id, Optional<Float> money);
+    UserEntity update(Long id, Optional<Float> money);
 }

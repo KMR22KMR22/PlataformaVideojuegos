@@ -38,7 +38,7 @@ public class UserRepoInMemory implements IUserRepo {
     }
 
     @Override
-    public UserEntity updatePortafolioBalance(Long id, Optional<Float> money) {
+    public UserEntity update(Long id, Optional<Float> money) {
         UserEntity userOpt = obtenerPorId(id).orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
 
         //Compruebo de la cuenta de el usuario que se encontro este activa

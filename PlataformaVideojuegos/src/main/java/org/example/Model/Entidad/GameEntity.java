@@ -20,6 +20,22 @@ public class GameEntity {
     private List<String> availabeLanguages;
     private GameState State;
 
+    //Constructor para actualizar
+    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, GameAgeClasification ageClasification, List<String> availabeLanguages, int currentDescount, GameState newState) {
+        this.id = id;
+        this.tittle = tittle;
+        this.description = description;
+        this.developer = developer;
+        this.launchDate = launchDate;
+        this.basePrice = basePrice;
+        this.currentDescount = currentDescount;
+        this.category = category;
+        this.gameAgeClasification = ageClasification;
+        this.availabeLanguages = availabeLanguages;
+        this.State = newState;
+
+    }
+
 
     //Getters
 
