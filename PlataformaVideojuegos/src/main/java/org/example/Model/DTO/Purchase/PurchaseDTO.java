@@ -58,10 +58,12 @@ public class PurchaseDTO {
     //Constructor
 
 
-    public PurchaseDTO(Long id, Long idUser, Long idGame, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
+    public PurchaseDTO(Long id, Long idUser, UserDTO user, Long idGame, GameDTO game, LocalDate purchaseDate, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
         this.id = id;
         this.idUser = idUser;
+        this.user = user;
         this.idGame = idGame;
+        this.game = game;
         this.purchaseDate = purchaseDate;
         this.paymentMethod = paymentMethod;
         this.priceWithoutDiscount = priceWithoutDiscount;

@@ -13,7 +13,7 @@ public class PurchaseEntity {
     private LocalDate purchaseDate;
     private PaymentMethods paymentMethod;
     private float priceWithoutDiscount;
-    private Integer discountApplicated;
+    private float discountApplicated;
     private PurchaseState satate;
 
 
@@ -44,7 +44,7 @@ public class PurchaseEntity {
         return priceWithoutDiscount;
     }
 
-    public Integer getDiscountApplicated() {
+    public float getDiscountApplicated() {
         return discountApplicated;
     }
 
@@ -56,7 +56,7 @@ public class PurchaseEntity {
     //Constructor
 
 
-    public PurchaseEntity(Long id, Long idUser, Long idGame, PaymentMethods paymentMethod, float priceWithoutDiscount, Integer discountApplicated) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

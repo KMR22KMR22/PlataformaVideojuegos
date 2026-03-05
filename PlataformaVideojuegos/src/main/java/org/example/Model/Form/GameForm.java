@@ -3,8 +3,8 @@ package org.example.Model.Form;
 import org.example.Controller.Util;
 import org.example.Model.DTO.Game.GameAgeClasification;
 import org.example.Model.DTO.Game.GameState;
-import org.example.Model.Errors.GameErrors;
-import org.example.Model.Errors.GenericErrors;
+import org.example.Model.Form.Errors.ErrorDto;
+import org.example.Model.Form.Errors.ErrorType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -97,9 +97,9 @@ public class GameForm {
      * Valida que los datos del juego se hayan introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validate() {
+    public List<ErrorDto> validate() {
 
-        List<String> errores = new ArrayList<>();
+        List<ErrorDto> errores = new ArrayList<>();
 
 
         //Titulo Game
@@ -132,14 +132,14 @@ public class GameForm {
      * Valida que el titulo del juego se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private List<String> validateGameTittle() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateGameTittle() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if(Util.checkCadenaBlankOrEmpty(tittle)){
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("Tittle", ErrorType.REQUERIDO));
         }
         if(tittle.length() > 100){
-            errores.add(GenericErrors.TOO_LONG.getMessage());
+            errores.add(new ErrorDto("Tittle", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
     }
@@ -148,12 +148,12 @@ public class GameForm {
      * Valida que la descripcion del juego se haya introducido correctamente
      *  @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private List<String> validateDescription() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateDescription() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (!Util.checkCadenaBlankOrEmpty(description)){
             if(description.length() > 2000 ){
-                errores.add(GenericErrors.TOO_LONG.getMessage());
+                errores.add(new ErrorDto("Description", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }
         return errores;
@@ -163,17 +163,17 @@ public class GameForm {
      * Valida que el desarrollador del juego se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private List<String> validateDeveloper() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateDeveloper() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if(Util.checkCadenaBlankOrEmpty(developer)){
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("Developer", ErrorType.REQUERIDO));
         }
         if(developer.length() < 2){
-            errores.add(GenericErrors.TOO_SHORT.getMessage());
+            errores.add(new ErrorDto("Developer", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if(developer.length() > 100){
-            errores.add(GenericErrors.TOO_LONG.getMessage());
+            errores.add(new ErrorDto("Developer", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
     }
@@ -182,14 +182,14 @@ public class GameForm {
      * Valida que la fecha de lanzamiento del juego se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private List<String> validateLunchDate() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateLunchDate() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if(launchDate == null){
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("LaunchDate", ErrorType.REQUERIDO));
         }
         if(launchDate.isBefore(LocalDate.now())){
-            errores.add(GameErrors.LAUNCH_DATE_PAST.getMessage());
+            errores.add(new ErrorDto("LaunchDate", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         return errores;
     }
@@ -198,15 +198,19 @@ public class GameForm {
      * Valida que el precio base del juego se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private List<String> validateBasePrice() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateBasePrice() {
+        List<ErrorDto> errores = new ArrayList<>();
 
-        if(basePrice < 0 ||  basePrice > 999.99){
-            errores.add(GameErrors.BASE_PRICE_INVALID.getMessage());
+        if(basePrice < 0){
+            errores.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_BAJO));
+        }
+        if(basePrice > 999.99){
+            errores.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_ALTO));
+
         }
         var value = BigDecimal.valueOf((basePrice));
         if(value.scale() > 2){
-            errores.add(GameErrors.BASE_PRICE_DECIMALS.getMessage());
+            errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
         }
         return errores;
     }
@@ -215,11 +219,11 @@ public class GameForm {
      * Valida que la clasificacion del juego se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    private List<String> validateAgeClasification() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateAgeClasification() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if(Util.checkCadenaBlankOrEmpty(gameAgeClasification.name())){
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("AgeClasification", ErrorType.REQUERIDO));
         }
         return errores;
     }
@@ -228,12 +232,18 @@ public class GameForm {
      * Valida que los idiomas del juego se haya introducido correctamente
      * @return Lista de errores
      * */
-    private List<String> validateLanguages() {
-        List<String> errores = new ArrayList<>();
+    private List<ErrorDto> validateLanguages() {
+        List<ErrorDto> errores = new ArrayList<>();
+        List<String> languages = new ArrayList<>();
 
         //Si el array no es null en la posicion cero es que el usuario le puso idiomas al juego, y si no es que esta vacio
         if(availabeLanguages.getFirst() != null){
-            if(availabeLanguages.) {}
+            languages = availabeLanguages.stream()
+                    .filter(l -> l.length() > 200)
+                    .toList();
+            if(!languages.isEmpty()){
+                errores.add(new ErrorDto("Languages", ErrorType.FORMATO_INVALIDO));
+            }
         }
         return errores;
     }

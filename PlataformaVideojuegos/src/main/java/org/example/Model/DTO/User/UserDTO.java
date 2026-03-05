@@ -112,4 +112,20 @@ public class UserDTO {
         this.portfolioBalance = portfolioBalance;
         this.accountState = accountState;
     }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                ", realName='" + realName + '\'' +
+                ", country='" + country + '\'' +
+                ", birthDate=" + birthDate +
+                ", registrationDate=" + registrationDate +
+                ", avatar='" + avatar + '\'' +
+                ", portfolioBalance=" + portfolioBalance +
+                ", accountState=" + accountState +
+                '}';
+    }
 }

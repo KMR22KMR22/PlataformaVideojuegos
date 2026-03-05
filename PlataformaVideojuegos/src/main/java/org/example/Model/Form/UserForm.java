@@ -1,8 +1,9 @@
 package org.example.Model.Form;
 
 import org.example.Controller.Util;
-import org.example.Model.Errors.GenericErrors;
-import org.example.Model.Errors.UserErrors;
+import org.example.Model.Form.Errors.ErrorDto;
+import org.example.Model.Form.Errors.ErrorType;
+
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -72,9 +73,9 @@ public class UserForm {
      * Valida que los datos del juego se hayan introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String>  validate() {
+    public List<ErrorDto>  validate() {
 
-        List<String> errores = new ArrayList<>();
+        List<ErrorDto> errores = new ArrayList<>();
 
 
         //Nombre Usuario
@@ -107,23 +108,24 @@ public class UserForm {
      * Valida que el nombre de usuario se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateUserName() {
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validateUserName() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(userName)) {
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("Nombre", ErrorType.REQUERIDO));
         }
         if (userName.length() < 3) {
-            errores.add(GenericErrors.TOO_SHORT.getMessage());
+            errores.add(new ErrorDto("Nombre", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if (userName.length() > 20) {
-            errores.add(GenericErrors.TOO_LONG.getMessage());
+            errores.add(new ErrorDto("Nombre", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         if (!userName.matches("^[a-zA-Z0-9_-]+$")){
-            errores.add(UserErrors.USERNAME_INVALID_FORMAT.getMessage());
+            errores.add(new ErrorDto("Nombre", ErrorType.FORMATO_INVALIDO));
+
         }
         if (userName.matches("^[0-9].*")) {
-            errores.add(UserErrors.USERNAME_STARTS_WITH_NUMBER.getMessage());
+            errores.add(new ErrorDto("Nombre", ErrorType.FORMATO_INVALIDO));
         }
 
         return errores;
@@ -133,14 +135,14 @@ public class UserForm {
      * Valida que el email de usuario se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateEmail() {
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validateEmail() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(email)) {
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("Email", ErrorType.REQUERIDO));
         }
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            errores.add(GenericErrors.INVALID_FORMAT.getMessage());
+            errores.add(new ErrorDto("Email", ErrorType.FORMATO_INVALIDO));
         }
         return errores;
     }
@@ -149,19 +151,19 @@ public class UserForm {
      * Valida que la contraseña se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validatePassword() {
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validatePassword() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(password)) {
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("Password", ErrorType.REQUERIDO));
         }
         if (password.length() < 8) {
-            errores.add(GenericErrors.TOO_SHORT.getMessage());
+            errores.add(new ErrorDto("Password", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         if (!password.matches(".*[A-Z].*") ||
                 !password.matches(".*[a-z].*") ||
                 !password.matches(".*[0-9].*")) {
-            errores.add(UserErrors.PASSWORD_WEAK.getMessage());
+            errores.add(new ErrorDto("Password", ErrorType.FORMATO_INVALIDO));
         }
 
         return errores;
@@ -171,17 +173,17 @@ public class UserForm {
      * Valida que el nombre real del usuario se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateRealName() {
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validateRealName() {
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(realName)) {
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("RealName", ErrorType.REQUERIDO));
         }
         if (realName.length() < 2) {
-            errores.add(GenericErrors.TOO_SHORT.getMessage());
+            errores.add(new ErrorDto("RealName", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if (realName.length() > 50) {
-            errores.add(GenericErrors.TOO_LONG.getMessage());
+            errores.add(new ErrorDto("RealName", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
     }
@@ -190,11 +192,11 @@ public class UserForm {
      * Valida que el pais del usuario se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateCountry(){
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validateCountry(){
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (Util.checkCadenaBlankOrEmpty(country)) {
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("Country", ErrorType.REQUERIDO));
         }
         return errores;
     }
@@ -203,17 +205,17 @@ public class UserForm {
      * Valida que la feha de nacimiento del usuario se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateBirthDate(){
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validateBirthDate(){
+        List<ErrorDto> errores = new ArrayList<>();
 
         if(birthDate == null){
-            errores.add(GenericErrors.REQUIRED_FIELD.getMessage());
+            errores.add(new ErrorDto("BirthDate", ErrorType.REQUERIDO));
         }
         if(Period.between(birthDate, LocalDate.now()).getYears() < 13){
-            errores.add(UserErrors.BIRTHDATE_UNDERAGE.getMessage());
+            errores.add(new ErrorDto("BirthDate", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if(birthDate.isAfter(LocalDate.now())){
-            errores.add(UserErrors.BIRTHDATE_FUTURE.getMessage());
+            errores.add(new ErrorDto("BirthDate", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
     }
@@ -225,12 +227,12 @@ public class UserForm {
      * Valida que el avatar del usuario se haya introducido correctamente
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> validateAvatar(){
-        List<String> errores = new ArrayList<>();
+    public List<ErrorDto> validateAvatar(){
+        List<ErrorDto> errores = new ArrayList<>();
 
         if (avatar != null){
             if(avatar.length() > 100){
-                errores.add(UserErrors.AVATAR_TOO_LONG.getMessage());
+                errores.add(new ErrorDto("Avatar", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }
         return errores;

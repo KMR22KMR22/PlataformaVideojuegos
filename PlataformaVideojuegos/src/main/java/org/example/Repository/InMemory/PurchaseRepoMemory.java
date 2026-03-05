@@ -1,8 +1,8 @@
 package org.example.Repository.InMemory;
 
 import org.example.Model.Entidad.PurchaseEntity;
+import org.example.Model.Form.PurchaseForm;
 import org.example.Repository.Interface.IPurchaseRepo;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ public class PurchaseRepoMemory implements IPurchaseRepo {
 
     @Override
     public Optional<PurchaseEntity> crear(PurchaseForm form) {
-        var purchase = new PurchaseEntity(idCounter++, form.getIdUser(), form.getIdGame(), form.getPurchaseDate(), form.getPaymentMethod(), form.getPriceWithoutDiscount(), form.getDiscountApplicated(), form.getSatate());
+        var purchase = new PurchaseEntity(idCounter++, form.getIdUser(), form.getIdGame(), form.getPaymentMethod(), form.getPriceWithoutDiscount(), form.getDiscountApplicated());
         purchases.add(purchase);
         return Optional.of(purchase);
     }

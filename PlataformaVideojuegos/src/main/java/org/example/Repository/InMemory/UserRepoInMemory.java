@@ -1,10 +1,7 @@
 package org.example.Repository.InMemory;
 
-import org.example.Exeptions.GenericExeption;
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.UserEntity;
-import org.example.Model.Errors.GenericErrors;
-import org.example.Model.Errors.UserErrors;
 import org.example.Model.Form.UserForm;
 import org.example.Repository.Interface.IUserRepo;
 
@@ -39,18 +36,18 @@ public class UserRepoInMemory implements IUserRepo {
 
     @Override
     public UserEntity update(Long id, Optional<Float> money) {
-        UserEntity userOpt = obtenerPorId(id).orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
+        UserEntity userOpt = obtenerPorId(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        //Compruebo de la cuenta de el usuario que se encontro este activa
+        //Compruebo que la cuenta de el usuario que se encontro este activa
         if(!userOpt.getAccountState().equals(AccountState.ACTIVE)){
-            throw new GenericExeption(UserErrors.ACCOUNT_NOT_ACTIVE.getMessage());
+            throw new IllegalArgumentException("Cuenta no activa");
         }
 
-        float ammount = money.orElseThrow(() -> new GenericExeption(GenericErrors.NOT_VALUE.getMessage()));
+        float ammount = money.orElseThrow(() -> new IllegalArgumentException("Cantidad no encontrada"));
 
         //Compruebo que la cantidad de saldo que intenta agregar el usuario esta entre 5 y 500
         if(ammount < 5 || ammount > 500){
-            throw new GenericExeption(UserErrors.INVALID_IMMPORT.getMessage());
+            throw new IllegalArgumentException("La cantidad de dinero debe estar entre 5 y 500");
         }
 
         float newbalance = userOpt.getPortfolioBalance() + ammount;

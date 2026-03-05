@@ -1,12 +1,17 @@
 package org.example.Controller;
 
-import org.example.Exeptions.GenericExeption;
+import org.example.Exeptions.ValidationException;
+import org.example.Mapper.Mapper;
 import org.example.Model.DTO.Game.GameAgeClasification;
+import org.example.Model.DTO.Game.GameDTO;
 import org.example.Model.DTO.Game.GameState;
+import org.example.Model.DTO.Game.GameStatsDTO;
 import org.example.Model.Entidad.GameEntity;
-import org.example.Model.Errors.GenericErrors;
+import org.example.Model.Form.Errors.ErrorDto;
+import org.example.Model.Form.Errors.ErrorType;
 import org.example.Model.Form.GameForm;
 import org.example.Repository.InMemory.GameRepoInMemory;
+import org.example.Repository.InMemory.ReviewRepoInMemory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,25 +21,30 @@ import java.util.Optional;
 public class GameController {
 
     private GameRepoInMemory gameRepo = new GameRepoInMemory();
+    private ReviewRepoInMemory reviewRepo = new ReviewRepoInMemory();
 
     /** Registra un nuevo videojuego en el catálogo de Steam
-     * @param gameform Formulario con los datos introducidos por el usuario
+     * @param gameForm Formulario con los datos introducidos por el usuario
      * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
      * */
-    public List<String> addNewGame(GameForm gameform) {
-        List<String> errores = new ArrayList<>();
+    public GameDTO addNewGame(GameForm gameForm) throws ValidationException {
+        List<ErrorDto> errores = new ArrayList<>();
 
         //LLamo al validate del formulario y guardo la lista de errores
-        errores.addAll(gameform.validate());
+        errores.addAll(gameForm.validate());
 
         //LLamo al validate del controlador y guardo la lista de errores
-        errores.addAll(validate(gameform));
+        errores.addAll(validate(gameForm));
 
         //Si no se detectaron errores en el formulario se llamo a la funcion de cear nueva GameEntity que esta en el repositorio
-        if (errores.isEmpty()) {
-            gameRepo.crear(gameform);
+        if (!errores.isEmpty()) {
+            throw new ValidationException(errores);
         }
-        return errores;
+
+        var gameOpt = gameRepo.crear(gameForm);
+        var game = gameOpt.orElse(null);
+
+        return Mapper.mapFrom(game);
     }
 
 
@@ -54,7 +64,7 @@ public class GameController {
         //Compruebo que al menos haya un parametro de entrada que tenga valor, si todos son null devuelvo una exepcion
         if (texto.isEmpty() && category.isEmpty() && minPrice.isEmpty()
                 && maxPrice.isEmpty() && ageClasification.isEmpty() && gameState.isEmpty()) {
-            throw new GenericExeption(GenericErrors.NO_PARAMETERS.getMessage());
+            throw new IllegalArgumentException("No se han ingresado parametros de busqueda");
         }
 
         //Filtro la lista de juegos del repositorio y devuelvo una lista con los coches que coincidan con todos los parametros de busqueda a la vez
@@ -110,14 +120,13 @@ public class GameController {
      * @param id id del juego a buscar
      * @param percent porciento a descontar del precio del juego (opcional)
      * @return Precio con el descuento aplicado
+     * @throws IllegalArgumentException
      * */
-    public GameEntity applayDiscount(Long id, Optional<Integer> percent){
+    public GameEntity applayDiscount(Long id, Optional<Integer> percent) throws IllegalArgumentException{
         GameEntity game;
-        try{
-            game = gameRepo.update(id, null, percent);
-        }catch (GenericExeption e){
-            throw e;
-        }
+
+        game = gameRepo.update(id, null, percent);
+
         return game;
     }
 
@@ -126,14 +135,13 @@ public class GameController {
      * @param id id del juego a buscar
      * @param newState nuevo estado al que se va a cambiar el juego (opcional)
      * @return Confirmación del cambio de estado o mensaje de error
+     * @throws IllegalArgumentException
      * */
-    public GameEntity changeGameState(Long id, Optional<GameState> newState){
+    public GameEntity changeGameState(Long id, Optional<GameState> newState) throws IllegalArgumentException{
         GameEntity game;
-        try{
-            game = gameRepo.update(id, newState, null);
-        }catch (GenericExeption e){
-            throw e;
-        }
+
+        game = gameRepo.update(id, newState, null);
+
         return game;
     }
 
@@ -141,12 +149,15 @@ public class GameController {
 
     /**Muestra toda la información completa de un juego específico
      * @param id id del juego a buscar
-     * @return Información completa del juego o mensaje de error si no existe
+     * @return GameStatsDTO con la informacion del juego
      * */
-    public GameEntity consultGameDetails(Long id){
-        GameEntity game = gameRepo.obtenerPorId(id).orElseThrow(() -> new GenericExeption(GenericErrors.NOT_EXISTS.getMessage()));
+    public GameStatsDTO consultGameDetails(Long id){
+        GameEntity game = gameRepo.obtenerPorId(id).orElseThrow(() -> new IllegalArgumentException("Juego no encontrado"));
 
-        return //Aqui me falta sacar las estadisticas y las reseñas destacadas
+        //Busco los idGame delas reseñas y guardo todas las que coincidan con el juego
+        List<Integer> reviewID = new ArrayList<>(reviewRepo.obtenerPorId(id).stream().map(r -> r.getIdGame()).toList());
+
+        return new GameStatsDTO(game.getId(), game.getTittle(), game.getDescription(), game.getDeveloper(), game.getLaunchDate(), game.getBasePrice(), game.getCurrentDescount(), game.getCategory(), game.getAgeClasification(), game.getAvailabeLanguages(), game.getState(), reviewID);
     }
 
 
@@ -157,18 +168,19 @@ public class GameController {
      * @param game Formulario con los datos introducidos por el usuario
      * @return Lista con errores en caso de haber
      * */
-    public List<String>  validate(GameForm game) {
+    public List<ErrorDto>  validate(GameForm game) {
 
-        List<String> errores = new ArrayList<>();
+        List<ErrorDto> errores = new ArrayList<>();
 
         //Comprueba que el titulo no se repita
         if (gameRepo.obtenerTodos().stream().anyMatch(g -> g.equals(game.getTittle()))) {
-            errores.add(GenericErrors.ALREADY_EXISTS.getMessage());
+            errores.add(new ErrorDto("Tittle", ErrorType.DUPLICADO));
         }
         //Comprueba que la clasificacion de edad del juego este entre las disponibles
         if(Arrays.stream(GameAgeClasification.values()).noneMatch(c -> c.equals(game.getAgeClasification()))) {
-            errores.add(GenericErrors.NOT_EXISTS.getMessage());
+            errores.add(new ErrorDto("AgeClasification", ErrorType.NO_ENCONTRADO));
         }
+
         return errores;
     }
 

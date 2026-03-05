@@ -18,7 +18,6 @@ public class ReviewDTO {
 
     //Getters
 
-
     public Long getId() {
         return id;
     }

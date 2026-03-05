@@ -1,4 +1,4 @@
-package org.example.Model.Form;
+package org.example.Model.Form.Errors;
 
 public enum ErrorType {
     REQUERIDO("El campo es obligatorio"),
