@@ -1,10 +1,13 @@
-package org.example.Model.DTO.User;
+package org.example.Model.Form.Updates;
+
+import org.example.Model.DTO.User.AccountState;
 
 import java.time.LocalDate;
 
-public record UserDTO (Long id,
+public record UserUpdateForm (
         String userName,
         String email,
+        String password,
         String realName,
         String country,
         LocalDate birthDate,
@@ -12,5 +15,4 @@ public record UserDTO (Long id,
         String avatar,
         float portfolioBalance,
         AccountState accountState){
-
 }

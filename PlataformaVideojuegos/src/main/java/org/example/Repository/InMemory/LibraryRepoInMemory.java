@@ -15,7 +15,7 @@ public class LibraryRepoInMemory implements ILibraryRepo<LibraryEntity, LibraryF
 
     @Override
     public Optional<LibraryEntity> crear(LibraryForm form) {
-        var library = new LibraryEntity(idCounter++, form.getIdUser(), form.getIdGame(), form.getAdquisitionDate(), form.getLastPlayed());
+        var library = new LibraryEntity(idCounter++, form.idUser(), form.idGame(), form.adquisitionDate());
         libraries.add(library);
         return Optional.of(library);
     }

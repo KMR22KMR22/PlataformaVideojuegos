@@ -10,6 +10,7 @@ import org.example.Model.Entidad.GameEntity;
 import org.example.Model.Form.Errors.ErrorDto;
 import org.example.Model.Form.Errors.ErrorType;
 import org.example.Model.Form.GameForm;
+import org.example.Model.Form.Updates.GameUpdateForm;
 import org.example.Repository.InMemory.GameRepoInMemory;
 import org.example.Repository.InMemory.ReviewRepoInMemory;
 
@@ -25,7 +26,8 @@ public class GameController {
 
     /** Registra un nuevo videojuego en el catálogo de Steam
      * @param gameForm Formulario con los datos introducidos por el usuario
-     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
+     * @return GameDTO o null
+     * @throws ValidationException
      * */
     public GameDTO addNewGame(GameForm gameForm) throws ValidationException {
         List<ErrorDto> errores = new ArrayList<>();
@@ -58,8 +60,7 @@ public class GameController {
      * @param gameState Estado del juego (opcional)
      * @return Lista de juegos encontrados, en caso de no encontrar ninguno se devuelve la lista vacia
      * */
-    public List<GameEntity> findGames(Optional<String> texto, Optional<String> category, Optional<Integer> minPrice, Optional<Integer> maxPrice, Optional<GameAgeClasification> ageClasification, Optional<GameState> gameState) {
-        List<GameEntity> Coincidenses = new ArrayList<>();
+    public List<GameDTO> findGames(Optional<String> texto, Optional<String> category, Optional<Integer> minPrice, Optional<Integer> maxPrice, Optional<GameAgeClasification> ageClasification, Optional<GameState> gameState) {
 
         //Compruebo que al menos haya un parametro de entrada que tenga valor, si todos son null devuelvo una exepcion
         if (texto.isEmpty() && category.isEmpty() && minPrice.isEmpty()
@@ -67,7 +68,7 @@ public class GameController {
             throw new IllegalArgumentException("No se han ingresado parametros de busqueda");
         }
 
-        //Filtro la lista de juegos del repositorio y devuelvo una lista con los coches que coincidan con todos los parametros de busqueda a la vez
+        //Filtro la lista de juegos del repositorio, la mapeo a DTO y devuelvo una lista con los coches que coincidan con todos los parametros de busqueda a la vez
         return gameRepo.obtenerTodos().stream()
                 .filter(g -> texto.isEmpty() ||
                         (!texto.get().isBlank() && g.getTittle().contains(texto.get())))
@@ -77,6 +78,7 @@ public class GameController {
                 .filter(g -> maxPrice.isEmpty() || g.getBasePrice() <= maxPrice.get())
                 .filter(g -> ageClasification.isEmpty() || g.getAgeClasification().equals(ageClasification.get()))
                 .filter(g -> gameState.isEmpty() || g.getState().equals(gameState.get()))
+                .map(g -> Mapper.mapFrom(g))
                 .toList();
     }
 
@@ -88,26 +90,27 @@ public class GameController {
      * @param orderParameter Parametro por el que el usuario quiere que se ordenen los juegos al mostrarse (optional)
      * @return Lista con todos los juegos ordenados por titulo, precio o fecha de lanzamiento. En caso de no aclararse se muestran todos los juegos disponibles en el orden que ya esten guardados
      * */
-    public List<GameEntity> consultCataloge(Optional<OrderParameters> orderParameter){
+    public List<GameDTO> consultCataloge(Optional<OrderParameters> orderParameter){
 
         //Guardo los juegos almacenados en el repositorio los cuales esten como disponible en una lista
-        List<GameEntity> games = gameRepo.obtenerTodos().stream()
+        List<GameDTO> games = gameRepo.obtenerTodos().stream()
                 .filter(g -> g.getState().equals(GameState.DISPONIBLE))
+                .map(g -> Mapper.mapFrom(g))
                 .toList();
 
         if (orderParameter.isPresent()) {
             switch(orderParameter.get()) {
                 case ALPHABETICAL:
                     return games.stream()
-                            .sorted((g1, g2) -> g1.getTittle().compareToIgnoreCase(g2.getTittle()))
+                            .sorted((g1, g2) -> g1.title().compareToIgnoreCase(g2.title()))
                             .toList();
                 case PRICE:
                     return games.stream()
-                            .sorted((g1, g2) -> Float.compare(g1.getBasePrice(), g2.getBasePrice()))
+                            .sorted((g1, g2) -> Float.compare(g1.basePrice(), g2.basePrice()))
                             .toList();
                 case DATE:
                     return games.stream()
-                            .sorted((g1, g2) -> g1.getLaunchDate().compareTo(g2.getLaunchDate()))
+                            .sorted((g1, g2) -> g1.launchDate().compareTo(g2.launchDate()))
                             .toList();
             }
         }
@@ -119,15 +122,22 @@ public class GameController {
     /**Establece un porcentaje de descuento temporal a un juego
      * @param id id del juego a buscar
      * @param percent porciento a descontar del precio del juego (opcional)
-     * @return Precio con el descuento aplicado
+     * @return DTO con el descuento aplicado
      * @throws IllegalArgumentException
      * */
-    public GameEntity applayDiscount(Long id, Optional<Integer> percent) throws IllegalArgumentException{
-        GameEntity game;
+    public GameDTO applayDiscount(Long id, Integer percent) throws IllegalArgumentException{
+        //Copruebo que el porciento que se quiere aplicar este en un rango correcto
+        if(percent < 0 || percent > 100){throw new IllegalArgumentException("Porciento invalido");}
 
-        game = gameRepo.update(id, null, percent);
+        GameEntity entity = gameRepo.obtenerPorId(id).get();
 
-        return game;
+        var priceWithDiscount = entity.getBasePrice() * (1 - percent / 100f);
+
+        GameUpdateForm form = new GameUpdateForm(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), priceWithDiscount, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
+
+        GameEntity updatedGame = gameRepo.actualizar(id, form).get();
+
+        return Mapper.mapFrom(updatedGame);
     }
 
 
@@ -137,12 +147,20 @@ public class GameController {
      * @return Confirmación del cambio de estado o mensaje de error
      * @throws IllegalArgumentException
      * */
-    public GameEntity changeGameState(Long id, Optional<GameState> newState) throws IllegalArgumentException{
-        GameEntity game;
+    public GameDTO changeGameState(Long id, GameState newState) throws IllegalArgumentException{
 
-        game = gameRepo.update(id, newState, null);
+        //Compruebo que el nuevo estado este entre los admisibles
+        if(Arrays.stream(GameState.values())
+                .noneMatch(gameState->gameState
+                        .equals(newState))){throw new IllegalArgumentException("Estado invalido");}
 
-        return game;
+        GameEntity entity = gameRepo.obtenerPorId(id).get();
+
+        GameUpdateForm form = new GameUpdateForm(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), entity.getCurrentDescount(), entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
+
+        GameEntity updatedGame = gameRepo.actualizar(id, form).get();
+
+        return Mapper.mapFrom(updatedGame);
     }
 
 
@@ -173,11 +191,11 @@ public class GameController {
         List<ErrorDto> errores = new ArrayList<>();
 
         //Comprueba que el titulo no se repita
-        if (gameRepo.obtenerTodos().stream().anyMatch(g -> g.equals(game.getTittle()))) {
+        if (gameRepo.obtenerTodos().stream().anyMatch(g -> g.equals(game.tittle()))) {
             errores.add(new ErrorDto("Tittle", ErrorType.DUPLICADO));
         }
         //Comprueba que la clasificacion de edad del juego este entre las disponibles
-        if(Arrays.stream(GameAgeClasification.values()).noneMatch(c -> c.equals(game.getAgeClasification()))) {
+        if(Arrays.stream(GameAgeClasification.values()).noneMatch(c -> c.equals(game.gameAgeClasification()))) {
             errores.add(new ErrorDto("AgeClasification", ErrorType.NO_ENCONTRADO));
         }
 

@@ -14,27 +14,11 @@ public class GameEntity {
     private String developer;
     private LocalDate launchDate;
     private float basePrice;
-    private int currentDescount;
+    private float currentDescount;
     private String category;
     private GameAgeClasification gameAgeClasification;
     private List<String> availabeLanguages;
     private GameState State;
-
-    //Constructor para actualizar
-    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, GameAgeClasification ageClasification, List<String> availabeLanguages, int currentDescount, GameState newState) {
-        this.id = id;
-        this.tittle = tittle;
-        this.description = description;
-        this.developer = developer;
-        this.launchDate = launchDate;
-        this.basePrice = basePrice;
-        this.currentDescount = currentDescount;
-        this.category = category;
-        this.gameAgeClasification = ageClasification;
-        this.availabeLanguages = availabeLanguages;
-        this.State = newState;
-
-    }
 
 
     //Getters
@@ -64,7 +48,7 @@ public class GameEntity {
         return basePrice;
     }
 
-    public int getCurrentDescount() {
+    public float getCurrentDescount() {
         return currentDescount;
     }
 
@@ -85,9 +69,7 @@ public class GameEntity {
     }
 
 
-    //Constructor
-
-
+    //Constructor Creacion
     public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages) {
         this.id = id;
         this.tittle = tittle;
@@ -95,10 +77,26 @@ public class GameEntity {
         this.developer = developer;
         this.launchDate = launchDate;
         this.basePrice = basePrice;
-        this.currentDescount = 0;
+        this.currentDescount = basePrice;
         this.category = category;
         this.gameAgeClasification = gameAgeClasification;
         this.availabeLanguages = availabeLanguages;
-        State = GameState.DISPONIBLE;
+        this.State = GameState.DISPONIBLE;
+    }
+
+    //Constructor Actualizcion
+
+    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, float currentDescount, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages, GameState state) {
+        this.id = id;
+        this.tittle = tittle;
+        this.description = description;
+        this.developer = developer;
+        this.launchDate = launchDate;
+        this.basePrice = basePrice;
+        this.currentDescount = currentDescount;
+        this.category = category;
+        this.gameAgeClasification = gameAgeClasification;
+        this.availabeLanguages = availabeLanguages;
+        this.State = state;
     }
 }

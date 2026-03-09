@@ -1,53 +1,43 @@
 package org.example.Repository.InMemory;
 
-import org.example.Model.DTO.Game.GameState;
 import org.example.Model.Entidad.GameEntity;
 import org.example.Model.Form.GameForm;
+import org.example.Model.Form.Updates.GameUpdateForm;
 import org.example.Repository.Interface.IGameRepo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class GameRepoInMemory implements IGameRepo {
-    private final List<GameEntity> games = new ArrayList<>();
-    private static Long idCounter = 1L;
+    private static final List<GameEntity> GAMES = new ArrayList<>();
+    private static Long NEXT_ID = 1L;
 
 
     @Override
     public Optional<GameEntity> crear(GameForm form) {
-        var game = new GameEntity(idCounter++, form.getTittle(), form.getDescription(), form.getDeveloper(), form.getLaunchDate(), form.getBasePrice(), form.getCategory(), form.getAgeClasification(), form.getAvailabeLanguages());
-        games.add(game);
+        var game = new GameEntity(NEXT_ID++, form.tittle(), form.description(), form.developer(), form.launchDate(), form.basePrice(), form.category(), form.gameAgeClasification(), form.availabeLanguages());
+        GAMES.add(game);
         return Optional.of(game);
     }
 
     @Override
     public Optional<GameEntity> obtenerPorId(Long id) {
-        return games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        return GAMES.stream().filter(g -> g.getId().equals(id)).findFirst();
     }
 
     @Override
-    public List<GameEntity> obtenerTodos() {return new ArrayList<>(games);
+    public List<GameEntity> obtenerTodos() {return new ArrayList<>(GAMES);
     }
 
-
     @Override
-    public GameEntity update(Long id, Optional<GameState> newState, Optional<Integer> percent){
-        //Compruebo que el jugo exista y lo guardo, en caso de no existir mando una exepcion
-        GameEntity game = obtenerPorId(id).orElseThrow(() -> new IllegalArgumentException("Juego no encontrado"));
+    public Optional<GameEntity> actualizar(Long id, GameUpdateForm form) {
+        obtenerPorId(id).orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
 
-        //Compruebo que el nuevo estado este entre los admisibles
-        if(newState.isPresent() && Arrays.stream(GameState.values()).noneMatch(gameState->gameState.equals(newState.get()))){throw new IllegalArgumentException("Estado invalido");}
-
-        //Copruebo que el porciento que se quiere aplicar este en un rango correcto
-        if(percent.isPresent() && percent.get() < 0 || percent.get() > 100){throw new IllegalArgumentException("Porciento invalido");}
-
-        GameEntity updatedGame = new GameEntity(id, game.getTittle(), game.getDescription(), game.getDeveloper(), game.getLaunchDate(), game.getBasePrice(), game.getCategory(), game.getAgeClasification(), game.getAvailabeLanguages(), percent.orElse(game.getCurrentDescount()), newState.orElse(game.getState()));
-        games.removeIf(g -> g.getId().equals(id));
-        games.add(updatedGame);
-
-        return updatedGame;
+        var gameUpdated = new GameEntity(form.id(), form.tittle(), form.description(), form.developer(), form.launchDate(), form.basePrice(), form.currentDescount(), form.category(), form.gameAgeClasification(), form.availabeLanguages(), form.State());
+        GAMES.removeIf(p -> p.getId().equals(id));
+        GAMES.add(gameUpdated);
+        return Optional.of(gameUpdated);
     }
 
     @Override

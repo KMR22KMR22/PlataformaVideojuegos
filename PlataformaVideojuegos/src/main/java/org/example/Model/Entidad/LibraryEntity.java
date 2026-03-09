@@ -64,16 +64,14 @@ public class LibraryEntity {
     }
 
 
-    //Constructor
-
-
-    public LibraryEntity(Long id, Long idUser, Long idGame, LocalDate adquisitionDate, Date lastPlayed) {
+    //Constructor Creacion
+    public LibraryEntity(Long id, Long idUser, Long idGame, LocalDate adquisitionDate) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
         this.adquisitionDate = adquisitionDate;
-        this.timePlaying = Duration.ofHours(0);
-        this.lastPlayed = lastPlayed;
+        this.timePlaying = Duration.ZERO;
+        this.lastPlayed = null;
         this.instalationState = InstalationState.NO_INSTALADO;
     }
 }

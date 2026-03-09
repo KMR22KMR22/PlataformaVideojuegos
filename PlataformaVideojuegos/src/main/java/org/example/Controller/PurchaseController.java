@@ -1,20 +1,25 @@
 package org.example.Controller;
 
 import org.example.Exeptions.ValidationException;
+import org.example.Mapper.Mapper;
 import org.example.Model.DTO.Game.GameState;
 import org.example.Model.DTO.Purchase.PaymentMethods;
 import org.example.Model.DTO.Purchase.PurchaseDTO;
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.GameEntity;
+import org.example.Model.Entidad.PurchaseEntity;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Form.Errors.ErrorDto;
 import org.example.Model.Form.Errors.ErrorType;
+import org.example.Model.Form.LibraryForm;
 import org.example.Model.Form.PurchaseForm;
 import org.example.Model.Form.UserForm;
 import org.example.Repository.InMemory.GameRepoInMemory;
+import org.example.Repository.InMemory.LibraryRepoInMemory;
 import org.example.Repository.InMemory.PurchaseRepoMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,29 +29,47 @@ public class PurchaseController {
     private PurchaseRepoMemory purchaseRepo = new PurchaseRepoMemory();
     private GameRepoInMemory gameRepo = new GameRepoInMemory();
     private UserRepoInMemory userRepo = new UserRepoInMemory();
+    private LibraryRepoInMemory libraryRepo = new LibraryRepoInMemory();
 
-    //public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethods paymentMethod) throws ValidationException {
-    //    List <ErrorDto> errores = new ArrayList<>();
-//
-    //    errores.addAll(validate(user, game, paymentMethod));
-//
-    //    if(!errores.isEmpty()){
-    //        throw new ValidationException(errores);
-    //    }
-//
-    //    float discountApplicated = game.getBasePrice()*game.getCurrentDescount()/100;
-//
-    //    PurchaseForm form = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), discountApplicated);
-//
-    //    var purchaseOpt = purchaseRepo.crear(form);
-    //    var purchase = purchaseOpt.orElse(null);
-//
-    //    var UserDTo =
-//
-    //    return new PurchaseDTO(purchase.getId(), user.getId(), user, game.getId(), game, purchase.getPurchaseDate(), purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), purchase.getSatate());
-    //}
+    /**Crea una nueva compra
+     * @param user Usuario que intenta comprar
+     * @param game juego que se intenta comprar
+     * @param paymentMethod metodo mediante el cual el usuario va a pagar
+     * @return PurchaseDTO creada
+     * */
+    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethods paymentMethod) throws ValidationException {
+        List <ErrorDto> errores = new ArrayList<>();
+
+        errores.addAll(validate(user, game, paymentMethod));
+
+        if(!errores.isEmpty()){
+            throw new ValidationException(errores);
+        }
+
+        PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), game.getCurrentDescount());
+
+        var purchaseOpt = purchaseRepo.crear(purchaseForm);
+        var purchase = purchaseOpt.orElse(null);
+
+        //Creo la biblioteca
 
 
+
+        var libraryOpt = libraryRepo.crear()
+
+
+        return Mapper.mapFrom(purchase);
+    }
+
+
+
+
+    /**Realiza las validaciones del PurchaseForm que necesitan acceso a datos
+     * @param user Usuario que intenta comprar
+     * @param game juego que se intenta comprar
+     * @param paymentMethod metodo mediante el cual el usuario va a pagar
+     * @return Lista con errores, en caso de no haber devuelve la lista vacia
+     * */
     public List<ErrorDto> validate(UserEntity user, GameEntity game, PaymentMethods paymentMethod) {
 
         List<ErrorDto> errores = new ArrayList<>();

@@ -10,61 +10,16 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserForm {
-
-    private String userName;
-    private String email;
-    private String password;
-    private String realName;
-    private String country;
-    private LocalDate birthDate;
-    public String avatar;
-
+public record UserForm (
+        String userName,
+        String email,
+        String password,
+        String realName,
+        String country,
+        LocalDate birthDate,
+        String avatar){
 
 
-    //Getters
-
-
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRealName() {
-        return realName;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    //Constructor
-    public UserForm(String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar) {
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-        this.realName = realName;
-        this.country = country;
-        this.birthDate = birthDate;
-        this.avatar = avatar;
-
-    }
 
 
 

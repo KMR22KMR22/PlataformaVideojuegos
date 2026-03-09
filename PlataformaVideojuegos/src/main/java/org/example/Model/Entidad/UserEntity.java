@@ -115,8 +115,24 @@ public class UserEntity {
         this.accountState = accountState;
     }
 
+    //Constructor Actualizacion
 
-    //Constructor
+    public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, LocalDate registrationDate, String avatar, float portfolioBalance, AccountState accountState) {
+        this.id = id;
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.realName = realName;
+        this.country = country;
+        this.birthDate = birthDate;
+        this.registrationDate = registrationDate;
+        this.avatar = avatar;
+        this.portfolioBalance = portfolioBalance;
+        this.accountState = accountState;
+    }
+
+
+    //ConstructorCreacion
 
     public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar, float portfolioBalance, AccountState accountState) {
         this.id = id;

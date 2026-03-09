@@ -9,7 +9,7 @@ import java.util.Optional;
 
 //Usar esta interfaz para definir contratos claros para los repositorios que manejarán diferentes tipos de entidades y sus correspondientes DTOs.
 
-    public interface ICrud<E, F, ID> {
+    public interface ICrud<E, F, O, ID> {
         /**
          * Crea una nueva entidad a partir de un DTO.
          *
@@ -30,6 +30,14 @@ import java.util.Optional;
          * @return Lista de todas las entidades.
          */
         List<E> obtenerTodos();
+
+        /**
+         * Actualiza una entidad existente a partir de su identificador y un DTO.
+         * @param id Identificador de la entidad a actualizar.
+         * @param form Objeto de transferencia de datos con la información actualizada.
+         * @return La entidad actualizada.
+         */
+        Optional<E> actualizar(ID id, O form);
 
 
         /**

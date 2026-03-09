@@ -9,24 +9,24 @@ import java.util.Optional;
 
 public class PurchaseRepoMemory implements IPurchaseRepo {
 
-    private final List<PurchaseEntity> purchases = new ArrayList<>();
-    private Long idCounter = 0L;
+    private static final List<PurchaseEntity> PURCHASES = new ArrayList<>();
+    private static Long net_id = 0L;
 
 
     @Override
     public Optional<PurchaseEntity> crear(PurchaseForm form) {
-        var purchase = new PurchaseEntity(idCounter++, form.getIdUser(), form.getIdGame(), form.getPaymentMethod(), form.getPriceWithoutDiscount(), form.getDiscountApplicated());
-        purchases.add(purchase);
+        var purchase = new PurchaseEntity(net_id++, form.idUser(), form.idGame(), form.paymentMethod(), form.priceWithoutDiscount(), form.discountApplicated());
+        PURCHASES.add(purchase);
         return Optional.of(purchase);
     }
 
     @Override
     public Optional<PurchaseEntity> obtenerPorId(Long id) {
-        return purchases.stream().filter(p -> p.getIdUser() == id).findFirst();
+        return PURCHASES.stream().filter(p -> p.getIdUser() == id).findFirst();
     }
 
     @Override
-    public List<PurchaseEntity> obtenerTodos() {return new ArrayList<>(purchases);
+    public List<PurchaseEntity> obtenerTodos() {return new ArrayList<>(PURCHASES);
     }
 
 

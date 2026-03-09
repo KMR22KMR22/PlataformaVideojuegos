@@ -1,11 +1,14 @@
-package org.example.Model.DTO.Game;
+package org.example.Model.Form.Updates;
+
+import org.example.Model.DTO.Game.GameAgeClasification;
+import org.example.Model.DTO.Game.GameState;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public record GameDTO (
+public record GameUpdateForm (
         Long id,
-        String title,
+        String tittle,
         String description,
         String developer,
         LocalDate launchDate,
@@ -13,6 +16,6 @@ public record GameDTO (
         float currentDescount,
         String category,
         GameAgeClasification gameAgeClasification,
-        List<String> availabeLanguages,
+        List<String>availabeLanguages,
         GameState State){
 }

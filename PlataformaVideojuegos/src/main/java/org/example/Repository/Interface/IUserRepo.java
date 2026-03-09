@@ -1,11 +1,11 @@
 package org.example.Repository.Interface;
 
 import org.example.Model.Entidad.UserEntity;
+import org.example.Model.Form.Updates.UserUpdateForm;
 import org.example.Model.Form.UserForm;
 
 import java.util.Optional;
 
-public interface IUserRepo extends ICrud<UserEntity, UserForm, Long> {
+public interface IUserRepo extends ICrud<UserEntity, UserForm, UserUpdateForm, Long> {
 
-    UserEntity update(Long id, Optional<Float> money);
 }
