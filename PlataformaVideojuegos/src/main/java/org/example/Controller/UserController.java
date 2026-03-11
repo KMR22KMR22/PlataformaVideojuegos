@@ -10,6 +10,7 @@ import org.example.Model.Form.Updates.UserUpdateForm;
 import org.example.Model.Form.UserForm;
 import org.example.Repository.InMemory.CountryRepoInMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
+import org.example.Repository.Interface.IUserRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 public class UserController {
 
-    private UserRepoInMemory userRepo = new UserRepoInMemory();
+    private IUserRepo userRepo;
     private CountryRepoInMemory countryRepo = new CountryRepoInMemory();
 
 

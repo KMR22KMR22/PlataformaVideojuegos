@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controller.GameController;
 
 import org.example.Exeptions.ValidationException;
 import org.example.Mapper.Mapper;

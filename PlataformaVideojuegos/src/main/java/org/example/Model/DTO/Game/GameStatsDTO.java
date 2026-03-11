@@ -18,6 +18,6 @@ public record GameStatsDTO (Long id,
                             GameAgeClasification gameAgeClasificatio,
                             List<String>availabeLanguages,
                             GameState State,
-                            List<ReviewDTO> Reviews,
+                            List<Long> Reviews,
                             LibraryDTO library){
 }

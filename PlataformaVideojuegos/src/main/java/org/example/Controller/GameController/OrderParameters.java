@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controller.GameController;
 
 public enum OrderParameters {
 
