@@ -41,8 +41,8 @@ public class GameRepoInMemory implements IGameRepo {
     }
 
     @Override
-    public boolean eliminar(Long aLong) {
-        return false;
+    public boolean eliminar(Long id) {
+        return GAMES.removeIf(p -> p.getId().equals(id));
     }
 
 }

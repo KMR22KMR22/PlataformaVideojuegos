@@ -8,10 +8,15 @@ import org.example.Model.Entidad.LibraryEntity;
 import org.example.Model.Form.Errors.ErrorDto;
 import org.example.Model.Form.Errors.ErrorType;
 import org.example.Model.Form.LibraryForm;
+import org.example.Model.Form.Updates.LibraryUpdateForm;
 import org.example.Repository.InMemory.GameRepoInMemory;
 import org.example.Repository.InMemory.LibraryRepoInMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
+import org.example.Repository.Interface.IGameRepo;
+import org.example.Repository.Interface.ILibraryRepo;
+import org.example.Repository.Interface.IUserRepo;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,19 +24,34 @@ import java.util.Optional;
 
 public class LibraryController {
 
-    private LibraryRepoInMemory libraryRepo = new LibraryRepoInMemory();
-    private UserRepoInMemory userRepo = new UserRepoInMemory();
-    private GameRepoInMemory gameRepo = new GameRepoInMemory();
+    private ILibraryRepo libraryRepo;
+    private IUserRepo userRepo;
+    private IGameRepo gameRepo;
 
-    public LibraryDTO addGameToLibrary(Long gameid, Long userid) throws ValidationException {
+
+    //Constructor
+
+
+    public LibraryController(ILibraryRepo libraryRepo, IUserRepo userRepo, IGameRepo gameRepo) {
+        this.libraryRepo = libraryRepo;
+        this.userRepo = userRepo;
+        this.gameRepo = gameRepo;
+    }
+
+    /** Agregar un juego adquirido a la biblioteca del usuario
+     * @param idUser Id del usuario que va comprar e jeugo
+     * @param idgame id del juego
+     * @return LibraryDTO
+     * */
+    public LibraryDTO addGameToLibrary(Long idgame, Long idUser) throws ValidationException {
         List<ErrorDto>  errors = new ArrayList<>();
 
-        errors.addAll(validate(gameid, userid));
+        errors.addAll(validate(idgame, idUser));
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }
 
-        LibraryForm libraryForm = new LibraryForm(userid, gameid, LocalDate.now());
+        LibraryForm libraryForm = new LibraryForm(idUser, idgame, LocalDate.now());
 
         var libraryOpt = libraryRepo.crear(libraryForm);
         var library = libraryOpt.orElse(null);
@@ -41,26 +61,16 @@ public class LibraryController {
 
 
     /** Lista todos los juegos que posee un usuario en su biblioteca
-     * @param userid Id del usuario que va comprar e jeugo
+     * @param idUser Id del usuario que va comprar e jeugo
      * @param order Orden en que se muestran los juegos (opcional)
-     * @return Lista de juegos en la biblioteca con sus datos de uso
+     * @return Lista de bibliotecas en la biblioteca con sus datos de uso
      * */
-    public List<GameDTO> showPersonalLibrary(Long userid, Optional<OrderParameters> order){
+    public List<LibraryDTO> showPersonalLibrary(Long idUser, Optional<OrderParameters> order){
 
-        //Encuentro las bibliotecas que coincidan con el jugador y saco los ids de los juegos que tiene
-        List<LibraryEntity> libraris = libraryRepo.obtenerTodos().stream()
-                .filter(l -> l.getIdUser() == userid)
-                .toList();
-
-        //Convierto las bibliotecas en sus ids
-        List<Long> gamesId = libraris.stream()
-                .map(l -> l.getIdGame())
-                .toList();
-
-        //Filtro todos los juegos que tengan esos ids
-        List<GameDTO> games = gameRepo.obtenerTodos().stream()
-                .filter(g -> gamesId.contains(g.getId()))
-                .map(g -> Mapper.mapFrom(g))
+        //Encuentro las bibliotecas que coincidan con el jugador
+        List<LibraryDTO> libraries = libraryRepo.obtenerTodos().stream()
+                .filter(l -> l.getIdUser() == idUser)
+                .map(l -> Mapper.mapFrom(l))
                 .toList();
 
         if(order.isPresent()){
@@ -68,29 +78,29 @@ public class LibraryController {
             switch (order.get()) {
 
                 case ALPHABETICAL:
-                    return games.stream()
-                            .sorted((g1, g2) -> g1.title().compareToIgnoreCase(g2.title()))
+                    return libraries.stream()
+                            .sorted((g1, g2) -> g1.game().title().compareToIgnoreCase(g2.game().title()))
                             .toList();
 
                 case GAME_TYPE:
-                    return games.stream()
-                            .sorted((g1, g2) -> g1.category().compareToIgnoreCase(g2.category()))
+                    return libraries.stream()
+                            .sorted((g1, g2) -> g1..compareToIgnoreCase(g2.category()))
                             .toList();
 
                 case LAST_SESIO:
-                    return libraris.stream()
+                    return libraries.stream()
                             .sorted((g1, g2) -> g1.getLastPlayed().compareTo(g2.getLastPlayed()))
                             .toList();
 
                 case ADQUISITION_DATE:
-                    return games.stream()
+                    return libraries.stream()
                             .sorted((g1, g2) -> g1.getAcquisitionDate().compareTo(g2.getAcquisitionDate()))
                             .toList();
             }
         }
 
 
-        return games;
+        return libraries;
     }
 
 
@@ -112,6 +122,41 @@ public class LibraryController {
         }
         libraryRepo.eliminar(library.get().getId());
     }
+
+
+    /**Realiza las validaciones de la Biblioteca que necesitan acceso a datos
+     * @param idGame Id del juego a comprar
+     * @param idUser Id del usuario que va comprar e jeugo
+     * @throws ValidationException
+     * @return LibraryDTO con las horas de juego actualizadas
+     * */
+    public LibraryDTO updateGameTime(Long idUser, Long idGame, Duration time) throws ValidationException {
+        List<ErrorDto>  errors = new ArrayList<>();
+
+        //Encuentro la biblioteca que coincidan con el id del juego y del usuario
+        LibraryEntity library = libraryRepo.obtenerTodos().stream()
+                .filter(l -> l.getIdUser() == idUser && l.getIdGame() == idGame)
+                .findFirst().orElse(null);
+
+        if(library == null){
+            errors.add(new ErrorDto("IdLibrary", ErrorType.NO_ENCONTRADO));
+        }
+        if(time.isNegative() || time.isZero()){
+            errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
+        }
+        if(!errors.isEmpty()){
+            throw new ValidationException(errors);
+        }
+
+        Duration updatedTime = library.getTimePlaying().plus(time);
+
+        LibraryUpdateForm libraryForm = new LibraryUpdateForm(library.getId(), library.getIdUser(), library.getIdGame(), library.getAdquisitionDate(), updatedTime, library.getLastPlayed(), library.getInstalationState());
+
+        LibraryEntity libraryEntity = libraryRepo.actualizar(libraryForm.id(), libraryForm).get();
+
+        return Mapper.mapFrom(libraryEntity);
+    }
+
 
 
     /**Realiza las validaciones de la Biblioteca que necesitan acceso a datos

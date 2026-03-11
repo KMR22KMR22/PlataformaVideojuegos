@@ -12,7 +12,7 @@ public record LibraryDTO (
         Long idUser,
         UserDTO User,
         Long idGame,
-        GameDTO Game,
+        GameDTO game,
         LocalDate adquisitionDate,
         Duration timePlaying,
         Date lastPlayed,

@@ -74,4 +74,16 @@ public class LibraryEntity {
         this.lastPlayed = null;
         this.instalationState = InstalationState.NO_INSTALADO;
     }
+
+
+    //Constructor Actualizacion
+    public LibraryEntity(Long id, Long idUser, Long idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
+        this.id = id;
+        this.idUser = idUser;
+        this.idGame = idGame;
+        this.adquisitionDate = adquisitionDate;
+        this.timePlaying = timePlaying;
+        this.lastPlayed = lastPlayed;
+        this.instalationState = instalationState;
+    }
 }

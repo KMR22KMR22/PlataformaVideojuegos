@@ -135,17 +135,7 @@ public class UserEntity {
     //ConstructorCreacion
 
     public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar, float portfolioBalance, AccountState accountState) {
-        this.id = id;
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-        this.realName = realName;
-        this.country = country;
-        this.birthDate = birthDate;
-        this.registrationDate = LocalDate.now();
-        this.avatar = avatar;
-        this.portfolioBalance = portfolioBalance;
-        this.accountState = accountState;
+        this(id, userName, email, password, realName, country, birthDate, LocalDate.now(), avatar, portfolioBalance, accountState);
     }
 }
 
