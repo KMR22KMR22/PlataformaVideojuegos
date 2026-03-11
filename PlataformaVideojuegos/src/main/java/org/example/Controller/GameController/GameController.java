@@ -173,9 +173,12 @@ public class GameController {
         GameEntity game = gameRepo.obtenerPorId(id).orElseThrow(() -> new IllegalArgumentException("Juego no encontrado"));
 
         //Busco los idGame delas reseñas y guardo todas las que coincidan con el juego
-        List<Integer> reviewID = new ArrayList<>(reviewRepo.obtenerPorId(id).stream().map(r -> r.getIdGame()).toList());
+        List<Long> reviewID = new ArrayList<>(reviewRepo.obtenerPorId(id).stream()
+                .filter(r -> r.getIdGame() == id)
+                .map(r -> r.getId())
+                .toList());
 
-        return new GameStatsDTO(game.getId(), game.getTittle(), game.getDescription(), game.getDeveloper(), game.getLaunchDate(), game.getBasePrice(), game.getCurrentDescount(), game.getCategory(), game.getAgeClasification(), game.getAvailabeLanguages(), game.getState(), reviewID);
+        return new GameStatsDTO(game.getId(), game.getTittle(), game.getDescription(), game.getDeveloper(), game.getLaunchDate(), game.getBasePrice(), game.getCurrentDescount(), game.getCategory(), game.getAgeClasification(), game.getAvailabeLanguages(), game.getState(), reviewID), ;
     }
 
 
