@@ -174,7 +174,7 @@ public class LibraryController {
 
 
 
-    /**Realiza las validaciones de la Biblioteca que necesitan acceso a datos
+    /**Buscar juegos en la biblioteca personal según criterios
      * @param idUser Id del juego a comprar
      * @param text Texto por el que se va a filtrar (Optional)
      * @param instalationState estado de instalacion por el que se va a filtrar (Optional)
