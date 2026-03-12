@@ -14,7 +14,7 @@ public record LibraryDTO (
         Long idGame,
         GameDTO game,
         LocalDate adquisitionDate,
-        Duration timePlaying,
+        Long timePlaying,
         Date lastPlayed,
         InstalationState instalationState){
 }

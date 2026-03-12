@@ -6,10 +6,10 @@ import org.example.Model.DTO.User.UserDTO;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Form.Errors.ErrorDto;
 import org.example.Model.Form.Errors.ErrorType;
-import org.example.Model.Form.Updates.UserUpdateForm;
+import org.example.Model.Form.Updates.UserUpdate;
 import org.example.Model.Form.UserForm;
-import org.example.Repository.InMemory.CountryRepoInMemory;
-import org.example.Repository.InMemory.UserRepoInMemory;
+
+import org.example.Repository.Interface.ICountryRepo;
 import org.example.Repository.Interface.IUserRepo;
 
 import java.util.ArrayList;
@@ -19,29 +19,36 @@ import java.util.Optional;
 public class UserController {
 
     private IUserRepo userRepo;
-    private CountryRepoInMemory countryRepo = new CountryRepoInMemory();
+    private ICountryRepo countryRepo;
 
 
-    /**Crea un nuevo usuario
+    //Constructor
+
+
+    public UserController(IUserRepo userRepo, ICountryRepo countryRepo) {
+        this.userRepo = userRepo;
+        this.countryRepo = countryRepo;
+    }
+
+    /**Crear una nueva cuenta de usuario en la plataforma
      * @param userForm Formulario con los datos introducidos por el usuario
-     * @return Lista de errores encontrados, si no encuentra ninguno devolvera la lista vacia
-     * @throws ValidationException
+     * @return UserDTO con todos los datos del usuario creado
+     * @throws ValidationException Lista de errores de validacion
      * */
     public UserDTO registerNewUser(UserForm userForm) throws ValidationException {
 
-        List<ErrorDto> errores = new ArrayList<>();
+        List<ErrorDto> errors = new ArrayList<>();
 
         //LLamo al validate del formulario y guardo la lista de errores
-        errores.addAll(userForm.validate());
+        errors.addAll(userForm.validate());
         //LLamo al validate del controlador y guardo la lista de errores
-        errores.addAll(validate(userForm));
+        errors.addAll(validate(userForm));
 
-        //Si no se detectaron errores en el formulario se llamo a la funcion de cear nueva UserEntity que esta en el repositorio
-        if (!errores.isEmpty()) {
-            throw new ValidationException(errores);
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors);
         }
 
-        var userOpt = userRepo.crear(userForm);
+        var userOpt = userRepo.create(userForm);
         var user = userOpt.orElse(null);
 
         return Mapper.mapFrom(user);
@@ -49,45 +56,33 @@ public class UserController {
 
 
 
-    /**Muestra la informacion de un usuario especifico
-     * @param id id del usuario
-     * @param name nombre del usuario
-     * @return Lista con los datos del usuario, o con el mensaje de usuario no encontrado
+    /**Muestra la información de un usuario específico
+     * @param id id del usuario (optional)
+     * @param name nombre del usuario (optional)
+     * @throws ValidationException
+     * @return UserDTO con los datos del usuario encontrado
      * */
     public UserDTO showUserProfile(Optional<Long> id, Optional<String> name) throws ValidationException {
 
         if (id.isEmpty() && name.isEmpty()) {
             throw new ValidationException(
-                    List.of(new ErrorDto("user", ErrorType.REQUERIDO))
+                    List.of(new ErrorDto("IdUser, GameName", ErrorType.REQUERIDO))
             );
         }
-
         UserEntity user;
 
         if (id.isPresent()) {
-            user = userRepo.obtenerPorId(id.get())
+            user = userRepo.getById(id.get())
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado")
                     );
         } else {
-            user = userRepo.obtenerTodos().stream()
+            user = userRepo.getAll().stream()
                     .filter(u -> u.getUserName().equalsIgnoreCase(name.get()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado")
                     );
         }
-
-        return new UserDTO(
-                user.getId(),
-                user.getUserName(),
-                user.getEmail(),
-                user.getRealName(),
-                user.getCountry(),
-                user.getBirthDate(),
-                user.getRegistrationDate(),
-                user.getAvatar(),
-                user.getPortfolioBalance(),
-                user.getAccountState()
-        );
+        return Mapper.mapFrom(user);
     }
 
 
@@ -98,26 +93,29 @@ public class UserController {
      * @param money cantidad de dinero a añadir
      * @return UserDTO con el saldo actualizado
      * */
-    public UserDTO addBalanceToWallet(Long id, Optional<Float> money) throws IllegalArgumentException{
-        UserEntity userOpt = userRepo.obtenerPorId(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    public UserDTO addBalanceToWallet(Long id, Float money) throws IllegalArgumentException{
+        UserEntity userOpt = userRepo.getById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        //Compruebo que la cuenta de el usuario que se encontro este activa
+        //Compruebo que la cuenta del usuario que se encontró este activa
         if(!userOpt.getAccountState().equals(AccountState.ACTIVE)){
             throw new IllegalArgumentException("Cuenta no activa");
         }
 
-        float ammount = money.orElseThrow(() -> new IllegalArgumentException("Cantidad no encontrada"));
+        if(money == null){
+            throw new IllegalArgumentException("Cantidad no encontrada");
+        }
+        float amount = money;
 
-        //Compruebo que la cantidad de saldo que intenta agregar el usuario esta entre 5 y 500
-        if(ammount < 5 || ammount > 500){
+        //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
+        if(amount < 5 || amount > 500){
             throw new IllegalArgumentException("La cantidad de dinero debe estar entre 5 y 500");
         }
 
-        float newbalance = userOpt.getPortfolioBalance() + ammount;
+        float newBalance = userOpt.getPortfolioBalance() + amount;
 
-        UserUpdateForm userForm = new UserUpdateForm(userOpt.getUserName(), userOpt.getEmail(), userOpt.getPassword(), userOpt.getRealName(), userOpt.getCountry(), userOpt.getBirthDate(), userOpt.getRegistrationDate(), userOpt.getAvatar(), newbalance, AccountState.ACTIVE);
+        UserUpdate userForm = new UserUpdate(userOpt.getUserName(), userOpt.getEmail(), userOpt.getPassword(), userOpt.getRealName(), userOpt.getCountry(), userOpt.getBirthDate(), userOpt.getRegistrationDate(), userOpt.getAvatar(), newBalance, userOpt.getAccountState());
 
-        UserEntity updatedUser = userRepo.actualizar(id, userForm).get();
+        UserEntity updatedUser = userRepo.update(id, userForm).get();
 
         return Mapper.mapFrom(updatedUser);
     }
@@ -125,24 +123,13 @@ public class UserController {
 
     /**Comprueba dinero en la cartera virtual de Steam del usuario
      * @param id id del usuaio
-     * @return UserDTO
+     * @return UserDTO con todos sus datos
      * */
     public UserDTO showBalanceFromWallet(Long id){
 
-        UserEntity user = userRepo.obtenerPorId(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        UserEntity user = userRepo.getById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        return new UserDTO(
-                user.getId(),
-                user.getUserName(),
-                user.getEmail(),
-                user.getRealName(),
-                user.getCountry(),
-                user.getBirthDate(),
-                user.getRegistrationDate(),
-                user.getAvatar(),
-                user.getPortfolioBalance(),
-                user.getAccountState()
-        );
+        return Mapper.mapFrom(user);
     }
 
 
@@ -158,15 +145,15 @@ public class UserController {
         List<ErrorDto> errores = new ArrayList<>();
 
         //Valida que el nombre de usuario no se repita
-        if (userRepo.obtenerTodos().stream().anyMatch(e -> e.getUserName().equals(user.userName()))) {
+        if (userRepo.getAll().stream().anyMatch(e -> e.getUserName().equals(user.userName()))) {
             errores.add(new ErrorDto("Name", ErrorType.DUPLICADO));
         }
         //Valida que el email no se repita
-        if (userRepo.obtenerTodos().stream().anyMatch(u -> u.getEmail().equals(user.email()))) {
+        if (userRepo.getAll().stream().anyMatch(u -> u.getEmail().equals(user.email()))) {
             errores.add(new ErrorDto("Email", ErrorType.DUPLICADO));
         }
         //Valida que el pais coincida con alguno de la lista del repositorio de paises
-        if (countryRepo.getCountries().stream().noneMatch(c -> c.equals(user.country()))) {
+        if (countryRepo.getAll().stream().noneMatch(c -> c.name().equals(user.country()))) {
             errores.add(new ErrorDto("Country", ErrorType.NO_ENCONTRADO));
         }
         return errores;

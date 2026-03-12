@@ -5,7 +5,7 @@ import org.example.Model.DTO.Purchase.PurchaseState;
 
 import java.time.LocalDate;
 
-public record PurchaseUpdateForm (
+public record PurchaseUpdate(
         Long id,
         Long idUser,
         Long idGame,

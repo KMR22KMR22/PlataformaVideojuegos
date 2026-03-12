@@ -3,7 +3,7 @@ package org.example.Repository.InMemory;
 import org.example.Model.Entidad.GameEntity;
 import org.example.Model.Entidad.ReviewEntity;
 import org.example.Model.Form.ReviewForm;
-import org.example.Model.Form.Updates.ReviewUpdateForm;
+import org.example.Model.Form.Updates.ReviewUpdate;
 import org.example.Repository.Interface.IReviewRepo;
 
 import java.util.ArrayList;
@@ -16,24 +16,24 @@ public class ReviewRepoInMemory implements IReviewRepo {
     private static Long NEXT_ID = 0L;
 
     @Override
-    public Optional<ReviewEntity> crear(ReviewForm form) {
+    public Optional<ReviewEntity> create(ReviewForm form) {
         var review = new ReviewEntity(NEXT_ID++, form.getIdUser(), form.getIdGame(), form.isRecommended(), form.getReviwText(), form.getHoursPlayed(), form.getPublicationDate(), form.getLastEditionDate(), form.getState());
         REVIEWS.add(review);
         return Optional.of(review);
     }
 
     @Override
-    public Optional<ReviewEntity> obtenerPorId(Long id) {
+    public Optional<ReviewEntity> getById(Long id) {
         return REVIEWS.stream().filter(review -> review.getId().equals(id)).findFirst();
     }
 
     @Override
-    public List<ReviewEntity> obtenerTodos() {return new ArrayList<>(REVIEWS);
+    public List<ReviewEntity> getAll() {return new ArrayList<>(REVIEWS);
     }
 
     @Override
-    public Optional<ReviewEntity> actualizar(Long id, ReviewUpdateForm form) {
-        obtenerPorId(id).orElseThrow(()-> new IllegalArgumentException("Reseña no encontrada"));
+    public Optional<ReviewEntity> update(Long id, ReviewUpdate form) {
+        getById(id).orElseThrow(()-> new IllegalArgumentException("Reseña no encontrada"));
 
         var reviewUpdated = new GameEntity(form.id(), form.tittle(), form.description(), form.developer(), form.launchDate(), form.basePrice(), form.currentDescount(), form.category(), form.gameAgeClasification(), form.availabeLanguages(), form.State());
         REVIEWS.removeIf(p -> p.getId().equals(id));
@@ -42,7 +42,7 @@ public class ReviewRepoInMemory implements IReviewRepo {
     }
 
     @Override
-    public boolean eliminar(Long id) {
+    public boolean delete(Long id) {
         return REVIEWS.removeIf(p -> p.getId().equals(id));
     }
 }

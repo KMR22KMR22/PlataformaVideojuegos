@@ -4,7 +4,7 @@ import org.example.Model.DTO.User.AccountState;
 
 import java.time.LocalDate;
 
-public record UserUpdateForm (
+public record UserUpdate(
         String userName,
         String email,
         String password,

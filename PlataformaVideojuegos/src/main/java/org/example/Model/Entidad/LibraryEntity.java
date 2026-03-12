@@ -12,7 +12,7 @@ public class LibraryEntity {
     private Long idUser;
     private Long idGame;
     private LocalDate adquisitionDate;
-    private Duration timePlaying;
+    private Long timePlaying;
     private Date lastPlayed;
     private InstalationState instalationState;
 
@@ -35,7 +35,7 @@ public class LibraryEntity {
         return adquisitionDate;
     }
 
-    public Duration getTimePlaying() {
+    public Long getTimePlaying() {
         return timePlaying;
     }
 
@@ -48,20 +48,6 @@ public class LibraryEntity {
     }
 
 
-    //Setters
-
-
-    public void setInstalationState(InstalationState instalationState) {
-        this.instalationState = instalationState;
-    }
-
-    public void setLastPlayed(Date lastPlayed) {
-        this.lastPlayed = lastPlayed;
-    }
-
-    public void setTimePlaying(Duration timePlaying) {
-        this.timePlaying = timePlaying;
-    }
 
 
     //Constructor Creacion
@@ -70,14 +56,14 @@ public class LibraryEntity {
         this.idUser = idUser;
         this.idGame = idGame;
         this.adquisitionDate = adquisitionDate;
-        this.timePlaying = Duration.ZERO;
+        this.timePlaying = 0L;
         this.lastPlayed = null;
         this.instalationState = InstalationState.NO_INSTALADO;
     }
 
 
     //Constructor Actualizacion
-    public LibraryEntity(Long id, Long idUser, Long idGame, LocalDate adquisitionDate, Duration timePlaying, Date lastPlayed, InstalationState instalationState) {
+    public LibraryEntity(Long id, Long idUser, Long idGame, LocalDate adquisitionDate, Long timePlaying, Date lastPlayed, InstalationState instalationState) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

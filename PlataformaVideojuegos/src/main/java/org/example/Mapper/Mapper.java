@@ -89,11 +89,11 @@ public class Mapper {
     }
 
     public static UserDTO findUser(Long id){
-        return mapFrom(userRepo.obtenerPorId(id).get());
+        return mapFrom(userRepo.getById(id).get());
     }
 
     public static GameDTO finGame(Long id){
-        return mapFrom(gameRepo.obtenerPorId(id).get());
+        return mapFrom(gameRepo.getById(id).get());
     }
 
 

@@ -2,7 +2,7 @@ package org.example.Repository.InMemory;
 
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.UserEntity;
-import org.example.Model.Form.Updates.UserUpdateForm;
+import org.example.Model.Form.Updates.UserUpdate;
 import org.example.Model.Form.UserForm;
 import org.example.Repository.Interface.IUserRepo;
 
@@ -17,27 +17,27 @@ public class UserRepoInMemory implements IUserRepo {
 
 
     @Override
-    public Optional<UserEntity> crear(UserForm form) {
+    public Optional<UserEntity> create(UserForm form) {
         var user = new UserEntity(NEXT_ID++, form.userName(), form.email(), form.password(), form.realName(), form.country(), form.birthDate(), form.avatar(), 0, AccountState.ACTIVE);
         USERS.add(user);
         return Optional.of(user);
     }
 
     @Override
-    public Optional<UserEntity> obtenerPorId(Long id) {
+    public Optional<UserEntity> getById(Long id) {
 
         return USERS.stream()
                 .filter(u -> u.getId().equals(id)).findFirst();
     }
 
     @Override
-    public List<UserEntity> obtenerTodos() {
+    public List<UserEntity> getAll() {
         return new ArrayList<>(USERS);
     }
 
     @Override
-    public Optional<UserEntity> actualizar(Long id, UserUpdateForm form) {
-        obtenerPorId(id).orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
+    public Optional<UserEntity> update(Long id, UserUpdate form) {
+        getById(id).orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
 
         var userUpdated = new UserEntity(id, form.userName(), form.email(), form.password(), form.realName(), form.country(), form.birthDate(), form.registrationDate(), form.avatar(), form.portfolioBalance(), form.accountState());
         USERS.removeIf(p -> p.getId().equals(id));
@@ -46,7 +46,7 @@ public class UserRepoInMemory implements IUserRepo {
     }
 
     @Override
-    public boolean eliminar(Long id) {
+    public boolean delete(Long id) {
 
         return USERS.removeIf(u -> u.getId().equals(id));
     }

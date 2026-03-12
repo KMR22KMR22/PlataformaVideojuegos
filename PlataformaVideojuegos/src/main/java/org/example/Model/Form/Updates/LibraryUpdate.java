@@ -2,11 +2,10 @@ package org.example.Model.Form.Updates;
 
 import org.example.Model.DTO.Library.InstalationState;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Date;
 
-public record LibraryUpdateForm (
+public record LibraryUpdate(
         Long id,
         Long idUser,
         Long idGame,

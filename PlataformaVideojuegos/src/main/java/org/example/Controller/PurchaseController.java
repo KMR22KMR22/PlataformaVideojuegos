@@ -7,19 +7,15 @@ import org.example.Model.DTO.Purchase.PaymentMethods;
 import org.example.Model.DTO.Purchase.PurchaseDTO;
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.GameEntity;
-import org.example.Model.Entidad.PurchaseEntity;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Form.Errors.ErrorDto;
 import org.example.Model.Form.Errors.ErrorType;
-import org.example.Model.Form.LibraryForm;
 import org.example.Model.Form.PurchaseForm;
-import org.example.Model.Form.UserForm;
 import org.example.Repository.InMemory.GameRepoInMemory;
 import org.example.Repository.InMemory.LibraryRepoInMemory;
 import org.example.Repository.InMemory.PurchaseRepoMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,14 +44,14 @@ public class PurchaseController {
 
         PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), game.getCurrentDescount());
 
-        var purchaseOpt = purchaseRepo.crear(purchaseForm);
+        var purchaseOpt = purchaseRepo.create(purchaseForm);
         var purchase = purchaseOpt.orElse(null);
 
         //Creo la biblioteca
 
 
 
-        var libraryOpt = libraryRepo.crear()
+        var libraryOpt = libraryRepo.create()
 
 
         return Mapper.mapFrom(purchase);
@@ -83,12 +79,12 @@ public class PurchaseController {
         }
 
         //Compruebo que el usuario exista en el repositorio
-        if(userRepo.obtenerPorId(user.getId()).isEmpty()){
+        if(userRepo.getById(user.getId()).isEmpty()){
             errores.add(new ErrorDto("IdUser", ErrorType.NO_ENCONTRADO));
         }
 
         //Compruebo que el juego exista en el sistema
-        if(gameRepo.obtenerPorId(game.getId()).isEmpty()){
+        if(gameRepo.getById(game.getId()).isEmpty()){
             errores.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
         }
 

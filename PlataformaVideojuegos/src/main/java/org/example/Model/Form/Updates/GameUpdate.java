@@ -6,7 +6,7 @@ import org.example.Model.DTO.Game.GameState;
 import java.time.LocalDate;
 import java.util.List;
 
-public record GameUpdateForm (
+public record GameUpdate(
         Long id,
         String tittle,
         String description,
