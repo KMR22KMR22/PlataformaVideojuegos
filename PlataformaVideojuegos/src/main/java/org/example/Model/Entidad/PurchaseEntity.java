@@ -1,7 +1,7 @@
 package org.example.Model.Entidad;
 
-import org.example.Model.DTO.Purchase.PaymentMethods;
 import org.example.Model.DTO.Purchase.PurchaseState;
+import org.example.Model.PaymentMethods.IPaymentMethod;
 
 import java.time.LocalDate;
 
@@ -11,7 +11,7 @@ public class PurchaseEntity {
     private Long idUser;
     private Long idGame;
     private LocalDate purchaseDate;
-    private PaymentMethods paymentMethod;
+    private IPaymentMethod paymentMethod;
     private float priceWithoutDiscount;
     private float discountApplicated;
     private PurchaseState satate;
@@ -36,7 +36,7 @@ public class PurchaseEntity {
         return purchaseDate;
     }
 
-    public PaymentMethods getPaymentMethod() {
+    public IPaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
@@ -55,8 +55,7 @@ public class PurchaseEntity {
 
     //Constructor
 
-
-    public PurchaseEntity(Long id, Long idUser, Long idGame, PaymentMethods paymentMethod, float priceWithoutDiscount, float discountApplicated) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, IPaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

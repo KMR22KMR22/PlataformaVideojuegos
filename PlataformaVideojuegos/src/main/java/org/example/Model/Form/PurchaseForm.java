@@ -1,15 +1,12 @@
 package org.example.Model.Form;
 
-import org.example.Model.DTO.Game.GameDTO;
-import org.example.Model.DTO.Purchase.PaymentMethods;
-import org.example.Model.DTO.Purchase.PurchaseState;
-import org.example.Model.DTO.User.UserDTO;
+import org.example.Model.PaymentMethods.IPaymentMethod;
 
 import java.time.LocalDate;
 
 public record PurchaseForm (Long idUser,
                             Long idGame,
-                            PaymentMethods paymentMethod,
+                            IPaymentMethod paymentMethod,
                             float priceWithoutDiscount,
                             float discountApplicated){
 

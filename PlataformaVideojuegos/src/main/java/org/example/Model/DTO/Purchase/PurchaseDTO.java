@@ -2,6 +2,7 @@ package org.example.Model.DTO.Purchase;
 
 import org.example.Model.DTO.Game.GameDTO;
 import org.example.Model.DTO.User.UserDTO;
+import org.example.Model.PaymentMethods.IPaymentMethod;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public record PurchaseDTO (
         Long idGame,
         GameDTO game,
         LocalDate purchaseDate,
-        PaymentMethods paymentMethod,
+        IPaymentMethod paymentMethod,
         float priceWithoutDiscount,
         float discountApplicated,
         PurchaseState satate){

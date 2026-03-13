@@ -31,6 +31,11 @@ public class PurchaseRepoMemory implements IPurchaseRepo {
     public List<PurchaseEntity> getAll() {return new ArrayList<>(PURCHASES);
     }
 
+    public List<PurchaseEntity> getPurchasesCustomer(Long idUser){
+        return PURCHASES.stream()
+                .filter(p -> p.getIdUser() == idUser)
+                .toList();}
+
     @Override
     public Optional<PurchaseEntity> update(Long id, PurchaseUpdate form) {
         getById(id).orElseThrow(()-> new IllegalArgumentException("Compra no encontrada"));

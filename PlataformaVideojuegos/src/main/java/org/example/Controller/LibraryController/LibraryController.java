@@ -43,14 +43,7 @@ public class LibraryController {
      * */
     public List<LibraryDTO> showPersonalLibrary(Long idUser, Optional<OrderParameters> order){
 
-        //Compruebo que el usuario exista
-        userRepo.getById(idUser).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
-        //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
-        List<LibraryDTO> libraries = libraryRepo.getAll().stream()
-                .filter(l -> l.getIdUser() == idUser)
-                .map(l -> Mapper.mapFrom(l))
-                .toList();
+        List<LibraryDTO> libraries = showLibraryStats(idUser);
 
         if(order.isPresent()){
 
@@ -205,28 +198,43 @@ public class LibraryController {
         return libraries;
     }
 
+    /**Muestra métricas generales de la biblioteca del usuario
+     * @param idUser Id del usuario que va comprar e jeugo
+     * @return Lista con todas las bibliotecas que coincidan con el usuario
+     * */
+    public List<LibraryDTO> showLibraryStats(Long idUser){
+        //Compruebo que el usuario exista
+        userRepo.getById(idUser).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
+        return libraryRepo.getAll().stream()
+                .filter(l -> l.getIdUser() == idUser)
+                .map(l -> Mapper.mapFrom(l))
+                .toList();
+    }
+
 
 
     /**Realiza las validaciones de la Biblioteca que necesitan acceso a datos
-     * @param gameid Id del juego a comprar
-     * @param userid Id del usuario que va comprar e jeugo
+     * @param idGame Id del juego a comprar
+     * @param idUser Id del usuario que va comprar e jeugo
      * @return Lista con errores, en caso de no haber devuelve la lista vacia
      * */
-    public List<ErrorDto> validate(Long gameid, Long userid) {
+    public List<ErrorDto> validate(Long idGame, Long idUser) {
         List<ErrorDto>  errors = new ArrayList<>();
 
         //Compruebo que el usuario exista en el repositorio
-        if(userRepo.getById(userid).isEmpty()){
+        if(userRepo.getById(idUser).isEmpty()){
             errors.add(new ErrorDto("IdUser", ErrorType.NO_ENCONTRADO));
         }
 
         //Compruebo que el juego exista en el repositorio
-        if(gameRepo.getById(gameid).isEmpty()){
+        if(gameRepo.getById(idGame).isEmpty()){
             errors.add(new ErrorDto("Idgame", ErrorType.NO_ENCONTRADO));
         }
 
-        if(libraryRepo.getAll().stream().anyMatch(g -> g.getIdGame().equals(gameid))
-                && libraryRepo.getAll().stream().anyMatch(g -> g.getIdUser().equals(userid))){
+        if(libraryRepo.getAll().stream().anyMatch(g -> g.getIdGame().equals(idGame))
+                && libraryRepo.getAll().stream().anyMatch(g -> g.getIdUser().equals(idUser))){
             errors.add(new ErrorDto("IdGame, IdUser", ErrorType.DUPLICADO));
         }
 

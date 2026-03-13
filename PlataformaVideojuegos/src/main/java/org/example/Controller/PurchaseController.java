@@ -5,38 +5,47 @@ import org.example.Mapper.Mapper;
 import org.example.Model.DTO.Game.GameState;
 import org.example.Model.DTO.Purchase.PaymentMethods;
 import org.example.Model.DTO.Purchase.PurchaseDTO;
+import org.example.Model.DTO.Purchase.PurchaseState;
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.GameEntity;
+import org.example.Model.Entidad.PurchaseEntity;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Form.Errors.ErrorDto;
 import org.example.Model.Form.Errors.ErrorType;
 import org.example.Model.Form.PurchaseForm;
-import org.example.Repository.InMemory.GameRepoInMemory;
-import org.example.Repository.InMemory.LibraryRepoInMemory;
-import org.example.Repository.InMemory.PurchaseRepoMemory;
-import org.example.Repository.InMemory.UserRepoInMemory;
+import org.example.Model.PaymentMethods.IPaymentMethod;
+import org.example.Repository.Interface.IGameRepo;
+import org.example.Repository.Interface.IPurchaseRepo;
+import org.example.Repository.Interface.IUserRepo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class PurchaseController {
 
-    private PurchaseRepoMemory purchaseRepo = new PurchaseRepoMemory();
-    private GameRepoInMemory gameRepo = new GameRepoInMemory();
-    private UserRepoInMemory userRepo = new UserRepoInMemory();
-    private LibraryRepoInMemory libraryRepo = new LibraryRepoInMemory();
+    private IPurchaseRepo purchaseRepo;
+    private IGameRepo gameRepo;
+    private IUserRepo userRepo;
 
-    /**Crea una nueva compra
+
+    //Constructor
+
+
+    public PurchaseController(IPurchaseRepo purchaseRepo, IGameRepo gameRepo, IUserRepo userRepo) {
+        this.purchaseRepo = purchaseRepo;
+        this.gameRepo = gameRepo;
+        this.userRepo = userRepo;
+    }
+
+    /**Crear una nueva transacción para adquirir un juego
      * @param user Usuario que intenta comprar
      * @param game juego que se intenta comprar
      * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return PurchaseDTO creada
      * */
-    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethods paymentMethod) throws ValidationException {
+    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, IPaymentMethod paymentMethod) throws ValidationException {
         List <ErrorDto> errores = new ArrayList<>();
 
-        errores.addAll(validate(user, game, paymentMethod));
+        errores.addAll(validate(user, game));
 
         if(!errores.isEmpty()){
             throw new ValidationException(errores);
@@ -47,31 +56,41 @@ public class PurchaseController {
         var purchaseOpt = purchaseRepo.create(purchaseForm);
         var purchase = purchaseOpt.orElse(null);
 
-        //Creo la biblioteca
-
-
-
-        var libraryOpt = libraryRepo.create()
-
-
         return Mapper.mapFrom(purchase);
     }
 
 
+    /**Crear una nueva transacción para adquirir un juego
+     * @param idPurchase Id de la compra que se intenta realizar
+     * @param paymentMethod metodo mediante el cual el usuario va a pagar
+     * @return Exito en el pago o no
+     * */
+    public boolean processPayment(Long idPurchase, IPaymentMethod paymentMethod){
+        //Compruebo que la compra exista
+        purchaseRepo.getById(idPurchase).orElseThrow(() -> new IllegalArgumentException("La compra no existe"));
+
+        return paymentMethod.makePayment();
+    }
+
+
+
+    public List<PurchaseEntity> consultPurchasesRecord(Long idUser, Optional<PurchaseState> state, Date minDate, Date maxDate){
+        //Compruebo que el usuario exista
+        userRepo.getById(idUser).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
 
 
     /**Realiza las validaciones del PurchaseForm que necesitan acceso a datos
      * @param user Usuario que intenta comprar
      * @param game juego que se intenta comprar
-     * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return Lista con errores, en caso de no haber devuelve la lista vacia
      * */
-    public List<ErrorDto> validate(UserEntity user, GameEntity game, PaymentMethods paymentMethod) {
+    public List<ErrorDto> validate(UserEntity user, GameEntity game) {
 
         List<ErrorDto> errores = new ArrayList<>();
 
         //Compuebo que exista el usuario, el juego y el metodo de pago
-        if (game == null || user == null || paymentMethod == null) {throw new IllegalArgumentException("Faltan parametros");}
+        if (game == null || user == null) {throw new IllegalArgumentException("Faltan parametros");}
 
         //Compruebo que la cuenta del usuario este activa
         if(Arrays.stream(AccountState.values()).noneMatch(s -> s.equals(user.getAccountState()))){
@@ -93,10 +112,6 @@ public class PurchaseController {
             errores.add(new ErrorDto("State", ErrorType.NO_ENCONTRADO));
         }
 
-        //Compruebo que el metodo de pago coincida con los permitidos
-        if(Arrays.stream(PaymentMethods.values()).noneMatch(p -> p.equals(paymentMethod))) {
-            errores.add(new ErrorDto("PaimentMethod", ErrorType.NO_ENCONTRADO));
-        }
         return errores;
     }
 
