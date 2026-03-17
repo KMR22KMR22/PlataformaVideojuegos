@@ -1,6 +1,5 @@
 package org.example.Repository.InMemory;
 
-import org.example.Model.Entidad.LibraryEntity;
 import org.example.Model.Entidad.PurchaseEntity;
 import org.example.Model.Form.PurchaseForm;
 import org.example.Model.Form.Updates.PurchaseUpdate;
@@ -40,7 +39,7 @@ public class PurchaseRepoMemory implements IPurchaseRepo {
     public Optional<PurchaseEntity> update(Long id, PurchaseUpdate form) {
         getById(id).orElseThrow(()-> new IllegalArgumentException("Compra no encontrada"));
 
-        var purchaseUpdated = new LibraryEntity(form.id(), form.idUser(), form.idGame(), form.adquisitionDate(), form.timePlaying(), form.lastPlayed(), form.instalationState());
+        var purchaseUpdated = new PurchaseEntity(form.id(), form.idUser(), form.idGame(), form.purchaseDate(), form.paymentMethod(), form.priceWithoutDiscount(), form.discountApplicated(), form.satate());
         PURCHASES.removeIf(p -> p.getId().equals(id));
         PURCHASES.add(purchaseUpdated);
         return Optional.of(purchaseUpdated);

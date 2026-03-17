@@ -53,7 +53,21 @@ public class PurchaseEntity {
     }
 
 
-    //Constructor
+    //Constructor Actualizar
+
+    public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, IPaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
+        this.id = id;
+        this.idUser = idUser;
+        this.idGame = idGame;
+        this.purchaseDate = purchaseDate;
+        this.paymentMethod = paymentMethod;
+        this.priceWithoutDiscount = priceWithoutDiscount;
+        this.discountApplicated = discountApplicated;
+        this.satate = satate;
+    }
+
+
+    //Constructor Creacion
 
     public PurchaseEntity(Long id, Long idUser, Long idGame, IPaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated) {
         this.id = id;

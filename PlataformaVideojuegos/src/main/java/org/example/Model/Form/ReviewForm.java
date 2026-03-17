@@ -10,9 +10,7 @@ public record ReviewForm (Long id,
                           int idGame,
                           boolean recommended,
                           String reviwText,
-                          Duration hoursPlayed,
-                          Date publicationDate,
-                          Date lastEditionDate,
+                          int hoursPlayed,
                           ReviewState state){
 
 
