@@ -2,17 +2,16 @@ package org.example.Model.Form.Updates;
 
 import org.example.Model.DTO.Review.ReviewState;
 
-import java.time.Duration;
-import java.util.Date;
+import java.time.LocalDate;
 
 public record ReviewUpdate(
         Long id,
-        int idUser,
-        int idGame,
+        Long idUser,
+        Long idGame,
         boolean recommended,
         String reviwText,
-        Duration hoursPlayed,
-        Date publicationDate,
-        Date lastEditionDate,
+        Long hoursPlayed,
+        LocalDate publicationDate,
+        LocalDate lastEditionDate,
         ReviewState state){
 }

@@ -3,11 +3,9 @@ package org.example.Mapper;
 import org.example.Model.DTO.Game.GameDTO;
 import org.example.Model.DTO.Library.LibraryDTO;
 import org.example.Model.DTO.Purchase.PurchaseDTO;
+import org.example.Model.DTO.Review.ReviewDTO;
 import org.example.Model.DTO.User.UserDTO;
-import org.example.Model.Entidad.GameEntity;
-import org.example.Model.Entidad.LibraryEntity;
-import org.example.Model.Entidad.PurchaseEntity;
-import org.example.Model.Entidad.UserEntity;
+import org.example.Model.Entidad.*;
 import org.example.Repository.InMemory.GameRepoInMemory;
 import org.example.Repository.InMemory.UserRepoInMemory;
 
@@ -16,6 +14,7 @@ public class Mapper {
     private static UserRepoInMemory userRepo = new UserRepoInMemory();
     private static GameRepoInMemory gameRepo = new GameRepoInMemory();
 
+    //User
     public static UserDTO mapFrom(UserEntity entity) {
         if (entity == null)
             return null;
@@ -33,6 +32,7 @@ public class Mapper {
                 entity.getAccountState());
     }
 
+    //Game
     public static GameDTO mapFrom(GameEntity entity) {
         if (entity == null)
             return null;
@@ -51,6 +51,7 @@ public class Mapper {
                 entity.getState());
     }
 
+    //Purchase
     public static PurchaseDTO mapFrom(PurchaseEntity entity) {
         if (entity == null)
             return null;
@@ -70,6 +71,7 @@ public class Mapper {
                 entity.getSatate());
     }
 
+    //Library
     public static LibraryDTO mapFrom(LibraryEntity entity) {
         if (entity == null)
             return null;
@@ -86,6 +88,27 @@ public class Mapper {
                 entity.getTimePlaying(),
                 entity.getLastPlayed(),
                 entity.getInstalationState());
+    }
+
+    //Review
+    public static ReviewDTO mapFrom(ReviewEntity entity) {
+        if (entity == null)
+            return null;
+
+        UserDTO userDTO = findUser(entity.getIdUser());
+        GameDTO gameDTO = finGame(entity.getIdGame());
+        return new ReviewDTO(
+                entity.getId(),
+                entity.getIdUser(),
+                userDTO,
+                entity.getIdGame(),
+                gameDTO,
+                entity.isRecommended(),
+                entity.getReviwText(),
+                entity.getHoursPlayed(),
+                entity.getPublicationDate(),
+                entity.getLastEditionDate(),
+                entity.getState());
     }
 
     public static UserDTO findUser(Long id){

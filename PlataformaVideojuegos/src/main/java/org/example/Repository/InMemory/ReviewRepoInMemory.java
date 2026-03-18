@@ -1,6 +1,5 @@
 package org.example.Repository.InMemory;
 
-import org.example.Model.Entidad.GameEntity;
 import org.example.Model.Entidad.ReviewEntity;
 import org.example.Model.Form.ReviewForm;
 import org.example.Model.Form.Updates.ReviewUpdate;
@@ -13,11 +12,11 @@ import java.util.Optional;
 public class ReviewRepoInMemory implements IReviewRepo {
 
     private static final List<ReviewEntity> REVIEWS = new ArrayList<>();
-    private static Long NEXT_ID = 0L;
+    private static Long NEXT_ID = 1L;
 
     @Override
     public Optional<ReviewEntity> create(ReviewForm form) {
-        var review = new ReviewEntity(NEXT_ID++, form.getIdUser(), form.getIdGame(), form.isRecommended(), form.getReviwText(), form.getHoursPlayed(), form.getPublicationDate(), form.getLastEditionDate(), form.getState());
+        var review = new ReviewEntity(NEXT_ID++, form.idUser(), form.idGame(), form.recommended(), form.reviwText(), form.hoursPlayed());
         REVIEWS.add(review);
         return Optional.of(review);
     }
@@ -28,6 +27,11 @@ public class ReviewRepoInMemory implements IReviewRepo {
     }
 
     @Override
+    public Optional<ReviewEntity> getByidGame(Long id) {
+        return REVIEWS.stream().filter(review -> review.getIdGame().equals(id)).findFirst();
+    }
+
+    @Override
     public List<ReviewEntity> getAll() {return new ArrayList<>(REVIEWS);
     }
 
@@ -35,7 +39,7 @@ public class ReviewRepoInMemory implements IReviewRepo {
     public Optional<ReviewEntity> update(Long id, ReviewUpdate form) {
         getById(id).orElseThrow(()-> new IllegalArgumentException("Reseña no encontrada"));
 
-        var reviewUpdated = new GameEntity(form.id(), form.tittle(), form.description(), form.developer(), form.launchDate(), form.basePrice(), form.currentDescount(), form.category(), form.gameAgeClasification(), form.availabeLanguages(), form.State());
+        var reviewUpdated = new ReviewEntity(form.id(), form.idUser(), form.idGame(), form.recommended(), form.reviwText(), form.hoursPlayed(), form.publicationDate(), form.lastEditionDate(), form.state());
         REVIEWS.removeIf(p -> p.getId().equals(id));
         REVIEWS.add(reviewUpdated);
         return Optional.of(reviewUpdated);

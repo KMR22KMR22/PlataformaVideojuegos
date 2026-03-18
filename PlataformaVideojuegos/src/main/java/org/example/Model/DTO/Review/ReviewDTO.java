@@ -1,16 +1,20 @@
 package org.example.Model.DTO.Review;
 
-import java.time.Duration;
-import java.util.Date;
+import org.example.Model.DTO.Game.GameDTO;
+import org.example.Model.DTO.User.UserDTO;
+
+import java.time.LocalDate;
 
 public record ReviewDTO (
         Long id,
-        int idUser,
-        int idGame,
+        Long idUser,
+        UserDTO user,
+        Long idGame,
+        GameDTO game,
         boolean recommended,
         String reviwText,
-        Duration hoursPlayed,
-        Date publicationDate,
-        Date lastEditionDate,
+        Long hoursPlayed,
+        LocalDate publicationDate,
+        LocalDate lastEditionDate,
         ReviewState state){
 }

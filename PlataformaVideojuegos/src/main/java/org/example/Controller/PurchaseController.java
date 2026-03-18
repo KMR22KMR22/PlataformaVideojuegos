@@ -143,12 +143,12 @@ public class PurchaseController {
 
     /** Devolver una compra y reintegrar el dinero a la cartera
      * @param idPurchase id de la compra
-     * @return Factura creada
+     * @return PurchaseDTO con los datos de la compra
      * */
-    public String generateBill(Long idPurchase){
+    public PurchaseDTO generateBill(Long idPurchase){
         PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElseThrow(() -> new IllegalArgumentException("La compra no existe"));
 
-        return "";
+        return Mapper.mapFrom(purchase);
     }
 
     /**Realiza las validaciones del PurchaseForm que necesitan acceso a datos

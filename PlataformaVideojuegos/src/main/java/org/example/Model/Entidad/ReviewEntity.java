@@ -2,34 +2,32 @@ package org.example.Model.Entidad;
 
 import org.example.Model.DTO.Review.ReviewState;
 
-import java.time.Duration;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class ReviewEntity {
 
     private Long id;
-    private int idUser;
-    private int idGame;
+    private Long idUser;
+    private Long idGame;
     private boolean recommended;
     private String reviwText;
-    private Duration hoursPlayed;
-    private Date publicationDate;
-    private Date lastEditionDate;
+    private Long hoursPlayed;
+    private LocalDate publicationDate;
+    private LocalDate lastEditionDate;
     private ReviewState state;
 
 
     //Getters
 
-
     public Long getId() {
         return id;
     }
 
-    public int getIdUser() {
+    public Long getIdUser() {
         return idUser;
     }
 
-    public int getIdGame() {
+    public Long getIdGame() {
         return idGame;
     }
 
@@ -41,15 +39,15 @@ public class ReviewEntity {
         return reviwText;
     }
 
-    public Duration getHoursPlayed() {
+    public Long getHoursPlayed() {
         return hoursPlayed;
     }
 
-    public Date getPublicationDate() {
+    public LocalDate getPublicationDate() {
         return publicationDate;
     }
 
-    public Date getLastEditionDate() {
+    public LocalDate getLastEditionDate() {
         return lastEditionDate;
     }
 
@@ -60,6 +58,17 @@ public class ReviewEntity {
 
     //Setters
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setIdUser(Long idUser) {
+        this.idUser = idUser;
+    }
+
+    public void setIdGame(Long idGame) {
+        this.idGame = idGame;
+    }
 
     public void setRecommended(boolean recommended) {
         this.recommended = recommended;
@@ -69,11 +78,15 @@ public class ReviewEntity {
         this.reviwText = reviwText;
     }
 
-    public void setHoursPlayed(Duration hoursPlayed) {
+    public void setHoursPlayed(Long hoursPlayed) {
         this.hoursPlayed = hoursPlayed;
     }
 
-    public void setLastEditionDate(Date lastEditionDate) {
+    public void setPublicationDate(LocalDate publicationDate) {
+        this.publicationDate = publicationDate;
+    }
+
+    public void setLastEditionDate(LocalDate lastEditionDate) {
         this.lastEditionDate = lastEditionDate;
     }
 
@@ -82,10 +95,9 @@ public class ReviewEntity {
     }
 
 
-    //Constructor
+    //Constructor Actualizacion
 
-
-    public ReviewEntity(Long id, int idUser, int idGame, boolean recommended, String reviwText, Duration hoursPlayed, Date publicationDate, Date lastEditionDate, ReviewState state) {
+    public ReviewEntity(Long id, Long idUser, Long idGame, boolean recommended, String reviwText, Long hoursPlayed, LocalDate publicationDate, LocalDate lastEditionDate, ReviewState state) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
@@ -95,5 +107,20 @@ public class ReviewEntity {
         this.publicationDate = publicationDate;
         this.lastEditionDate = lastEditionDate;
         this.state = state;
+    }
+
+
+    //Constructor Creacion
+
+    public ReviewEntity(Long id, Long idUser, Long idGame, boolean recommended, String reviwText, Long hoursPlayed) {
+        this.id = id;
+        this.idUser = idUser;
+        this.idGame = idGame;
+        this.recommended = recommended;
+        this.reviwText = reviwText;
+        this.hoursPlayed = hoursPlayed;
+        this.publicationDate = LocalDate.now();
+        this.lastEditionDate = LocalDate.now();
+        this.state = ReviewState.PUBLICADA;
     }
 }

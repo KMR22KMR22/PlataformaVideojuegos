@@ -53,6 +53,41 @@ public class PurchaseEntity {
     }
 
 
+    //Setters
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setIdUser(Long idUser) {
+        this.idUser = idUser;
+    }
+
+    public void setIdGame(Long idGame) {
+        this.idGame = idGame;
+    }
+
+    public void setPurchaseDate(LocalDate purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
+
+    public void setPaymentMethod(IPaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public void setPriceWithoutDiscount(float priceWithoutDiscount) {
+        this.priceWithoutDiscount = priceWithoutDiscount;
+    }
+
+    public void setDiscountApplicated(float discountApplicated) {
+        this.discountApplicated = discountApplicated;
+    }
+
+    public void setSatate(PurchaseState satate) {
+        this.satate = satate;
+    }
+
+
     //Constructor Actualizar
 
     public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, IPaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
