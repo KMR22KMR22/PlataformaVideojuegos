@@ -18,7 +18,7 @@ public class UserRepoInMemory implements IUserRepo {
 
     @Override
     public Optional<UserEntity> create(UserForm form) {
-        var user = new UserEntity(NEXT_ID++, form.userName(), form.email(), form.password(), form.realName(), form.country(), form.birthDate(), form.avatar(), 0, AccountState.ACTIVE);
+        var user = new UserEntity(NEXT_ID++, form.userName(), form.email(), form.password(), form.realName(), form.country(), form.birthDate(), form.avatar(), 0);
         USERS.add(user);
         return Optional.of(user);
     }

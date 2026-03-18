@@ -4,8 +4,8 @@ import org.example.Model.Entidad.ReviewEntity;
 import org.example.Model.Form.ReviewForm;
 import org.example.Model.Form.Updates.ReviewUpdate;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface IReviewRepo extends ICrud<ReviewEntity, ReviewForm, ReviewUpdate, Long>{
-    Optional<ReviewEntity> getByidGame(Long id);
+    List<ReviewEntity> getByidGame(Long id);
 }

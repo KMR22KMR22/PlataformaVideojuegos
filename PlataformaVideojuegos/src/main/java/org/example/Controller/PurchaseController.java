@@ -128,7 +128,7 @@ public class PurchaseController {
         PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElseThrow(() -> new IllegalArgumentException("La compra no existe"));
 
         //Compruebo que no se haya vencido la fecha de reembolso
-        if(purchase.getPurchaseDate().isBefore(LocalDate.now())){throw new IllegalArgumentException("Plazo para reembolso expiró");}
+        if(purchase.getPurchaseDate().isBefore){throw new IllegalArgumentException("Plazo para reembolso expiró");}
 
         UserEntity user = userRepo.getById(purchase.getIdUser()).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         float amount = purchase.getDiscountApplicated();

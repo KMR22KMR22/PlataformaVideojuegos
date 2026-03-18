@@ -101,12 +101,50 @@ public class ReviewController {
     /**Realiza las validaciones del UserForm que necesitan acceso a datos
      * @param idGame Id del juego
      * @param recomended Se recomienda o no
-     * @return Lista con errores, en caso de no haber devuelve la lista vacia
+     * @param order Parametro para realizar la busqueda
+     * @return  Lista de reseñas con estadísticas generales
      * */
     public List<ReviewDTO> showReviews(Long idGame, Optional<Boolean> recomended, Optional<Order> order) {
         GameEntity game = gameRepo.getById(idGame).orElseThrow(()-> new IllegalArgumentException("Juego no encontrado"));
 
-        ReviewEntity
+        List<ReviewEntity> reviewEntitys = reviewRepo.getByidGame(idGame);
+
+        if(recomended.isPresent()) {
+            reviewEntitys = reviewEntitys.stream()
+                    .filter(r -> r.isRecommended())
+                    .toList();
+        }
+
+        if(order.isPresent()) {
+
+        }
+
+        return reviewEntitys.stream().map(r -> Mapper.mapFrom(r)).toList();
+    }
+
+
+    /**Cambiar la visibilidad de una reseña a oculta
+     * @param idReview Id de la reseña
+     * @param idUser Id del usuario que hizo la reseña
+     * @return  Confirmación de ocultación
+     * */
+    public boolean hideReview(Long idReview, Long idUser) {
+        boolean hidden = false;
+
+        userRepo.getById(idUser).orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
+        ReviewEntity review = reviewRepo.getById(idReview).orElseThrow(()-> new IllegalArgumentException("Reseña no encontrada"));
+
+        if(idUser != review.getIdUser()) {
+            throw new IllegalArgumentException("La reseña no coincide con el usuario");
+        }
+
+        ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.OCULTA);
+        var reviewOpt = reviewRepo.update(idReview, form);
+
+        if(reviewOpt.isPresent()) {
+            hidden = true;
+        }
+        return hidden;
     }
 
 

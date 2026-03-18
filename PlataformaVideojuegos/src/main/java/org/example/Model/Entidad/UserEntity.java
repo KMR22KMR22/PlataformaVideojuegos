@@ -134,8 +134,8 @@ public class UserEntity {
 
     //ConstructorCreacion
 
-    public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar, float portfolioBalance, AccountState accountState) {
-        this(id, userName, email, password, realName, country, birthDate, LocalDate.now(), avatar, portfolioBalance, accountState);
+    public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar, float portfolioBalance) {
+        this(id, userName, email, password, realName, country, birthDate, LocalDate.now(), avatar, portfolioBalance, AccountState.ACTIVE);
     }
 }
 

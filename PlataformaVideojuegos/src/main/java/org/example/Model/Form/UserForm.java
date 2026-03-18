@@ -20,7 +20,13 @@ public record UserForm (
         String avatar){
 
 
-
+    static final int NAME_MIN_L = 3;
+    static final int NAME_MAX_L = 20;
+    static final int R_NAME_MIN_L = 2;
+    static final int R_NAME_MAX_L = 50;
+    static final int PASS_L = 20;
+    public static final int MIN_AGE = 13;
+    public static final int MAX_AVATAR = 100;
 
 
     //Validaciones
@@ -69,10 +75,10 @@ public record UserForm (
         if (Util.checkCadenaBlankOrEmpty(userName)) {
             errores.add(new ErrorDto("Nombre", ErrorType.REQUERIDO));
         }
-        if (userName.length() < 3) {
+        if (userName.length() < NAME_MIN_L) {
             errores.add(new ErrorDto("Nombre", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (userName.length() > 20) {
+        if (userName.length() > NAME_MAX_L) {
             errores.add(new ErrorDto("Nombre", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         if (!userName.matches("^[a-zA-Z0-9_-]+$")){
@@ -112,7 +118,7 @@ public record UserForm (
         if (Util.checkCadenaBlankOrEmpty(password)) {
             errores.add(new ErrorDto("Password", ErrorType.REQUERIDO));
         }
-        if (password.length() < 8) {
+        if (password.length() < PASS_L) {
             errores.add(new ErrorDto("Password", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         if (!password.matches(".*[A-Z].*") ||
@@ -134,10 +140,10 @@ public record UserForm (
         if (Util.checkCadenaBlankOrEmpty(realName)) {
             errores.add(new ErrorDto("RealName", ErrorType.REQUERIDO));
         }
-        if (realName.length() < 2) {
+        if (realName.length() < R_NAME_MIN_L) {
             errores.add(new ErrorDto("RealName", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (realName.length() > 50) {
+        if (realName.length() > R_NAME_MAX_L) {
             errores.add(new ErrorDto("RealName", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
@@ -166,7 +172,7 @@ public record UserForm (
         if(birthDate == null){
             errores.add(new ErrorDto("BirthDate", ErrorType.REQUERIDO));
         }
-        if(Period.between(birthDate, LocalDate.now()).getYears() < 13){
+        if(Period.between(birthDate, LocalDate.now()).getYears() < MIN_AGE){
             errores.add(new ErrorDto("BirthDate", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if(birthDate.isAfter(LocalDate.now())){
@@ -186,7 +192,7 @@ public record UserForm (
         List<ErrorDto> errores = new ArrayList<>();
 
         if (avatar != null){
-            if(avatar.length() > 100){
+            if(avatar.length() > MAX_AVATAR){
                 errores.add(new ErrorDto("Avatar", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }

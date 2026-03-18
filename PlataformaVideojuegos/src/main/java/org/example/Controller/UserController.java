@@ -30,6 +30,11 @@ public class UserController {
         this.countryRepo = countryRepo;
     }
 
+    final float MIN_VALUE = 5;
+    final float MAX_VALUE = 500;
+
+
+
     /**Crear una nueva cuenta de usuario en la plataforma
      * @param userForm Formulario con los datos introducidos por el usuario
      * @return UserDTO con todos los datos del usuario creado
@@ -107,7 +112,7 @@ public class UserController {
         float amount = money;
 
         //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
-        if(amount < 5 || amount > 500){
+        if(amount < MIN_VALUE || amount > MAX_VALUE){
             throw new IllegalArgumentException("La cantidad de dinero debe estar entre 5 y 500");
         }
 

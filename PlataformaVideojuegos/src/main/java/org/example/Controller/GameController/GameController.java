@@ -21,6 +21,8 @@ import java.util.Optional;
 
 public class GameController {
 
+    public static final int MIN_DISCOUNT = 0;
+    public static final int MAX_DISCOUNT = 100;
     private IGameRepo gameRepo;
     private IReviewRepo reviewRepo;
 
@@ -146,7 +148,7 @@ public class GameController {
      * */
     public GameDTO applayDiscount(Long id, Integer percent) throws IllegalArgumentException{
         //Copruebo que el porciento que se quiere aplicar esté en un rango correcto
-        if(percent < 0 || percent > 100){throw new IllegalArgumentException("Porciento invalido");}
+        if(percent < MIN_DISCOUNT || percent > MAX_DISCOUNT){throw new IllegalArgumentException("Porciento invalido");}
 
         GameEntity entity = gameRepo.getById(id).get();
 

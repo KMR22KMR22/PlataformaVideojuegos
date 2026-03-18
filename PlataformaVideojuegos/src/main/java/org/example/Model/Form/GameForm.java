@@ -22,6 +22,15 @@ public record GameForm (
         GameAgeClasification gameAgeClasification,
         List<String> availabeLanguages){
 
+    public static final int MAX_TITLE = 100;
+    public static final int MAX_DESCRIPTION = 2000;
+    public static final int MIN_DEV = 2;
+    public static final int MAX_DEV = 100;
+    public static final int MIN_BASE_PRICE = 0;
+    public static final double MAX_BASE_PRICE = 999.99;
+    public static final int DECIMALS = 2;
+    public static final int MAX_LANG = 200;
+
 
     //Validaciones
     /**
@@ -69,7 +78,7 @@ public record GameForm (
         if(Util.checkCadenaBlankOrEmpty(tittle)){
             errores.add(new ErrorDto("Tittle", ErrorType.REQUERIDO));
         }
-        if(tittle.length() > 100){
+        if(tittle.length() > MAX_TITLE){
             errores.add(new ErrorDto("Tittle", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
@@ -83,7 +92,7 @@ public record GameForm (
         List<ErrorDto> errores = new ArrayList<>();
 
         if (!Util.checkCadenaBlankOrEmpty(description)){
-            if(description.length() > 2000 ){
+            if(description.length() > MAX_DESCRIPTION){
                 errores.add(new ErrorDto("Description", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }
@@ -100,10 +109,10 @@ public record GameForm (
         if(Util.checkCadenaBlankOrEmpty(developer)){
             errores.add(new ErrorDto("Developer", ErrorType.REQUERIDO));
         }
-        if(developer.length() < 2){
+        if(developer.length() < MIN_DEV){
             errores.add(new ErrorDto("Developer", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if(developer.length() > 100){
+        if(developer.length() > MAX_DEV){
             errores.add(new ErrorDto("Developer", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         return errores;
@@ -132,15 +141,15 @@ public record GameForm (
     private List<ErrorDto> validateBasePrice() {
         List<ErrorDto> errores = new ArrayList<>();
 
-        if(basePrice < 0){
+        if(basePrice < MIN_BASE_PRICE){
             errores.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if(basePrice > 999.99){
+        if(basePrice > MAX_BASE_PRICE){
             errores.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_ALTO));
 
         }
         var value = BigDecimal.valueOf((basePrice));
-        if(value.scale() > 2){
+        if(value.scale() > DECIMALS){
             errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
         }
         return errores;
@@ -170,7 +179,7 @@ public record GameForm (
         //Si el array no es null en la posicion cero es que el usuario le puso idiomas al juego, y si no es que esta vacio
         if(availabeLanguages.getFirst() != null){
             languages = availabeLanguages.stream()
-                    .filter(l -> l.length() > 200)
+                    .filter(l -> l.length() > MAX_LANG)
                     .toList();
             if(!languages.isEmpty()){
                 errores.add(new ErrorDto("Languages", ErrorType.FORMATO_INVALIDO));

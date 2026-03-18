@@ -27,8 +27,8 @@ public class ReviewRepoInMemory implements IReviewRepo {
     }
 
     @Override
-    public Optional<ReviewEntity> getByidGame(Long id) {
-        return REVIEWS.stream().filter(review -> review.getIdGame().equals(id)).findFirst();
+    public List<ReviewEntity> getByidGame(Long id) {
+        return REVIEWS.stream().filter(review -> review.getIdGame().equals(id)).toList();
     }
 
     @Override

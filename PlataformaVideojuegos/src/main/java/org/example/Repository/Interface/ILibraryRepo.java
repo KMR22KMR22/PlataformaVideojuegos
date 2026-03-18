@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ILibraryRepo extends ICrud <LibraryEntity, LibraryForm, LibraryUpdate, Long>{
 
-    public Optional<LibraryEntity> getByUserGameId(Long idUser, Long idGame);
+    Optional<LibraryEntity> getByUserGameId(Long idUser, Long idGame);
 }
