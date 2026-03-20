@@ -9,7 +9,7 @@ public record LibraryUpdate(
         Long id,
         Long idUser,
         Long idGame,
-        LocalDate adquisitionDate,
+        LocalDate acquisitionDate,
         Long timePlaying,
         Date lastPlayed,
         InstalationState instalationState){

@@ -84,7 +84,7 @@ public class Mapper {
                 userDTO,
                 entity.getIdGame(),
                 gameDTO,
-                entity.getAdquisitionDate(),
+                entity.getAcquisitionDate(),
                 entity.getTimePlaying(),
                 entity.getLastPlayed(),
                 entity.getInstalationState());

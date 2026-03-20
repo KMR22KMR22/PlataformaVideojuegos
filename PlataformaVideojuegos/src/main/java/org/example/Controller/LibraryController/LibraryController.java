@@ -66,7 +66,7 @@ public class LibraryController {
 
                 case ADQUISITION_DATE:
                     return libraries.stream()
-                            .sorted((g1, g2) -> g1.adquisitionDate().compareTo(g2.adquisitionDate()))
+                            .sorted((g1, g2) -> g1.acquisitionDate().compareTo(g2.acquisitionDate()))
                             .toList();
             }
         }
@@ -143,7 +143,7 @@ public class LibraryController {
 
         Long updatedTime = library.getTimePlaying() + time;
 
-        LibraryUpdate libraryForm = new LibraryUpdate(library.getId(), library.getIdUser(), library.getIdGame(), library.getAdquisitionDate(), updatedTime, library.getLastPlayed(), library.getInstalationState());
+        LibraryUpdate libraryForm = new LibraryUpdate(library.getId(), library.getIdUser(), library.getIdGame(), library.getAcquisitionDate(), updatedTime, library.getLastPlayed(), library.getInstalationState());
 
         LibraryEntity libraryEntity = libraryRepo.update(libraryForm.id(), libraryForm).get();
 

@@ -115,10 +115,6 @@ public class ReviewController {
                     .toList();
         }
 
-        if(order.isPresent()) {
-
-        }
-
         return reviewEntitys.stream().map(r -> Mapper.mapFrom(r)).toList();
     }
 
@@ -145,6 +141,19 @@ public class ReviewController {
             hidden = true;
         }
         return hidden;
+    }
+
+
+    /**Listar todas las reseñas escritas por un usuario específico
+     * @param idUser Id del usuario que hizo las reseñas
+     * @return Lista con errores, en caso de no haber devuelve la lista vacia
+     * */
+    public List<ReviewDTO> showReviewsFromUser(Long idUser, Optional<Order> order) {
+        List<ReviewEntity> reviews = reviewRepo.getAll().stream()
+                .filter(r -> r.getIdUser() == idUser)
+                .toList();
+
+        return  reviews.stream().map(r -> Mapper.mapFrom(r)).toList();
     }
 
 

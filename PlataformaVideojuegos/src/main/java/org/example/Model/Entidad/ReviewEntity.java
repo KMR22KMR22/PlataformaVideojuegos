@@ -123,4 +123,19 @@ public class ReviewEntity {
         this.lastEditionDate = LocalDate.now();
         this.state = ReviewState.PUBLICADA;
     }
+
+    @Override
+    public String toString() {
+        return "ReviewEntity{" +
+                "id=" + id +
+                ", idUser=" + idUser +
+                ", idGame=" + idGame +
+                ", recommended=" + recommended +
+                ", reviwText='" + reviwText + '\'' +
+                ", hoursPlayed=" + hoursPlayed +
+                ", publicationDate=" + publicationDate +
+                ", lastEditionDate=" + lastEditionDate +
+                ", state=" + state +
+                '}';
+    }
 }

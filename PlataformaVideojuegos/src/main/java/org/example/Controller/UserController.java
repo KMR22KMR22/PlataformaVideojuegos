@@ -18,6 +18,8 @@ import java.util.Optional;
 
 public class UserController {
 
+    public static final float MIN_VALUE = 5;
+    public static final float MAX_VALUE = 500;
     private IUserRepo userRepo;
     private ICountryRepo countryRepo;
 
@@ -29,9 +31,6 @@ public class UserController {
         this.userRepo = userRepo;
         this.countryRepo = countryRepo;
     }
-
-    final float MIN_VALUE = 5;
-    final float MAX_VALUE = 500;
 
 
 

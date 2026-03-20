@@ -7,6 +7,7 @@ import org.example.Model.DTO.Purchase.PurchaseDTO;
 import org.example.Model.DTO.Purchase.PurchaseState;
 import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.GameEntity;
+import org.example.Model.Entidad.LibraryEntity;
 import org.example.Model.Entidad.PurchaseEntity;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Form.Errors.ErrorDto;
@@ -15,27 +16,34 @@ import org.example.Model.Form.PurchaseForm;
 import org.example.Model.Form.Updates.UserUpdate;
 import org.example.Model.PaymentMethods.IPaymentMethod;
 import org.example.Repository.Interface.IGameRepo;
+import org.example.Repository.Interface.ILibraryRepo;
 import org.example.Repository.Interface.IPurchaseRepo;
 import org.example.Repository.Interface.IUserRepo;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class PurchaseController {
 
+    public static final int REFUND_DAYS_LIMIT = 14;
+    public static final int HOURS_PERMITED = 2;
     private IPurchaseRepo purchaseRepo;
     private IGameRepo gameRepo;
     private IUserRepo userRepo;
+    private ILibraryRepo libraryRepo;
 
 
     //Constructor
 
 
-    public PurchaseController(IPurchaseRepo purchaseRepo, IGameRepo gameRepo, IUserRepo userRepo) {
+    public PurchaseController(IPurchaseRepo purchaseRepo, IGameRepo gameRepo, IUserRepo userRepo, ILibraryRepo libraryRepo) {
         this.purchaseRepo = purchaseRepo;
         this.gameRepo = gameRepo;
         this.userRepo = userRepo;
+        this.libraryRepo = libraryRepo;
     }
+
 
     /**Crear una nueva transacción para adquirir un juego
      * @param user Usuario que intenta comprar
@@ -126,9 +134,12 @@ public class PurchaseController {
     public boolean requestRefound(Long idPurchase, String reason){
 
         PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElseThrow(() -> new IllegalArgumentException("La compra no existe"));
+        LibraryEntity library = libraryRepo.getByUserGameId(purchase.getIdUser(), purchase.getIdGame()).get();
 
-        //Compruebo que no se haya vencido la fecha de reembolso
-        if(purchase.getPurchaseDate().isBefore){throw new IllegalArgumentException("Plazo para reembolso expiró");}
+        //Compruebo que no se exedan los 14 dias luego de la compra del juego o que el usuario no haya jugado mas de 2 horas
+        long days = ChronoUnit.DAYS.between(library.getAcquisitionDate(), LocalDate.now());
+        if(days > REFUND_DAYS_LIMIT){throw new IllegalArgumentException("Plazo para reembolso expiró");}
+        if(library.getTimePlaying() > HOURS_PERMITED){throw new IllegalArgumentException("El reembolso no es posible porque el tiempo de juego excede las 2 horas.");}
 
         UserEntity user = userRepo.getById(purchase.getIdUser()).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         float amount = purchase.getDiscountApplicated();

@@ -68,6 +68,52 @@ public class GameEntity {
         return State;
     }
 
+    //Setters
+
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setTittle(String tittle) {
+        this.tittle = tittle;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDeveloper(String developer) {
+        this.developer = developer;
+    }
+
+    public void setLaunchDate(LocalDate launchDate) {
+        this.launchDate = launchDate;
+    }
+
+    public void setBasePrice(float basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public void setCurrentDescount(float currentDescount) {
+        this.currentDescount = currentDescount;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setGameAgeClasification(GameAgeClasification gameAgeClasification) {
+        this.gameAgeClasification = gameAgeClasification;
+    }
+
+    public void setAvailabeLanguages(List<String> availabeLanguages) {
+        this.availabeLanguages = availabeLanguages;
+    }
+
+    public void setState(GameState state) {
+        State = state;
+    }
 
     //Constructor Creacion
     public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages) {
@@ -98,5 +144,22 @@ public class GameEntity {
         this.gameAgeClasification = gameAgeClasification;
         this.availabeLanguages = availabeLanguages;
         this.State = state;
+    }
+
+    @Override
+    public String toString() {
+        return "GameEntity{" +
+                "id=" + id +
+                ", tittle='" + tittle + '\'' +
+                ", description='" + description + '\'' +
+                ", developer='" + developer + '\'' +
+                ", launchDate=" + launchDate +
+                ", basePrice=" + basePrice +
+                ", currentDescount=" + currentDescount +
+                ", category='" + category + '\'' +
+                ", gameAgeClasification=" + gameAgeClasification +
+                ", availabeLanguages=" + availabeLanguages +
+                ", State=" + State +
+                '}';
     }
 }

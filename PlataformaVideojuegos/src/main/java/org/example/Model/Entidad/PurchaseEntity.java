@@ -114,4 +114,18 @@ public class PurchaseEntity {
         this.discountApplicated = discountApplicated;
         this.satate = PurchaseState.PENDIENTE;
     }
+
+    @Override
+    public String toString() {
+        return "PurchaseEntity{" +
+                "id=" + id +
+                ", idUser=" + idUser +
+                ", idGame=" + idGame +
+                ", purchaseDate=" + purchaseDate +
+                ", paymentMethod=" + paymentMethod +
+                ", priceWithoutDiscount=" + priceWithoutDiscount +
+                ", discountApplicated=" + discountApplicated +
+                ", satate=" + satate +
+                '}';
+    }
 }

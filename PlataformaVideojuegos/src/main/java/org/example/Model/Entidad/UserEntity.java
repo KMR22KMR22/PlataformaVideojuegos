@@ -137,6 +137,23 @@ public class UserEntity {
     public UserEntity(Long id, String userName, String email, String password, String realName, String country, LocalDate birthDate, String avatar, float portfolioBalance) {
         this(id, userName, email, password, realName, country, birthDate, LocalDate.now(), avatar, portfolioBalance, AccountState.ACTIVE);
     }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", realName='" + realName + '\'' +
+                ", country='" + country + '\'' +
+                ", birthDate=" + birthDate +
+                ", registrationDate=" + registrationDate +
+                ", avatar='" + avatar + '\'' +
+                ", portfolioBalance=" + portfolioBalance +
+                ", accountState=" + accountState +
+                '}';
+    }
 }
 
 

@@ -1,6 +1,5 @@
 package org.example.Repository.InMemory;
 
-import org.example.Model.DTO.User.AccountState;
 import org.example.Model.Entidad.UserEntity;
 import org.example.Model.Form.Updates.UserUpdate;
 import org.example.Model.Form.UserForm;

@@ -16,7 +16,7 @@ public class LibraryRepoInMemory implements ILibraryRepo {
 
     @Override
     public Optional<LibraryEntity> create(LibraryForm form) {
-        var library = new LibraryEntity(NEXT_ID++, form.idUser(), form.idGame(), form.adquisitionDate());
+        var library = new LibraryEntity(NEXT_ID++, form.idUser(), form.idGame(), form.acquisitionDate());
         LIBRARIES.add(library);
         return Optional.of(library);
     }
@@ -41,7 +41,7 @@ public class LibraryRepoInMemory implements ILibraryRepo {
     public Optional<LibraryEntity> update(Long id, LibraryUpdate form) {
         getById(id).orElseThrow(()-> new IllegalArgumentException("Libreria no encontrada"));
 
-        var libraryUpdated = new LibraryEntity(form.id(), form.idUser(), form.idGame(), form.adquisitionDate(), form.timePlaying(), form.lastPlayed(), form.instalationState());
+        var libraryUpdated = new LibraryEntity(form.id(), form.idUser(), form.idGame(), form.acquisitionDate(), form.timePlaying(), form.lastPlayed(), form.instalationState());
         LIBRARIES.removeIf(p -> p.getId().equals(id));
         LIBRARIES.add(libraryUpdated);
         return Optional.of(libraryUpdated);
