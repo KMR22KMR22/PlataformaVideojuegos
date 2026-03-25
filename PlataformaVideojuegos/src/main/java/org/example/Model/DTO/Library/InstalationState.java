@@ -1,7 +1,0 @@
-package org.example.Model.DTO.Library;
-
-public enum InstalationState {
-
-    INSTALADO,
-    NO_INSTALADO
-}
