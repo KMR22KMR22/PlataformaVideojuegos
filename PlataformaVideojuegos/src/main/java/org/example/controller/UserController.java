@@ -51,9 +51,7 @@ public class UserController {
         //LLamo al validate del controlador y guardo la lista de errores
         errors.addAll(validate(userForm));
 
-        if (!errors.isEmpty()) {
-            throw new ValidationException(errors);
-        }
+        Util.exeptionThrower(errors);
 
         var userOpt = userRepo.create(userForm);
         var user = userOpt.orElse(null);
@@ -72,6 +70,7 @@ public class UserController {
      *
      */
     public UserDTO showUserProfile(Optional<Long> id, Optional<String> name) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
 
         if (id.isEmpty() && name.isEmpty()) {
             throw new ValidationException(
@@ -81,16 +80,18 @@ public class UserController {
         UserEntity user;
 
         if (id.isPresent()) {
-            user = userRepo.getById(id.get())
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado")
-                    );
+            user = userRepo.getById(id.get()).orElse(null);
+            if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
+
         } else {
             user = userRepo.getAll().stream()
                     .filter(u -> u.getUserName().equalsIgnoreCase(name.get()))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado")
-                    );
+                    .orElse(null);
+            if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
         }
+        Util.exeptionThrower(errors);
+
         return Mapper.mapFrom(user);
     }
 
@@ -103,25 +104,30 @@ public class UserController {
      * @return UserDTO con el saldo actualizado
      *
      */
-    public UserDTO addBalanceToWallet(Long id, Float money) throws IllegalArgumentException {
-        UserEntity userOpt = userRepo.getById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    public UserDTO addBalanceToWallet(Long id, Float money) throws IllegalArgumentException, ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+        UserEntity userOpt = userRepo.getById(id).orElse(null);
+        if (userOpt == null) {
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
 
         //Compruebo que la cuenta del usuario que se encontró este activa
         if (!userOpt.getAccountState().equals(AccountState.ACTIVE)) {
-            throw new IllegalArgumentException("Cuenta no activa");
+            errors.add(new ErrorDto("AccountState", ErrorType.FORMATO_INVALIDO));
         }
 
         if (money == null) {
-            throw new IllegalArgumentException("Cantidad no encontrada");
+            errors.add(new ErrorDto("Money", ErrorType.NO_ENCONTRADO));
         }
-        float amount = money;
 
         //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
-        if (amount < MIN_VALUE || amount > MAX_VALUE) {
-            throw new IllegalArgumentException("La cantidad de dinero debe estar entre 5 y 500");
+        if (money < MIN_VALUE || money > MAX_VALUE) {
+            errors.add(new ErrorDto("Money", ErrorType.FORMATO_INVALIDO));
         }
 
-        float newBalance = userOpt.getPortfolioBalance() + amount;
+        Util.exeptionThrower(errors);
+
+        float newBalance = userOpt.getPortfolioBalance() + money;
 
         UserUpdate userForm = new UserUpdate(userOpt.getUserName(), userOpt.getEmail(), userOpt.getPassword(), userOpt.getRealName(), userOpt.getCountry(), userOpt.getBirthDate(), userOpt.getRegistrationDate(), userOpt.getAvatar(), newBalance, userOpt.getAccountState());
 
@@ -138,9 +144,15 @@ public class UserController {
      * @return UserDTO con todos sus datos
      *
      */
-    public UserDTO showBalanceFromWallet(Long id) {
+    public UserDTO showBalanceFromWallet(Long id) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
 
-        UserEntity user = userRepo.getById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        UserEntity user = userRepo.getById(id).orElse(null);
+        if (user == null) {
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         return Mapper.mapFrom(user);
     }
@@ -156,7 +168,6 @@ public class UserController {
      *
      */
     public List<ErrorDto> validate(UserForm user) {
-
         List<ErrorDto> errores = new ArrayList<>();
 
         //Valida que el nombre de usuario no se repita

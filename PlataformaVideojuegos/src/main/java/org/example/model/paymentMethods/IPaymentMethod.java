@@ -1,4 +1,5 @@
-package org.example.Model.PaymentMethods;
+package
+org.example.model.paymentMethods;
 
 public interface IPaymentMethod {
 

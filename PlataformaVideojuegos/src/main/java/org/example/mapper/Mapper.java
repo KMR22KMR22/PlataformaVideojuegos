@@ -6,8 +6,12 @@ import org.example.model.dto.purchase.PurchaseDTO;
 import org.example.model.dto.review.ReviewDTO;
 import org.example.model.dto.user.UserDTO;
 import org.example.model.entidad.*;
+import org.example.model.form.errors.ErrorDto;
 import org.example.repository.inMemory.GameRepoInMemory;
 import org.example.repository.inMemory.UserRepoInMemory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Mapper {
 
@@ -37,6 +41,12 @@ public class Mapper {
         if (entity == null)
             return null;
 
+        //Si los idiomas estan en null creo una lista vacia de idiomas porque si dejo la lista nula luego en el momento de otener los idiomas lanza una exepcion por ser null
+        List<String> languages = entity.getAvailabeLanguages();
+        if (languages == null) {
+            languages = new ArrayList<>();
+        }
+
         return new GameDTO(
                 entity.getId(),
                 entity.getTittle(),
@@ -47,7 +57,7 @@ public class Mapper {
                 entity.getCurrentDescount(),
                 entity.getCategory(),
                 entity.getAgeClasification(),
-                entity.getAvailabeLanguages(),
+                languages,
                 entity.getState());
     }
 

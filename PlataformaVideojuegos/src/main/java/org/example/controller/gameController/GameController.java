@@ -1,5 +1,6 @@
 package org.example.controller.gameController;
 
+import org.example.controller.Util;
 import org.example.exeptions.ValidationException;
 import org.example.mapper.Mapper;
 import org.example.model.dto.game.GameAgeClasification;
@@ -43,17 +44,15 @@ public class GameController {
      *
      */
     public GameDTO addNewGame(GameForm gameForm) throws ValidationException {
-        List<ErrorDto> errores = new ArrayList<>();
+        List<ErrorDto> errors = new ArrayList<>();
 
         //LLamo al validate del formulario y guardo la lista de errores
-        errores.addAll(gameForm.validate());
+        errors.addAll(gameForm.validate());
 
         //LLamo al validate del controlador y guardo la lista de errores
-        errores.addAll(validate(gameForm));
+        errors.addAll(validate(gameForm));
 
-        if (!errores.isEmpty()) {
-            throw new ValidationException(errores);
-        }
+        Util.exeptionThrower(errors);
 
         var gameOpt = gameRepo.create(gameForm);
         var game = gameOpt.orElse(null);
@@ -142,8 +141,15 @@ public class GameController {
      * @return GameStatsDTO con la información del juego
      *
      */
-    public GameDTO consultGameDetails(Long id) {
-        GameEntity game = gameRepo.getById(id).orElseThrow(() -> new IllegalArgumentException("Juego no encontrado"));
+    public GameDTO consultGameDetails(Long id) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+
+        GameEntity game = gameRepo.getById(id).orElse(null);
+        if (game == null) {
+            errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         return Mapper.mapFrom(game);
     }
@@ -158,16 +164,23 @@ public class GameController {
      * @throws IllegalArgumentException
      *
      */
-    public GameDTO applayDiscount(Long id, Integer percent) throws IllegalArgumentException {
+    public GameDTO applayDiscount(Long id, Integer percent) throws IllegalArgumentException, ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+
         //Copruebo que el porciento que se quiere aplicar esté en un rango correcto
         if (percent < MIN_DISCOUNT) {
-            throw new IllegalArgumentException("Porciento demasiado bajo");
+            errors.add(new ErrorDto("Discount", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if (percent > MAX_DISCOUNT) {
-            throw new IllegalArgumentException("Porciento demasiado alto");
+            errors.add(new ErrorDto("Discount", ErrorType.VALOR_DEMASIADO_ALTO));
         }
 
-        GameEntity entity = gameRepo.getById(id).get();
+        GameEntity entity = gameRepo.getById(id).orElse(null);
+        if (entity == null) {
+            errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         var priceWithDiscount = entity.getBasePrice() * (1 - percent / 100f);
 
@@ -188,16 +201,22 @@ public class GameController {
      * @throws IllegalArgumentException
      *
      */
-    public GameDTO changeGameState(Long id, GameState newState) throws IllegalArgumentException {
+    public GameDTO changeGameState(Long id, GameState newState) throws IllegalArgumentException, ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el nuevo estado esté entre los admisibles
         if (Arrays.stream(GameState.values())
                 .noneMatch(gameState -> gameState
                         .equals(newState))) {
-            throw new IllegalArgumentException("Estado invalido");
+            errors.add(new ErrorDto("GameState", ErrorType.NO_ENCONTRADO));
         }
 
-        GameEntity entity = gameRepo.getById(id).get();
+        GameEntity entity = gameRepo.getById(id).orElse(null);
+        if (entity == null) {
+            errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), entity.getCurrentDescount(), entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
 

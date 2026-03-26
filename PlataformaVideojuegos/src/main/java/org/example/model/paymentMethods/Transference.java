@@ -1,4 +1,4 @@
-package org.example.Model.PaymentMethods;
+package org.example.model.paymentMethods;
 
 public class Transference implements IPaymentMethod {
     @Override

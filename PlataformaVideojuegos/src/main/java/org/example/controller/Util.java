@@ -1,5 +1,10 @@
 package org.example.controller;
 
+import org.example.exeptions.ValidationException;
+import org.example.model.form.errors.ErrorDto;
+
+import java.util.List;
+
 public class Util {
 
     /**
@@ -11,5 +16,11 @@ public class Util {
     public static boolean checkCadenaBlankOrEmpty(String cadena) {
 
         return cadena == null || cadena.isBlank();
+    }
+
+    public static void exeptionThrower(List<ErrorDto> errors) throws ValidationException {
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors);
+        }
     }
 }

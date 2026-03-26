@@ -1,5 +1,6 @@
 package org.example.controller.reviewController;
 
+import org.example.controller.Util;
 import org.example.exeptions.ValidationException;
 import org.example.mapper.Mapper;
 import org.example.model.dto.review.ReviewDTO;
@@ -7,6 +8,7 @@ import org.example.model.dto.review.ReviewState;
 import org.example.model.entidad.GameEntity;
 import org.example.model.entidad.LibraryEntity;
 import org.example.model.entidad.ReviewEntity;
+import org.example.model.entidad.UserEntity;
 import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
 import org.example.model.form.ReviewForm;
@@ -50,7 +52,23 @@ public class ReviewController {
     public ReviewDTO writeReview(Long idUser, Long idGame, boolean recomended, String reviewText) throws ValidationException {
         List<ErrorDto> errors =  new ArrayList<>();
 
-        LibraryEntity library = libraryRepo.getByUserGameId(idUser, idGame).orElseThrow(()-> new IllegalArgumentException("Biblioteca no encontrada"));
+        UserEntity user = userRepo.getById(idUser).orElse(null);
+        if (user == null) {
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
+
+        GameEntity game = gameRepo.getById(idGame).orElse(null);
+        if (game == null) {
+            errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+        }
+
+        LibraryEntity library = libraryRepo.getByUserGameId(idUser, idGame).orElse(null);
+        if (library == null){
+            errors.add(new ErrorDto("LibraryIdGame, LibraryIdUser", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
+        errors.clear();
 
         ReviewForm form = new ReviewForm(idUser, idGame, recomended, reviewText, library.getTimePlaying());
 
@@ -58,9 +76,7 @@ public class ReviewController {
         errors.addAll(form.validate());
         errors.addAll(validate(form));
 
-        if (!errors.isEmpty()) {
-            throw new ValidationException(errors);
-        }
+        Util.exeptionThrower(errors);
 
         var reviewOpt = reviewRepo.create(form);
         var reviewUpdated = reviewOpt.orElseThrow(()-> new IllegalArgumentException("No se puedo crear la biblioteca"));
@@ -73,19 +89,28 @@ public class ReviewController {
      * @param idUser id del usuario que hizo la reseña
      * @return Confirmación de eliminación
      * */
-    public boolean delteReview (Long idReview, Long idUser) {
+    public boolean delteReview (Long idReview, Long idUser) throws ValidationException {
+        List<ErrorDto> errors =  new ArrayList<>();
         boolean deleted = false;
 
         //Compruebo que la reseña existe
-        ReviewEntity review = reviewRepo.getById(idReview).orElseThrow(()-> new IllegalArgumentException("Reseña no encontrada"));
+        ReviewEntity review = reviewRepo.getById(idReview).orElse(null);
+        if (review == null) {
+            errors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
+        }
 
         //Compruebo que la reseña corresponda al usuario
         if(idUser != review.getIdUser()) {
-            throw new IllegalArgumentException("El id de la reseña no coincide con el id del usuario");
+            errors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
         }
 
         //Compruebo que el usuario exista en el repositorio
-        userRepo.getById(idUser).orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
+        UserEntity user = userRepo.getById(idUser).orElse(null);
+        if (user == null){
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.ELIMINADA);
         var reviewOpt = reviewRepo.update(idReview, form);
@@ -104,10 +129,20 @@ public class ReviewController {
      * @param order Parametro para realizar la busqueda
      * @return  Lista de reseñas con estadísticas generales
      * */
-    public List<ReviewDTO> showReviews(Long idGame, Optional<Boolean> recomended, Optional<Order> order) {
-        GameEntity game = gameRepo.getById(idGame).orElseThrow(()-> new IllegalArgumentException("Juego no encontrado"));
+    public List<ReviewDTO> showReviews(Long idGame, Optional<Boolean> recomended, Optional<Order> order) throws ValidationException {
+        List<ErrorDto> errors =  new ArrayList<>();
+
+        GameEntity game = gameRepo.getById(idGame).orElse(null);
+        if (game == null) {
+            errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+        }
 
         List<ReviewEntity> reviewEntitys = reviewRepo.getByidGame(idGame);
+        if (reviewEntitys.isEmpty()) {
+            errors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         if(recomended.isPresent()) {
             reviewEntitys = reviewEntitys.stream()
@@ -124,15 +159,24 @@ public class ReviewController {
      * @param idUser Id del usuario que hizo la reseña
      * @return  Confirmación de ocultación
      * */
-    public boolean hideReview(Long idReview, Long idUser) {
+    public boolean hideReview(Long idReview, Long idUser) throws ValidationException {
+        List<ErrorDto> errors =  new ArrayList<>();
         boolean hidden = false;
 
-        userRepo.getById(idUser).orElseThrow(()-> new IllegalArgumentException("Usuario no encontrado"));
-        ReviewEntity review = reviewRepo.getById(idReview).orElseThrow(()-> new IllegalArgumentException("Reseña no encontrada"));
+        UserEntity user = userRepo.getById(idUser).orElse(null);
+        if (user == null) {
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
+        ReviewEntity review = reviewRepo.getById(idReview).orElse(null);
+        if (review == null) {
+            errors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
+        }
 
         if(idUser != review.getIdUser()) {
-            throw new IllegalArgumentException("La reseña no coincide con el usuario");
+            errors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
         }
+
+        Util.exeptionThrower(errors);
 
         ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.OCULTA);
         var reviewOpt = reviewRepo.update(idReview, form);
@@ -148,10 +192,18 @@ public class ReviewController {
      * @param idUser Id del usuario que hizo las reseñas
      * @return Lista con errores, en caso de no haber devuelve la lista vacia
      * */
-    public List<ReviewDTO> showReviewsFromUser(Long idUser, Optional<Order> order) {
+    public List<ReviewDTO> showReviewsFromUser(Long idUser, Optional<Order> order) throws ValidationException {
+        List<ErrorDto> errors =  new ArrayList<>();
+
         List<ReviewEntity> reviews = reviewRepo.getAll().stream()
                 .filter(r -> r.getIdUser() == idUser)
                 .toList();
+
+        if(reviews.isEmpty()) {
+            errors.add(new ErrorDto("ReviewId, UserId", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         return  reviews.stream().map(r -> Mapper.mapFrom(r)).toList();
     }

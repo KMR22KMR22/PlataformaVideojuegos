@@ -1,10 +1,12 @@
 package org.example.controller.libraryController;
 
+import org.example.controller.Util;
 import org.example.exeptions.ValidationException;
 import org.example.mapper.Mapper;
 import org.example.model.dto.library.InstalationState;
 import org.example.model.dto.library.LibraryDTO;
 import org.example.model.entidad.LibraryEntity;
+import org.example.model.entidad.UserEntity;
 import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
 import org.example.model.form.LibraryForm;
@@ -91,9 +93,8 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         errors.addAll(validate(idgame, idUser));
-        if (!errors.isEmpty()) {
-            throw new ValidationException(errors);
-        }
+
+        Util.exeptionThrower(errors);
 
         LibraryForm libraryForm = new LibraryForm(idUser, idgame, LocalDate.now());
 
@@ -121,8 +122,9 @@ public class LibraryController {
 
         if (!library.isPresent()) {
             errors.add(new ErrorDto("IdLibrary", ErrorType.NO_ENCONTRADO));
-            throw new ValidationException(errors);
         }
+        Util.exeptionThrower(errors);
+
         libraryRepo.delete(library.get().getId());
     }
 
@@ -149,9 +151,8 @@ public class LibraryController {
         if (time <= 0) {
             errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (!errors.isEmpty()) {
-            throw new ValidationException(errors);
-        }
+
+        Util.exeptionThrower(errors);
 
         Long updatedTime = library.getTimePlaying() + time;
 
@@ -171,11 +172,15 @@ public class LibraryController {
      * @return LibraryDTO
      *
      */
-    public LibraryDTO consultLastSession(Long idUser, Long idGame) {
+    public LibraryDTO consultLastSession(Long idUser, Long idGame) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+
         LibraryEntity library = libraryRepo.getByUserGameId(idUser, idGame).orElse(null);
         if (library == null) {
-            throw new IllegalStateException("Libreria no encontrada");
+            errors.add(new ErrorDto("LibraryIDUser adn Library IDGame", ErrorType.NO_ENCONTRADO));
         }
+
+        Util.exeptionThrower(errors);
 
         return Mapper.mapFrom(library);
     }
@@ -190,15 +195,26 @@ public class LibraryController {
      * @return Lista con las bibliotecas filtradas
      *
      */
-    public List<LibraryDTO> filterLibrary(Long idUser, Optional<String> text, Optional<InstalationState> instalationState) {
+    public List<LibraryDTO> filterLibrary(Long idUser, Optional<String> text, Optional<InstalationState> instalationState) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+
         //Compruebo que el usuario exista
-        userRepo.getById(idUser).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        UserEntity user = userRepo.getById(idUser).orElse(null);
+        if (user == null) {
+            errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
+        }
 
         //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
         List<LibraryDTO> libraries = libraryRepo.getAll().stream()
                 .filter(l -> l.getIdUser() == idUser)
                 .map(l -> Mapper.mapFrom(l))
                 .toList();
+
+        if (libraries.isEmpty()) {
+            errors.add(new ErrorDto("LibraryIDUser", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         if (text.isPresent() || instalationState.isPresent()) {
             if (text.isPresent()) {
@@ -222,9 +238,16 @@ public class LibraryController {
      * @return Lista con todas las bibliotecas que coincidan con el usuario
      *
      */
-    public List<LibraryDTO> showLibraryStats(Long idUser) {
+    public List<LibraryDTO> showLibraryStats(Long idUser) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+
         //Compruebo que el usuario exista
-        userRepo.getById(idUser).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        UserEntity user = userRepo.getById(idUser).orElse(null);
+        if (user == null) {
+            errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
+        }
+
+        Util.exeptionThrower(errors);
 
         //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
         return libraryRepo.getAll().stream()

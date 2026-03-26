@@ -1,4 +1,4 @@
-package org.example.Controller.ReviewController;
+package org.example.controller.reviewController;
 
 public enum Order {
     DATE
