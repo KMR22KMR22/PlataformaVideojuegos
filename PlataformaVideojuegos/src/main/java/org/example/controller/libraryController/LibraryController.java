@@ -45,7 +45,7 @@ public class LibraryController {
      * @return Lista de bibliotecas con los juegos que posee el usuario
      *
      */
-    public List<LibraryDTO> showPersonalLibrary(Long idUser, Optional<OrderParameters> order) {
+    public List<LibraryDTO> showPersonalLibrary(Long idUser, Optional<OrderParameters> order) throws ValidationException {
 
         List<LibraryDTO> libraries = showLibraryStats(idUser);
 
@@ -94,7 +94,7 @@ public class LibraryController {
 
         errors.addAll(validate(idgame, idUser));
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         LibraryForm libraryForm = new LibraryForm(idUser, idgame, LocalDate.now());
 
@@ -123,7 +123,7 @@ public class LibraryController {
         if (!library.isPresent()) {
             errors.add(new ErrorDto("IdLibrary", ErrorType.NO_ENCONTRADO));
         }
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         libraryRepo.delete(library.get().getId());
     }
@@ -152,7 +152,7 @@ public class LibraryController {
             errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         Long updatedTime = library.getTimePlaying() + time;
 
@@ -180,7 +180,7 @@ public class LibraryController {
             errors.add(new ErrorDto("LibraryIDUser adn Library IDGame", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return Mapper.mapFrom(library);
     }
@@ -214,7 +214,7 @@ public class LibraryController {
             errors.add(new ErrorDto("LibraryIDUser", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         if (text.isPresent() || instalationState.isPresent()) {
             if (text.isPresent()) {
@@ -247,7 +247,7 @@ public class LibraryController {
             errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
         return libraryRepo.getAll().stream()

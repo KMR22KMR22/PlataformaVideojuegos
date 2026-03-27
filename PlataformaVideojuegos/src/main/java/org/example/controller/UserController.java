@@ -51,7 +51,7 @@ public class UserController {
         //LLamo al validate del controlador y guardo la lista de errores
         errors.addAll(validate(userForm));
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         var userOpt = userRepo.create(userForm);
         var user = userOpt.orElse(null);
@@ -90,7 +90,7 @@ public class UserController {
                     .orElse(null);
             if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
         }
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return Mapper.mapFrom(user);
     }
@@ -125,7 +125,7 @@ public class UserController {
             errors.add(new ErrorDto("Money", ErrorType.FORMATO_INVALIDO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         float newBalance = userOpt.getPortfolioBalance() + money;
 
@@ -152,7 +152,7 @@ public class UserController {
             errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return Mapper.mapFrom(user);
     }

@@ -6,7 +6,7 @@ public record PurchaseForm(Long idUser,
                            Long idGame,
                            IPaymentMethod paymentMethod,
                            float priceWithoutDiscount,
-                           float discountApplicated) {
+                           int discountApplicated) {
 
 
 }

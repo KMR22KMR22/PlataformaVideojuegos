@@ -13,6 +13,14 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.</groupId>
+            <artifactId></artifactId>
+        </dependency>
+    </dependencies>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -20,6 +28,9 @@
             <version>5.8.1</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
+
+
 
 </project>

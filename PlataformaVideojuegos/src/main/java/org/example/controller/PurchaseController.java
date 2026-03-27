@@ -66,9 +66,15 @@ public class PurchaseController {
         if (game.getCurrentDescount() < 0){
             errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_BAJO));
         }
+        if (game.getCurrentDescount() > 0){
+            errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_ALTO));
+        }
         errors.addAll(validate(user, game));
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
+
+        float discount = game.getBasePrice() *  game.getCurrentDescount()/100;
+        float discountAplicated = game.getBasePrice() - discount;
 
         PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), game.getCurrentDescount());
 
@@ -96,7 +102,7 @@ public class PurchaseController {
             errores.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errores);
+        Util.thowException(errores);
 
         return paymentMethod.makePayment();
     }
@@ -119,7 +125,7 @@ public class PurchaseController {
         UserEntity user = userRepo.getById(idUser).orElse(null);
         if(user == null){errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         List<PurchaseEntity> purchases = purchaseRepo.getAll().stream()
                 .filter(p -> p.getIdUser() == idUser)
@@ -160,7 +166,7 @@ public class PurchaseController {
             errors.add(new ErrorDto("UserId, PurchaseId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return Mapper.mapFrom(purchase);
     }
@@ -200,7 +206,7 @@ public class PurchaseController {
             errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         float amount = purchase.getDiscountApplicated();
 
@@ -226,7 +232,7 @@ public class PurchaseController {
         if (purchase == null) {
             errors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
         }
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return Mapper.mapFrom(purchase);
     }

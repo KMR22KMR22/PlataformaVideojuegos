@@ -52,7 +52,7 @@ public class GameController {
         //LLamo al validate del controlador y guardo la lista de errores
         errors.addAll(validate(gameForm));
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         var gameOpt = gameRepo.create(gameForm);
         var game = gameOpt.orElse(null);
@@ -149,7 +149,7 @@ public class GameController {
             errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return Mapper.mapFrom(game);
     }
@@ -180,7 +180,7 @@ public class GameController {
             errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         var priceWithDiscount = entity.getBasePrice() * (1 - percent / 100f);
 
@@ -216,7 +216,7 @@ public class GameController {
             errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), entity.getCurrentDescount(), entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
 

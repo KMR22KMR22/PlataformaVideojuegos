@@ -67,7 +67,7 @@ public class ReviewController {
             errors.add(new ErrorDto("LibraryIdGame, LibraryIdUser", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
         errors.clear();
 
         ReviewForm form = new ReviewForm(idUser, idGame, recomended, reviewText, library.getTimePlaying());
@@ -76,7 +76,7 @@ public class ReviewController {
         errors.addAll(form.validate());
         errors.addAll(validate(form));
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         var reviewOpt = reviewRepo.create(form);
         var reviewUpdated = reviewOpt.orElseThrow(()-> new IllegalArgumentException("No se puedo crear la biblioteca"));
@@ -110,7 +110,7 @@ public class ReviewController {
             errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.ELIMINADA);
         var reviewOpt = reviewRepo.update(idReview, form);
@@ -142,7 +142,7 @@ public class ReviewController {
             errors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         if(recomended.isPresent()) {
             reviewEntitys = reviewEntitys.stream()
@@ -176,7 +176,7 @@ public class ReviewController {
             errors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.OCULTA);
         var reviewOpt = reviewRepo.update(idReview, form);
@@ -203,7 +203,7 @@ public class ReviewController {
             errors.add(new ErrorDto("ReviewId, UserId", ErrorType.NO_ENCONTRADO));
         }
 
-        Util.exeptionThrower(errors);
+        Util.thowException(errors);
 
         return  reviews.stream().map(r -> Mapper.mapFrom(r)).toList();
     }

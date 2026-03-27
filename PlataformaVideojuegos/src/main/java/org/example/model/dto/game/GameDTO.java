@@ -10,7 +10,7 @@ public record GameDTO(
         String developer,
         LocalDate launchDate,
         float basePrice,
-        float currentDescount,
+        int currentDescount,
         String category,
         GameAgeClasification gameAgeClasification,
         List<String> availabeLanguages,

@@ -15,7 +15,7 @@ public record PurchaseDTO(
         LocalDate purchaseDate,
         IPaymentMethod paymentMethod,
         float priceWithoutDiscount,
-        float discountApplicated,
+        int discountApplicated,
         PurchaseState satate) {
 
 }

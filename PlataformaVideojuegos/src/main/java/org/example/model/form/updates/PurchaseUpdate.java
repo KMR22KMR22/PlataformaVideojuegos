@@ -12,6 +12,6 @@ public record PurchaseUpdate(
         LocalDate purchaseDate,
         IPaymentMethod paymentMethod,
         float priceWithoutDiscount,
-        float discountApplicated,
+        int discountApplicated,
         PurchaseState satate) {
 }

@@ -18,7 +18,7 @@ public class Util {
         return cadena == null || cadena.isBlank();
     }
 
-    public static void exeptionThrower(List<ErrorDto> errors) throws ValidationException {
+    public static void thowException(List<ErrorDto> errors) throws ValidationException {
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }

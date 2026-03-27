@@ -13,7 +13,7 @@ public class PurchaseEntity {
     private LocalDate purchaseDate;
     private IPaymentMethod paymentMethod;
     private float priceWithoutDiscount;
-    private float discountApplicated;
+    private int discountApplicated;
     private PurchaseState satate;
 
 
@@ -44,7 +44,7 @@ public class PurchaseEntity {
         return priceWithoutDiscount;
     }
 
-    public float getDiscountApplicated() {
+    public int getDiscountApplicated() {
         return discountApplicated;
     }
 
@@ -79,7 +79,7 @@ public class PurchaseEntity {
         this.priceWithoutDiscount = priceWithoutDiscount;
     }
 
-    public void setDiscountApplicated(float discountApplicated) {
+    public void setDiscountApplicated(int discountApplicated) {
         this.discountApplicated = discountApplicated;
     }
 
@@ -90,7 +90,7 @@ public class PurchaseEntity {
 
     //Constructor Actualizar
 
-    public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, IPaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, IPaymentMethod paymentMethod, float priceWithoutDiscount, int discountApplicated, PurchaseState satate) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
@@ -104,7 +104,7 @@ public class PurchaseEntity {
 
     //Constructor Creacion
 
-    public PurchaseEntity(Long id, Long idUser, Long idGame, IPaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, IPaymentMethod paymentMethod, float priceWithoutDiscount, int discountApplicated) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;

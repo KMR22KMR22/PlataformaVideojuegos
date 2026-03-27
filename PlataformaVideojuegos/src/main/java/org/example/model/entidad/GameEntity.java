@@ -14,7 +14,7 @@ public class GameEntity {
     private String developer;
     private LocalDate launchDate;
     private float basePrice;
-    private float currentDescount;
+    private int currentDescount;
     private String category;
     private GameAgeClasification gameAgeClasification;
     private List<String> availabeLanguages;
@@ -48,7 +48,7 @@ public class GameEntity {
         return basePrice;
     }
 
-    public float getCurrentDescount() {
+    public int getCurrentDescount() {
         return currentDescount;
     }
 
@@ -95,7 +95,7 @@ public class GameEntity {
         this.basePrice = basePrice;
     }
 
-    public void setCurrentDescount(float currentDescount) {
+    public void setCurrentDescount(int currentDescount) {
         this.currentDescount = currentDescount;
     }
 
@@ -123,7 +123,7 @@ public class GameEntity {
         this.developer = developer;
         this.launchDate = launchDate;
         this.basePrice = basePrice;
-        this.currentDescount = basePrice;
+        this.currentDescount = 0;
         this.category = category;
         this.gameAgeClasification = gameAgeClasification;
         this.availabeLanguages = availabeLanguages;
@@ -146,7 +146,7 @@ public class GameEntity {
      * @param availabeLanguages
      * @param state
      */
-    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, float currentDescount, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages, GameState state) {
+    public GameEntity(Long id, String tittle, String description, String developer, LocalDate launchDate, float basePrice, int currentDescount, String category, GameAgeClasification gameAgeClasification, List<String> availabeLanguages, GameState state) {
         this.id = id;
         this.tittle = tittle;
         this.description = description;
