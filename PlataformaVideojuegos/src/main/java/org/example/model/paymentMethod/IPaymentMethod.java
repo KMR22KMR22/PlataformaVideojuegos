@@ -1,8 +1,6 @@
-package
-org.example.model.paymentMethods;
+package org.example.model.paymentMethod;
 
 public interface IPaymentMethod {
-
 
     boolean makePayment();
 }

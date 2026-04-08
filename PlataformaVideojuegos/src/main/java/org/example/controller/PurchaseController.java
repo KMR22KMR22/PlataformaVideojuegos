@@ -14,7 +14,7 @@ import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
 import org.example.model.form.PurchaseForm;
 import org.example.model.form.updates.UserUpdate;
-import org.example.model.paymentMethods.IPaymentMethod;
+import org.example.model.paymentMethod.PaymentMethod;
 import org.example.repository.Interface.IGameRepo;
 import org.example.repository.Interface.ILibraryRepo;
 import org.example.repository.Interface.IPurchaseRepo;
@@ -54,7 +54,7 @@ public class PurchaseController {
      * @return PurchaseDTO creada
      *
      */
-    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, IPaymentMethod paymentMethod) throws ValidationException {
+    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
         if (paymentMethod == null){
@@ -66,7 +66,7 @@ public class PurchaseController {
         if (game.getCurrentDescount() < 0){
             errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (game.getCurrentDescount() > 0){
+        if (game.getCurrentDescount() > 100){
             errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_ALTO));
         }
         errors.addAll(validate(user, game));
@@ -76,7 +76,7 @@ public class PurchaseController {
         float discount = game.getBasePrice() *  game.getCurrentDescount()/100;
         float discountAplicated = game.getBasePrice() - discount;
 
-        PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), game.getCurrentDescount());
+        PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), discountAplicated);
 
         var purchaseOpt = purchaseRepo.create(purchaseForm);
         var purchase = purchaseOpt.orElse(null);
@@ -93,7 +93,7 @@ public class PurchaseController {
      * @return Exito en el pago o no
      *
      */
-    public boolean processPayment(Long idPurchase, IPaymentMethod paymentMethod) throws ValidationException {
+    public boolean processPayment(Long idPurchase, PaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errores = new ArrayList<>();
 
         //Compruebo que la compra exista

@@ -182,9 +182,7 @@ public class GameController {
 
         Util.thowException(errors);
 
-        var priceWithDiscount = entity.getBasePrice() * (1 - percent / 100f);
-
-        GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), priceWithDiscount, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
+        GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), percent, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
 
         GameEntity updatedGame = gameRepo.update(id, form).get();
 

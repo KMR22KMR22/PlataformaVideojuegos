@@ -1,12 +1,10 @@
 package org.example.model.form;
 
-import org.example.model.paymentMethods.IPaymentMethod;
-
 public record PurchaseForm(Long idUser,
                            Long idGame,
-                           IPaymentMethod paymentMethod,
+                           PaymentMethod paymentMethod,
                            float priceWithoutDiscount,
-                           int discountApplicated) {
+                           float discountApplicated) {
 
 
 }

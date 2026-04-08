@@ -1,7 +1,6 @@
 package org.example.model.form.updates;
 
 import org.example.model.dto.purchase.PurchaseState;
-import org.example.model.paymentMethods.IPaymentMethod;
 
 import java.time.LocalDate;
 
@@ -10,8 +9,8 @@ public record PurchaseUpdate(
         Long idUser,
         Long idGame,
         LocalDate purchaseDate,
-        IPaymentMethod paymentMethod,
+        PaymentMethod paymentMethod,
         float priceWithoutDiscount,
-        int discountApplicated,
+        float discountApplicated,
         PurchaseState satate) {
 }

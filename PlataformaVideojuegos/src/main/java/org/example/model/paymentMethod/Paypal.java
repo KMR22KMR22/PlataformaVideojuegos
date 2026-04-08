@@ -1,4 +1,4 @@
-package org.example.model.paymentMethods;
+package org.example.model.paymentMethod;
 
 public class Paypal implements IPaymentMethod {
     @Override

@@ -1,4 +1,4 @@
-package org.example.model.paymentMethods;
+package org.example.model.paymentMethod;
 
 public class Others implements IPaymentMethod {
     @Override

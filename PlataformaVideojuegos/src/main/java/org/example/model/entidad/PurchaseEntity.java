@@ -1,8 +1,8 @@
 package org.example.model.entidad;
 
 import org.example.model.dto.purchase.PurchaseState;
-import org.example.model.paymentMethods.IPaymentMethod;
 
+import org.example.model.paymentMethod.PaymentMethod;
 import java.time.LocalDate;
 
 public class PurchaseEntity {
@@ -11,9 +11,9 @@ public class PurchaseEntity {
     private Long idUser;
     private Long idGame;
     private LocalDate purchaseDate;
-    private IPaymentMethod paymentMethod;
+    private PaymentMethod paymentMethod;
     private float priceWithoutDiscount;
-    private int discountApplicated;
+    private float discountApplicated;
     private PurchaseState satate;
 
 
@@ -36,7 +36,7 @@ public class PurchaseEntity {
         return purchaseDate;
     }
 
-    public IPaymentMethod getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
@@ -44,7 +44,7 @@ public class PurchaseEntity {
         return priceWithoutDiscount;
     }
 
-    public int getDiscountApplicated() {
+    public float getDiscountApplicated() {
         return discountApplicated;
     }
 
@@ -71,7 +71,7 @@ public class PurchaseEntity {
         this.purchaseDate = purchaseDate;
     }
 
-    public void setPaymentMethod(IPaymentMethod paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
@@ -90,7 +90,7 @@ public class PurchaseEntity {
 
     //Constructor Actualizar
 
-    public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, IPaymentMethod paymentMethod, float priceWithoutDiscount, int discountApplicated, PurchaseState satate) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, LocalDate purchaseDate, PaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated, PurchaseState satate) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
@@ -104,7 +104,7 @@ public class PurchaseEntity {
 
     //Constructor Creacion
 
-    public PurchaseEntity(Long id, Long idUser, Long idGame, IPaymentMethod paymentMethod, float priceWithoutDiscount, int discountApplicated) {
+    public PurchaseEntity(Long id, Long idUser, Long idGame, PaymentMethod paymentMethod, float priceWithoutDiscount, float discountApplicated) {
         this.id = id;
         this.idUser = idUser;
         this.idGame = idGame;
