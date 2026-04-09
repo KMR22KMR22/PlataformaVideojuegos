@@ -14,6 +14,7 @@ import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
 import org.example.model.form.PurchaseForm;
 import org.example.model.form.updates.UserUpdate;
+import org.example.model.paymentMethod.IPaymentMethod;
 import org.example.model.paymentMethod.PaymentMethod;
 import org.example.repository.Interface.IGameRepo;
 import org.example.repository.Interface.ILibraryRepo;
@@ -93,7 +94,7 @@ public class PurchaseController {
      * @return Exito en el pago o no
      *
      */
-    public boolean processPayment(Long idPurchase, PaymentMethod paymentMethod) throws ValidationException {
+    public boolean processPayment(Long idPurchase, IPaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errores = new ArrayList<>();
 
         //Compruebo que la compra exista
@@ -104,7 +105,9 @@ public class PurchaseController {
 
         Util.thowException(errores);
 
-        return paymentMethod.makePayment();
+        paymentMethod.makePayment(purchase.getDiscountApplicated());
+
+        return true;
     }
 
 
