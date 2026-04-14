@@ -4,6 +4,6 @@ public class Others implements IPaymentMethod {
 
     @Override
     public void makePayment(float gameCost) {
-        PaymentUtil.chackBalance(gameCost,);
+        //PaymentUtil.checkBalance(gameCost,);
     }
 }

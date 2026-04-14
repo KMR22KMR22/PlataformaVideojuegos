@@ -10,7 +10,7 @@ public class ValidationException extends Exception {
     private List<ErrorDto> errores;
 
     public ValidationException(List<ErrorDto> errores) {
-        super("Errores de validaci�n");
+        super(errores.toString());
         this.errores = errores;
     }
 

@@ -1,6 +1,7 @@
 package org.example.model.form;
 
 import org.example.controller.Util;
+import org.example.exeptions.ValidationException;
 import org.example.model.dto.game.GameAgeClasification;
 import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
@@ -160,12 +161,14 @@ public record GameForm(
             errores.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_ALTO));
 
         }
-        var value = BigDecimal.valueOf((basePrice));
-        if (value.scale() > DECIMALS) {
+        var value = new BigDecimal(String.valueOf(basePrice));
+
+        if (value.stripTrailingZeros().scale() > DECIMALS) {
             errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
         }
         return errores;
     }
+
 
     /**
      * Valida que la clasificacion del juego se haya introducido correctamente

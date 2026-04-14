@@ -29,6 +29,9 @@ public class PurchaseController {
 
     public static final int REFUND_DAYS_LIMIT = 14;
     public static final int HOURS_PERMITED = 2;
+    public static final int MIN_BASE_PRICE = 0;
+    public static final int MIN_CURRENT_DISCOUNT = 0;
+    public static final int MAX_CURRENT_DISCOUNT = 100;
     private IPurchaseRepo purchaseRepo;
     private IGameRepo gameRepo;
     private IUserRepo userRepo;
@@ -58,24 +61,34 @@ public class PurchaseController {
     public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo metodo de pago null
         if (paymentMethod == null){
             errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
         }
-        if (game.getBasePrice() < 0){
+        //Compruebo Que el precio base sea mayor que cero
+        if (game.getBasePrice() < MIN_BASE_PRICE){
             errors.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (game.getCurrentDescount() < 0){
+        //Compruebo que el descuento no sea menor a cero
+        if (game.getCurrentDescount() < MIN_CURRENT_DISCOUNT){
             errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (game.getCurrentDescount() > 100){
+        //Compruebo que el descuento no exeda los 100
+        if (game.getCurrentDescount() > MAX_CURRENT_DISCOUNT){
             errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_ALTO));
+        }
+        //Compruebo que el metodo de pago sea uno de los admisibles
+        if (Arrays.stream(PaymentMethod.values()).noneMatch(p -> p.equals(paymentMethod))){
+            errors.add(new ErrorDto("PaymentMethod", ErrorType.FORMATO_INVALIDO));
         }
         errors.addAll(validate(user, game));
 
         Util.thowException(errors);
 
+        //Calculo el precio con descuento aplicado
         float discount = game.getBasePrice() *  game.getCurrentDescount()/100;
         float discountAplicated = game.getBasePrice() - discount;
+
 
         PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), discountAplicated);
 
@@ -105,9 +118,17 @@ public class PurchaseController {
 
         Util.thowException(errores);
 
-        paymentMethod.makePayment(purchase.getDiscountApplicated());
+        //Realizo el pago. Si no se puede realizar elimino la compra
+        try {
+            paymentMethod.makePayment(purchase.getDiscountApplicated());
+        }catch (ValidationException e){
+            purchaseRepo.delete(idPurchase);
+        }
 
-        return true;
+        if (purchaseRepo.getById(idPurchase).isPresent()){
+            return true;
+        }
+        return false;
     }
 
 

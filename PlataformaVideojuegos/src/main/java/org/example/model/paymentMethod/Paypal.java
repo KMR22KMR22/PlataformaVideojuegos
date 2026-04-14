@@ -2,7 +2,7 @@ package org.example.model.paymentMethod;
 
 public class Paypal implements IPaymentMethod {
     @Override
-    public boolean makePayment() {
-        return false;
+    public void makePayment(float gameCost){
+        //PaymentUtil.checkBalance(gameCost,);
     }
 }
