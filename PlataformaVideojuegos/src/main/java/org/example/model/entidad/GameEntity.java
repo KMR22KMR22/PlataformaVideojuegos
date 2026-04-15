@@ -1,23 +1,48 @@
 package org.example.model.entidad;
 
+import jakarta.persistence.*;
 import org.example.model.dto.game.GameAgeClasification;
 import org.example.model.dto.game.GameState;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Table(name = "juegos")
+@Entity
 public class GameEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "titulo")
     private String tittle;
+
+    @Column(name = "descripcion")
     private String description;
+
+    @Column(name = "desarrollador")
     private String developer;
+
+    @Column(name = "fecha_lanzamiento")
     private LocalDate launchDate;
+
+    @Column(name = "precio_base")
     private float basePrice;
+
+    @Column(name = "descuento_actual")
     private int currentDescount;
+
+    @Column(name = "categoria")
     private String category;
+
+    @Column(name = "clasificacion_edad")
     private GameAgeClasification gameAgeClasification;
+
+    @Column(name = "idiomas")
     private List<String> availabeLanguages;
+
+    @Column(name = "estado")
     private GameState State;
 
 

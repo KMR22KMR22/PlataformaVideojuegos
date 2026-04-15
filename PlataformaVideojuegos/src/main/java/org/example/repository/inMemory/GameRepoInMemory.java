@@ -45,4 +45,8 @@ public class GameRepoInMemory implements IGameRepo {
         return GAMES.removeIf(p -> p.getId().equals(id));
     }
 
+    @Override
+    public Optional<GameEntity> findByName(String name) {
+        return GAMES.stream().filter(g -> g.getTittle().equals(name)).findFirst();
+    }
 }

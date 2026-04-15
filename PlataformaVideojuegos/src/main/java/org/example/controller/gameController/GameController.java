@@ -196,10 +196,10 @@ public class GameController {
      * @param id       id del juego a buscar
      * @param newState nuevo estado al que se va a cambiar el juego (opcional)
      * @return Confirmación del cambio de estado o mensaje de error
-     * @throws IllegalArgumentException
+     * @throws ValidationException
      *
      */
-    public GameDTO changeGameState(Long id, GameState newState) throws IllegalArgumentException, ValidationException {
+    public GameDTO changeGameState(Long id, GameState newState) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el nuevo estado esté entre los admisibles
