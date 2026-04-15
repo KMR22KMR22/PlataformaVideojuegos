@@ -166,6 +166,10 @@ public record GameForm(
         if (value.stripTrailingZeros().scale() > DECIMALS) {
             errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
         }
+
+        //if (Math.round(basePrice * 100) / 100 != basePrice) {
+        //    errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
+        //}
         return errores;
     }
 
@@ -205,5 +209,24 @@ public record GameForm(
             }
         }
         return errores;
+    }
+
+    public static void main(String[] args) throws ValidationException {
+        List<ErrorDto> errores = new ArrayList<>();
+        GameForm game = new GameForm(1L,
+                "Elden Ring",
+                "An open-world action RPG with challenging combat and deep lore.",
+                "FromSoftware",
+                LocalDate.now(),
+                59.99f,
+                "RPG",
+                GameAgeClasification.PEGI_18,
+                List.of("Español"));
+
+        errores.addAll(game.validate());
+
+        if (!errores.isEmpty()) {
+            throw  new ValidationException(errores);
+        }
     }
 }

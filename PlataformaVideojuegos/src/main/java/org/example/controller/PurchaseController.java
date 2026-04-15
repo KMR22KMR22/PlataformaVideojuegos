@@ -13,6 +13,7 @@ import org.example.model.entidad.UserEntity;
 import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
 import org.example.model.form.PurchaseForm;
+import org.example.model.form.updates.PurchaseUpdate;
 import org.example.model.form.updates.UserUpdate;
 import org.example.model.paymentMethod.IPaymentMethod;
 import org.example.model.paymentMethod.PaymentMethod;
@@ -81,6 +82,17 @@ public class PurchaseController {
         if (Arrays.stream(PaymentMethod.values()).noneMatch(p -> p.equals(paymentMethod))){
             errors.add(new ErrorDto("PaymentMethod", ErrorType.FORMATO_INVALIDO));
         }
+
+        //Busco si el usuario ya compro ese juego y lo guardo en una variable, si no existe la variable tendra un null
+        PurchaseEntity pur = purchaseRepo.getAll().stream()
+                .filter(p -> Objects.equals(p.getIdUser(), user.getId()) && Objects.equals(p.getIdGame(), game.getId()))
+                .findFirst().orElse(null);
+
+        //compruebo si la compra ya exista
+        if (pur != null && pur.getSatate() == PurchaseState.COMPLETADA){
+            errors.add(new ErrorDto("PurchaseSatate", ErrorType.DUPLICADO));
+        }
+
         errors.addAll(validate(user, game));
 
         Util.thowException(errors);
@@ -118,11 +130,14 @@ public class PurchaseController {
 
         Util.thowException(errores);
 
-        //Realizo el pago. Si no se puede realizar elimino la compra
+        //Realizo el pago. Si no se puede realizar paso el estado de la compra a cancelada
         try {
             paymentMethod.makePayment(purchase.getDiscountApplicated());
         }catch (ValidationException e){
-            purchaseRepo.delete(idPurchase);
+            var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
+            , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.CANCELADA);
+
+            purchaseRepo.update(idPurchase, updatedPurchase);
         }
 
         if (purchaseRepo.getById(idPurchase).isPresent()){
