@@ -1,19 +1,32 @@
 package org.example.model.entidad;
 
+import jakarta.persistence.*;
 import org.example.model.dto.review.ReviewState;
 
 import java.time.LocalDate;
 
+@Table(name = "juegos")
+@Entity
 public class ReviewEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "id_usuario")
     private Long idUser;
+    @Column(name = "id_juego")
     private Long idGame;
+    @Column(name = "recomendado")
     private boolean recommended;
+    @Column(name = "texto_reseña")
     private String reviwText;
+    @Column(name = "horas_jugadas")
     private Long hoursPlayed;
+    @Column(name = "fecha_publicacion")
     private LocalDate publicationDate;
+    @Column(name = "fecha_ultima_edicion")
     private LocalDate lastEditionDate;
+    @Column(name = "estado")
     private ReviewState state;
 
 

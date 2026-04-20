@@ -1,22 +1,36 @@
 package org.example.model.entidad;
 
+import jakarta.persistence.*;
 import org.example.model.dto.user.AccountState;
 
 import java.time.LocalDate;
 
+@Table(name = "usuarios")
+@Entity
 public class UserEntity {
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "nombre_usuario")
     private String userName;
+    @Column(name = "email")
     private String email;
+    @Column(name = "contraseña")
     private String password;
+    @Column(name = "nombre_real")
     private String realName;
+    @Column(name = "pais")
     private String country;
+    @Column(name = "fecha_nacimiento")
     private LocalDate birthDate;
+    @Column(name = "fecha_registro")
     private LocalDate registrationDate;
+    @Column(name = "avatar")
     private String avatar;
+    @Column(name = "saldo")
     private float portfolioBalance;
+    @Column(name = "estado_cuenta")
     private AccountState accountState;
 
 

@@ -1,18 +1,29 @@
 package org.example.model.entidad;
 
+import jakarta.persistence.*;
 import org.example.model.dto.library.InstalationState;
 
 import java.time.LocalDate;
 import java.util.Date;
 
+@Table(name = "bibliotecas")
+@Entity
 public class LibraryEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "id_usuario")
     private Long idUser;
+    @Column(name = "id_juego")
     private Long idGame;
+    @Column(name = "fecha_adquisicion")
     private LocalDate acquisitionDate;
+    @Column(name = "tiempo_juego")
     private Long timePlaying;
+    @Column(name = "ultimo_juego")
     private Date lastPlayed;
+    @Column(name = "estado_instalacion")
     private InstalationState instalationState;
 
 

@@ -1,19 +1,31 @@
 package org.example.model.entidad;
 
+import jakarta.persistence.*;
 import org.example.model.dto.purchase.PurchaseState;
 
 import org.example.model.paymentMethod.PaymentMethod;
 import java.time.LocalDate;
 
+@Table(name = "juegos")
+@Entity
 public class PurchaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "id_usuario")
     private Long idUser;
+    @Column(name = "id_jeugo")
     private Long idGame;
+    @Column(name = "fecha_compra")
     private LocalDate purchaseDate;
+    @Column(name = "metodo_pago")
     private PaymentMethod paymentMethod;
+    @Column(name = "presio_sin_descuento")
     private float priceWithoutDiscount;
+    @Column(name = "descuento_aplicado")
     private float discountApplicated;
+    @Column(name = "estado")
     private PurchaseState satate;
 
 
