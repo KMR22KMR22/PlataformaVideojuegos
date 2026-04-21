@@ -33,6 +33,9 @@ public class UserEntity {
     @Column(name = "estado_cuenta")
     private AccountState accountState;
 
+    public UserEntity() {
+
+    }
 
 
     //Getters

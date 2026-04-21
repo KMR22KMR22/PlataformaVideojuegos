@@ -28,6 +28,10 @@ public class PurchaseEntity {
     @Column(name = "estado")
     private PurchaseState satate;
 
+    public PurchaseEntity() {
+
+    }
+
 
     //Getters
 

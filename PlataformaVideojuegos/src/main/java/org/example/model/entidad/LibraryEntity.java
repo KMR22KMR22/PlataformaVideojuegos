@@ -26,6 +26,10 @@ public class LibraryEntity {
     @Column(name = "estado_instalacion")
     private InstalationState instalationState;
 
+    public LibraryEntity() {
+
+    }
+
 
     //Getters
 

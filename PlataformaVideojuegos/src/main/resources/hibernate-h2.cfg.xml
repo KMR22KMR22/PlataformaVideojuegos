@@ -21,6 +21,7 @@
         <property name="hibernate.format_sql">true</property>
 
         <!-- Entidades mapeadas -->
-        <mapping class="org.alexyivan.modelo.entidad.JuegoEntidad"/>
+        <mapping class="org.example.model.entidad.GameEntity"/>
+        <mapping class="org.example.model.entidad.LibraryEntity"/>
     </session-factory>
 </hibernate-configuration>

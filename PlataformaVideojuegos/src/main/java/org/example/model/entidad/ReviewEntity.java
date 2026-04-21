@@ -29,6 +29,10 @@ public class ReviewEntity {
     @Column(name = "estado")
     private ReviewState state;
 
+    public ReviewEntity() {
+
+    }
+
 
     //Getters
 

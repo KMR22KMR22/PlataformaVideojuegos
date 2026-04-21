@@ -217,7 +217,7 @@ public record GameForm(
                 "Elden Ring",
                 "An open-world action RPG with challenging combat and deep lore.",
                 "FromSoftware",
-                LocalDate.now(),
+                null,
                 59.99f,
                 "RPG",
                 GameAgeClasification.PEGI_18,

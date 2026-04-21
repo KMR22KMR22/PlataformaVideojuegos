@@ -1,5 +1,6 @@
 package org.example.model.entidad;
 
+import HibernateU.HibernateUtil;
 import jakarta.persistence.*;
 import org.example.model.dto.game.GameAgeClasification;
 import org.example.model.dto.game.GameState;
@@ -44,6 +45,10 @@ public class GameEntity {
 
     @Column(name = "estado")
     private GameState State;
+
+    public GameEntity() {
+
+    }
 
 
     //Getters
@@ -191,5 +196,11 @@ public class GameEntity {
                 ", developer='" + developer + '\'' + ", launchDate=" + launchDate + ", basePrice=" + basePrice +
                 ", currentDescount=" + currentDescount + ", category='" + category + '\'' + ", gameAgeClasification="
                 + gameAgeClasification + ", availabeLanguages=" + availabeLanguages + ", State=" + State + '}';
+    }
+
+
+    public static void main(String[] args) {
+        var session = HibernateUtil.getSessionFactory().openSession();
+        session.close();
     }
 }

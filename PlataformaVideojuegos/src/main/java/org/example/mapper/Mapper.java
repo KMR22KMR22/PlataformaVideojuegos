@@ -126,6 +126,7 @@ public class Mapper {
     }
 
     public static GameDTO finGame(Long id) {
+
         return mapFrom(gameRepo.getById(id).get());
     }
 
