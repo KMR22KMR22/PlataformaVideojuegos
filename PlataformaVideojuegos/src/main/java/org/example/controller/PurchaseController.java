@@ -53,15 +53,26 @@ public class PurchaseController {
     /**
      * Crear una nueva transacción para adquirir un juego
      *
-     * @param user          Usuario que intenta comprar
-     * @param game          juego que se intenta comprar
+     * @param userId          Id del usuario que intenta comprar
+     * @param gameId          Id del juego que se intenta comprar
      * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return PurchaseDTO creada
      *
      */
-    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethod paymentMethod) throws ValidationException {
+    public PurchaseDTO makePurchase(Long userId, Long gameId, PaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        GameEntity game = gameRepo.getById(gameId).orElse(null);
+        UserEntity user = userRepo.getById(userId).orElse(null);
+
+        //Compruebo que el usuario exista
+        if (user == null){
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
+        //Compruebo que el juego exista
+        if (game == null){
+            errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+        }
         //Compruebo metodo de pago null
         if (paymentMethod == null){
             errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
@@ -85,7 +96,10 @@ public class PurchaseController {
 
         //Busco si el usuario ya compro ese juego y lo guardo en una variable, si no existe la variable tendra un null
         PurchaseEntity pur = purchaseRepo.getAll().stream()
-                .filter(p -> Objects.equals(p.getIdUser(), user.getId()) && Objects.equals(p.getIdGame(), game.getId()))
+                .filter(p -> {
+                    assert user != null;
+                    return Objects.equals(p.getIdUser(), user.getId()) && Objects.equals(p.getIdGame(), game.getId());
+                })
                 .findFirst().orElse(null);
 
         //compruebo si la compra ya exista

@@ -24,7 +24,7 @@ public record UserForm(
     static final int NAME_MAX_L = 20;
     static final int R_NAME_MIN_L = 2;
     static final int R_NAME_MAX_L = 50;
-    static final int PASS_L = 20;
+    static final int PASS_L = 8;
     public static final int MIN_AGE = 13;
     public static final int MAX_AVATAR = 100;
 

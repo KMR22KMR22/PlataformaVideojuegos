@@ -23,5 +23,8 @@
         <!-- Entidades mapeadas -->
         <mapping class="org.example.model.entidad.GameEntity"/>
         <mapping class="org.example.model.entidad.LibraryEntity"/>
+        <mapping class="org.example.model.entidad.PurchaseEntity"/>
+        <mapping class="org.example.model.entidad.UserEntity"/>
+        <mapping class="org.example.model.entidad.ReviewEntity"/>
     </session-factory>
 </hibernate-configuration>
