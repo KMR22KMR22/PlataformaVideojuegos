@@ -21,6 +21,7 @@ import org.example.repository.Interface.IGameRepo;
 import org.example.repository.Interface.ILibraryRepo;
 import org.example.repository.Interface.IPurchaseRepo;
 import org.example.repository.Interface.IUserRepo;
+import org.example.transaction.ITransactionManager;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -37,75 +38,105 @@ public class PurchaseController {
     private IGameRepo gameRepo;
     private IUserRepo userRepo;
     private ILibraryRepo libraryRepo;
+    public ITransactionManager tm;
+
 
 
     //Constructor
 
 
-    public PurchaseController(IPurchaseRepo purchaseRepo, IGameRepo gameRepo, IUserRepo userRepo, ILibraryRepo libraryRepo) {
+    public PurchaseController(IPurchaseRepo purchaseRepo, IGameRepo gameRepo, IUserRepo userRepo, ILibraryRepo libraryRepo, ITransactionManager tm) {
         this.purchaseRepo = purchaseRepo;
         this.gameRepo = gameRepo;
         this.userRepo = userRepo;
         this.libraryRepo = libraryRepo;
+        this.tm = tm;
     }
 
 
     /**
      * Crear una nueva transacción para adquirir un juego
      *
-     * @param user          Usuario que intenta comprar
-     * @param game          juego que se intenta comprar
+     * @param userId          Id del usuario que intenta comprar
+     * @param gameId          Id del juego que se intenta comprar
      * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return PurchaseDTO creada
      *
      */
-    public PurchaseDTO makePurchase(UserEntity user, GameEntity game, PaymentMethod paymentMethod) throws ValidationException {
+    public PurchaseDTO makePurchase(Long userId, Long gameId, PaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
-        //Compruebo metodo de pago null
-        if (paymentMethod == null){
-            errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
-        }
-        //Compruebo Que el precio base sea mayor que cero
-        if (game.getBasePrice() < MIN_BASE_PRICE){
-            errors.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_BAJO));
-        }
-        //Compruebo que el descuento no sea menor a cero
-        if (game.getCurrentDescount() < MIN_CURRENT_DISCOUNT){
-            errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_BAJO));
-        }
-        //Compruebo que el descuento no exeda los 100
-        if (game.getCurrentDescount() > MAX_CURRENT_DISCOUNT){
-            errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_ALTO));
-        }
-        //Compruebo que el metodo de pago sea uno de los admisibles
-        if (Arrays.stream(PaymentMethod.values()).noneMatch(p -> p.equals(paymentMethod))){
-            errors.add(new ErrorDto("PaymentMethod", ErrorType.FORMATO_INVALIDO));
-        }
+        //Inicio Transaccion
+        var purchase = tm.inTransaction(()-> {
+            //Variable donde voy a guardar la compra en caso de que el usuario ya haya comprado el juego
+            PurchaseEntity pur;
 
-        //Busco si el usuario ya compro ese juego y lo guardo en una variable, si no existe la variable tendra un null
-        PurchaseEntity pur = purchaseRepo.getAll().stream()
-                .filter(p -> Objects.equals(p.getIdUser(), user.getId()) && Objects.equals(p.getIdGame(), game.getId()))
-                .findFirst().orElse(null);
+            GameEntity game = gameRepo.getById(gameId).orElse(null);
+            UserEntity user = userRepo.getById(userId).orElse(null);
 
-        //compruebo si la compra ya exista
-        if (pur != null && pur.getSatate() == PurchaseState.COMPLETADA){
-            errors.add(new ErrorDto("PurchaseSatate", ErrorType.DUPLICADO));
-        }
+            //Compruebo que el usuario exista
+            if (user == null){
+                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            }
+            //Compruebo que el juego exista
+            if (game == null){
+                errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+            }else {
+                //Compruebo Que el precio base sea mayor que cero
+                if (game.getBasePrice() < MIN_BASE_PRICE){
+                    errors.add(new ErrorDto("BasePrice", ErrorType.VALOR_DEMASIADO_BAJO));
+                }
+                //Compruebo que el descuento no sea menor a cero
+                if (game.getCurrentDescount() < MIN_CURRENT_DISCOUNT){
+                    errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_BAJO));
+                }
+                //Compruebo que el descuento no exeda los 100
+                if (game.getCurrentDescount() > MAX_CURRENT_DISCOUNT){
+                    errors.add(new ErrorDto("CurrentDescunt", ErrorType.VALOR_DEMASIADO_ALTO));
+                }
+                //Busco si el usuario ya compro ese juego y lo guardo en una variable, si no existe la variable tendra un null
+                pur = purchaseRepo.getAll().stream()
+                        .filter(p -> {
+                            assert user != null;
+                            return Objects.equals(p.getIdUser(), user.getId()) && Objects.equals(p.getIdGame(), game.getId());
+                        })
+                        .findFirst().orElse(null);
 
-        errors.addAll(validate(user, game));
+                //compruebo si la compra ya existía
+                if (pur != null && pur.getSatate() == PurchaseState.COMPLETADA){
+                    errors.add(new ErrorDto("PurchaseSatate", ErrorType.DUPLICADO));
+                }
+            }
 
+
+            //Compruebo metodo de pago null
+            if (paymentMethod == null){
+                errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
+            }
+
+            //Compruebo que el metodo de pago sea uno de los admisibles
+            if (Arrays.stream(PaymentMethod.values()).noneMatch(p -> p.equals(paymentMethod))){
+                errors.add(new ErrorDto("PaymentMethod", ErrorType.FORMATO_INVALIDO));
+            }
+
+            errors.addAll(validate(user, game));
+
+            //Si hay errores mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            if (!errors.isEmpty()){
+                throw new IllegalArgumentException();
+            }
+
+            //Calculo el precio con descuento aplicado
+            float discount = game.getBasePrice() *  game.getCurrentDescount()/100;
+            float discountAplicated = game.getBasePrice() - discount;
+
+            PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), discountAplicated);
+
+            return purchaseRepo.create(purchaseForm).orElse(null);
+        });
+
+        //Vuelvo a comprobar si hay errores mando una validation exeption
         Util.thowException(errors);
-
-        //Calculo el precio con descuento aplicado
-        float discount = game.getBasePrice() *  game.getCurrentDescount()/100;
-        float discountAplicated = game.getBasePrice() - discount;
-
-
-        PurchaseForm purchaseForm = new PurchaseForm(user.getId(), game.getId(), paymentMethod, game.getBasePrice(), discountAplicated);
-
-        var purchaseOpt = purchaseRepo.create(purchaseForm);
-        var purchase = purchaseOpt.orElse(null);
 
         return Mapper.mapFrom(purchase);
     }
@@ -120,30 +151,46 @@ public class PurchaseController {
      *
      */
     public boolean processPayment(Long idPurchase, IPaymentMethod paymentMethod) throws ValidationException {
-        List<ErrorDto> errores = new ArrayList<>();
+        List<ErrorDto> errors = new ArrayList<>();
 
-        //Compruebo que la compra exista
-        PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElse(null);
-        if (purchase == null) {
-            errores.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
-        }
+        //Inicio Transaccion
+        boolean payed = tm.inTransaction(()->{
 
-        Util.thowException(errores);
+            //Compruebo que la compra exista
+            PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElse(null);
+            if (purchase == null) {
+                errors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
+            }
+            if (!errors.isEmpty()){
+                throw new IllegalArgumentException();
+            }
 
-        //Realizo el pago. Si no se puede realizar paso el estado de la compra a cancelada
-        try {
-            paymentMethod.makePayment(purchase.getDiscountApplicated());
-        }catch (ValidationException e){
-            var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
-            , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.CANCELADA);
+            //Realizo el pago y la compra pasa a esta completada. Si no se puede realizar pasa a estado cancelada.
+            try {
+                paymentMethod.makePayment(purchase.getDiscountApplicated());
 
-            purchaseRepo.update(idPurchase, updatedPurchase);
-        }
+                var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
+                        , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.COMPLETADA);
 
-        if (purchaseRepo.getById(idPurchase).isPresent()){
-            return true;
-        }
-        return false;
+                purchaseRepo.update(idPurchase, updatedPurchase);
+
+            }catch (ValidationException e){
+                var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
+                        , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.CANCELADA);
+
+                purchaseRepo.update(idPurchase, updatedPurchase);
+            }
+
+            if (purchaseRepo.getById(idPurchase).isPresent()){
+                return true;
+            }
+            return false;
+        });
+
+        //Lanzo exepcion si hay errores
+        Util.thowException(errors);
+
+        return payed;
     }
 
 

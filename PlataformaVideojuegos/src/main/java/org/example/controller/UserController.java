@@ -12,6 +12,7 @@ import org.example.model.form.UserForm;
 
 import org.example.repository.Interface.ICountryRepo;
 import org.example.repository.Interface.IUserRepo;
+import org.example.transaction.ITransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +24,16 @@ public class UserController {
     public static final float MAX_VALUE = 500;
     private IUserRepo userRepo;
     private ICountryRepo countryRepo;
+    public ITransactionManager tm;
 
 
     //Constructor
 
 
-    public UserController(IUserRepo userRepo, ICountryRepo countryRepo) {
+    public UserController(IUserRepo userRepo, ICountryRepo countryRepo, ITransactionManager tm) {
         this.userRepo = userRepo;
         this.countryRepo = countryRepo;
+        this.tm = tm;
     }
 
 
@@ -48,21 +51,32 @@ public class UserController {
 
         //LLamo al validate del formulario y guardo la lista de errores
         errors.addAll(userForm.validate());
-        //LLamo al validate del controlador y guardo la lista de errores
-        errors.addAll(validate(userForm));
 
+        //Inicio transaccion
+        var createdGame = tm.inTransaction(()->{
+
+            //LLamo al validate del controlador y guardo la lista de errores
+            errors.addAll(validate(userForm));
+
+            //Si hay errores en el usuario mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            if(!errors.isEmpty()) {
+                throw new IllegalArgumentException();
+            }
+
+            return userRepo.create(userForm);
+        }).orElse(null);
+
+        //Vuelvo a comprobar si hay errores mando una validation exeption
         Util.thowException(errors);
 
-        var userOpt = userRepo.create(userForm);
-        var user = userOpt.orElse(null);
-
-        return Mapper.mapFrom(user);
+        return Mapper.mapFrom(createdGame);
     }
+
 
 
     /**
      * Muestra la información de un usuario específico
-     *
+     * Si se le pasa el id y el nombre la funcion busca al usuario por id
      * @param id   id del usuario (optional)
      * @param name nombre del usuario (optional)
      * @return UserDTO con los datos del usuario encontrado
@@ -72,24 +86,32 @@ public class UserController {
     public UserDTO showUserProfile(Optional<Long> id, Optional<String> name) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo que me hayan pasado al menos id o nombre
         if (id.isEmpty() && name.isEmpty()) {
             throw new ValidationException(
-                    List.of(new ErrorDto("IdUser, GameName", ErrorType.REQUERIDO))
+                    List.of(new ErrorDto("IdUser, UserName", ErrorType.REQUERIDO))
             );
         }
-        UserEntity user;
 
-        if (id.isPresent()) {
-            user = userRepo.getById(id.get()).orElse(null);
-            if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
+        //Inicio transaccion
+        UserEntity user = tm.inTransaction(()->{
 
-        } else {
-            user = userRepo.getAll().stream()
-                    .filter(u -> u.getUserName().equalsIgnoreCase(name.get()))
-                    .findFirst()
-                    .orElse(null);
-            if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
-        }
+            if (id.isPresent()) {
+                return userRepo.getById(id.get()).orElse(null);
+
+
+            } else {
+                return userRepo.getAll().stream()
+                        .filter(u -> u.getUserName().trim().equalsIgnoreCase(name.get().trim()))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
+
+        //Si no encuentra al usuario agrego el error
+        if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
+
+        //Compruebo si hay errores en la lista de errores para lanzar exepcion
         Util.thowException(errors);
 
         return Mapper.mapFrom(user);
@@ -106,32 +128,53 @@ public class UserController {
      */
     public UserDTO addBalanceToWallet(Long id, Float money) throws IllegalArgumentException, ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
-        UserEntity userOpt = userRepo.getById(id).orElse(null);
-        if (userOpt == null) {
+
+        //Compruebo que se se haya pasado por parametro alguna cantidad de dinero
+        if (money == null) {
+            errors.add(new ErrorDto("Money", ErrorType.NO_ENCONTRADO));
+        }else {
+            //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
+            if (money < MIN_VALUE || money > MAX_VALUE) {
+                errors.add(new ErrorDto("Money", ErrorType.FORMATO_INVALIDO));
+            }
+        }
+
+        //En caso de que el money lo hayan pasado mal lanzo la exepcion antes de iniciar la transaccion
+        Util.thowException(errors);
+
+        //Inicio transaccion
+        UserEntity updatedUser = tm.inTransaction(()->{
+            UserEntity userOpt = userRepo.getById(id).orElse(null);
+            if (userOpt == null) {
+                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            }else{
+                //Compruebo que la cuenta del usuario que se encontró este activa
+                //Si lo meto dentro de este else evito un posible nullPointedExeption en caso de que userOpt no se haya encontrado y sea null e intente hacer un getAccountState()
+                if (!userOpt.getAccountState().equals(AccountState.ACTIVE)) {
+                    errors.add(new ErrorDto("AccountState", ErrorType.FORMATO_INVALIDO));
+                }
+
+            }
+
+            //Si hay errores en el usuario mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            if(!errors.isEmpty()) {
+                throw new IllegalArgumentException();
+            }
+
+            //Calculo el nuevo saldo del usuario
+            float newBalance = userOpt.getPortfolioBalance() + money;
+
+            UserUpdate userForm = new UserUpdate(userOpt.getUserName(), userOpt.getEmail(), userOpt.getPassword(), userOpt.getRealName(), userOpt.getCountry(), userOpt.getBirthDate(), userOpt.getRegistrationDate(), userOpt.getAvatar(), newBalance, userOpt.getAccountState());
+
+            return userRepo.update(id, userForm).orElse(null);
+        });
+
+        if (updatedUser == null) {
             errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
         }
 
-        //Compruebo que la cuenta del usuario que se encontró este activa
-        if (!userOpt.getAccountState().equals(AccountState.ACTIVE)) {
-            errors.add(new ErrorDto("AccountState", ErrorType.FORMATO_INVALIDO));
-        }
-
-        if (money == null) {
-            errors.add(new ErrorDto("Money", ErrorType.NO_ENCONTRADO));
-        }
-
-        //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
-        if (money < MIN_VALUE || money > MAX_VALUE) {
-            errors.add(new ErrorDto("Money", ErrorType.FORMATO_INVALIDO));
-        }
-
+        //Vuelvo a comprobar si hay errores mando una validation exeption
         Util.thowException(errors);
-
-        float newBalance = userOpt.getPortfolioBalance() + money;
-
-        UserUpdate userForm = new UserUpdate(userOpt.getUserName(), userOpt.getEmail(), userOpt.getPassword(), userOpt.getRealName(), userOpt.getCountry(), userOpt.getBirthDate(), userOpt.getRegistrationDate(), userOpt.getAvatar(), newBalance, userOpt.getAccountState());
-
-        UserEntity updatedUser = userRepo.update(id, userForm).get();
 
         return Mapper.mapFrom(updatedUser);
     }
@@ -147,22 +190,26 @@ public class UserController {
     public UserDTO showBalanceFromWallet(Long id) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
-        UserEntity user = userRepo.getById(id).orElse(null);
+        //Inicio transaccion
+        UserEntity user = tm.inTransaction(()->{
+            return userRepo.getById(id).orElse(null);
+        });
+
+        //Si no encuentra al usuario manda agrega una exepcion a la lista de errores
         if (user == null) {
             errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
         }
 
+        //Compruebo si hay errores y mando una validation exeption en caso de haber
         Util.thowException(errors);
 
         return Mapper.mapFrom(user);
     }
 
 
-    //Validaciones que dependen del usuario, pero requieren acceso a datos
 
     /**
      * Realiza las validaciones del UserForm que necesitan acceso a datos
-     *
      * @param user Formulario con los datos introducidos por el usuario
      * @return Lista con errores, en caso de no haber devuelve la lista vacia
      *

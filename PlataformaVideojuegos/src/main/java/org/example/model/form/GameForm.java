@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record GameForm(
-        Long id,
         String tittle,
         String description,
         String developer,
@@ -139,7 +138,7 @@ public record GameForm(
         if (launchDate == null) {
             errores.add(new ErrorDto("LaunchDate", ErrorType.REQUERIDO));
         }
-        if (launchDate.isBefore(LocalDate.now())) {
+        else if (launchDate.isBefore(LocalDate.now())) {
             errores.add(new ErrorDto("LaunchDate", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         return errores;
@@ -167,9 +166,6 @@ public record GameForm(
             errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
         }
 
-        //if (Math.round(basePrice * 100) / 100 != basePrice) {
-        //    errores.add(new ErrorDto("BasePrice", ErrorType.FORMATO_INVALIDO));
-        //}
         return errores;
     }
 
@@ -213,7 +209,7 @@ public record GameForm(
 
     public static void main(String[] args) throws ValidationException {
         List<ErrorDto> errores = new ArrayList<>();
-        GameForm game = new GameForm(1L,
+        GameForm game = new GameForm(
                 "Elden Ring",
                 "An open-world action RPG with challenging combat and deep lore.",
                 "FromSoftware",

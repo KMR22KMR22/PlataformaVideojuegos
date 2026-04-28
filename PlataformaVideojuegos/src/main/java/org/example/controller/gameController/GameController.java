@@ -14,6 +14,7 @@ import org.example.model.form.updates.GameUpdate;
 
 import org.example.repository.Interface.IGameRepo;
 import org.example.repository.Interface.IReviewRepo;
+import org.example.transaction.ITransactionManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,14 +26,14 @@ public class GameController {
     public static final int MIN_DISCOUNT = 0;
     public static final int MAX_DISCOUNT = 100;
     private IGameRepo gameRepo;
-    private IReviewRepo reviewRepo;
+    public ITransactionManager tm;
 
 
     //Constructor
 
-    public GameController(IGameRepo gameRepo, IReviewRepo reviewRepo) {
+    public GameController(IGameRepo gameRepo, ITransactionManager tm) {
         this.gameRepo = gameRepo;
-        this.reviewRepo = reviewRepo;
+        this.tm = tm;
     }
 
     /**
@@ -49,15 +50,24 @@ public class GameController {
         //LLamo al validate del formulario y guardo la lista de errores
         errors.addAll(gameForm.validate());
 
-        //LLamo al validate del controlador y guardo la lista de errores
-        errors.addAll(validate(gameForm));
+        //Inicio transaccion
+        var createdGame = tm.inTransaction(()->{
 
+            //LLamo al validate del controlador y guardo la lista de errores
+            errors.addAll(validate(gameForm));
+
+            //Si hay errores en el juego mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            if(!errors.isEmpty()) {
+                throw new IllegalArgumentException();
+            }
+
+            return gameRepo.create(gameForm);
+        }).orElse(null);
+
+        //Vuelvo a comprobar si hay errores mando una validation exeption
         Util.thowException(errors);
 
-        var gameOpt = gameRepo.create(gameForm);
-        var game = gameOpt.orElse(null);
-
-        return Mapper.mapFrom(game);
+        return Mapper.mapFrom(createdGame);
     }
 
 
@@ -73,27 +83,54 @@ public class GameController {
      * @return Lista de juegos encontrados, en caso de no encontrar ninguno se devuelve la lista vacia
      *
      */
-    public List<GameDTO> findGames(Optional<String> texto, Optional<String> category, Optional<Integer> minPrice, Optional<Integer> maxPrice, Optional<GameAgeClasification> ageClasification, Optional<GameState> gameState) {
+    public List<GameDTO> findGames(Optional<String> texto, Optional<String> category, Optional<Integer> minPrice, Optional<Integer> maxPrice, Optional<GameAgeClasification> ageClasification, Optional<GameState> gameState) throws ValidationException {
 
         //Compruebo que al menos haya un parametro de entrada que tenga valor, si todos son null devuelvo una exepcion
         if (texto.isEmpty() && category.isEmpty() && minPrice.isEmpty()
                 && maxPrice.isEmpty() && ageClasification.isEmpty() && gameState.isEmpty()) {
-            throw new IllegalArgumentException("No se han ingresado parametros de busqueda");
+            throw new ValidationException(List.of(new ErrorDto("text,category,minPricy,maxPrice,ageClasification,gameState", ErrorType.REQUERIDO)));
         }
 
-        //Filtro la lista de juegos del repositorio, la mapeo a DTO y devuelvo una lista con los juegos que coincidan con todos los parametros de busqueda a la vez
-        return gameRepo.getAll().stream()
-                .filter(g -> texto.isEmpty() ||
-                        (!texto.get().isBlank() && g.getTittle().contains(texto.get())))
-                .filter(g -> category.isEmpty() ||
-                        (!category.get().isBlank() && g.getCategory().contains(category.get())))
-                .filter(g -> minPrice.isEmpty() || g.getBasePrice() >= minPrice.get())
-                .filter(g -> maxPrice.isEmpty() || g.getBasePrice() <= maxPrice.get())
-                .filter(g -> ageClasification.isEmpty() || g.getAgeClasification().equals(ageClasification.get()))
-                .filter(g -> gameState.isEmpty() || g.getState().equals(gameState.get()))
-                .map(g -> Mapper.mapFrom(g))
-                .toList();
+        //Inicio la transaccion
+
+        return tm.inTransaction(()->{
+
+            //Filtro la lista de juegos del repositorio, la mapeo a DTO y devuelvo una lista con los juegos que coincidan con todos los parametros de busqueda a la vez
+            return gameRepo.getAll().stream()
+                    .filter(g -> texto.isEmpty() ||
+                            (!texto.get().trim().isBlank() &&
+                                    (g.getTittle() != null &&
+                                            g.getTittle().toLowerCase()
+                                                    .contains(texto.get().trim().toLowerCase())
+                                            ||
+                                            g.getDescription() != null &&
+                                                    g.getDescription().toLowerCase()
+                                                            .contains(texto.get().trim().toLowerCase())
+                                    )))
+
+                    .filter(g -> category.isEmpty() ||
+                            (!category.get().trim().isBlank() &&
+                                    g.getCategory() != null &&
+                                    g.getCategory().toLowerCase()
+                                            .contains(category.get().trim().toLowerCase())))
+
+                    .filter(g -> minPrice.isEmpty() ||
+                            g.getBasePrice() >= minPrice.get())
+
+                    .filter(g -> maxPrice.isEmpty() ||
+                            g.getBasePrice() <= maxPrice.get())
+
+                    .filter(g -> ageClasification.isEmpty() ||
+                            g.getAgeClasification().equals(ageClasification.get()))
+
+                    .filter(g -> gameState.isEmpty() ||
+                            g.getState().equals(gameState.get()))
+
+                    .map(Mapper::mapFrom)
+                    .toList();
+        });
     }
+
 
 
     /**
@@ -103,13 +140,17 @@ public class GameController {
      * @return Lista con todos los juegos ordenados por título, precio o fecha de lanzamiento. En caso de no aclararse se muestran todos los juegos disponibles en el orden que ya esten guardados
      *
      */
-    public List<GameDTO> consultHoleCataloge(Optional<OrderParameters> orderParameter) {
+    public List<GameDTO> consultHoleCataloge(Optional<OrderParameters> orderParameter) throws ValidationException {
+
+        //Inicio Transaccion
 
         //Guardo los juegos almacenados en el repositorio los cuales esten como disponible en una lista
-        List<GameDTO> games = gameRepo.getAll().stream()
-                .filter(g -> g.getState() != GameState.NO_DISPONIBLE)
-                .map(g -> Mapper.mapFrom(g))
-                .toList();
+        List<GameDTO> games = tm.inTransaction(()-> {
+            return gameRepo.getAll().stream()
+                    .filter(g -> g.getState() != GameState.NO_DISPONIBLE)
+                    .map(g -> Mapper.mapFrom(g))
+                    .toList();
+        });
 
         if (orderParameter.isPresent()) {
             switch (orderParameter.get()) {
@@ -144,11 +185,19 @@ public class GameController {
     public GameDTO consultGameDetails(Long id) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
-        GameEntity game = gameRepo.getById(id).orElse(null);
+        //Inicio Transaccion
+
+        //Encuentro el juego
+        GameEntity game = tm.inTransaction(()-> {
+            return gameRepo.getById(id).orElse(null);
+        });
+
+        //Si no encuentro el juego agrego el error a la lista
         if (game == null) {
             errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
         }
 
+        //Si hay herrores lanzo la exepcion
         Util.thowException(errors);
 
         return Mapper.mapFrom(game);
@@ -175,16 +224,34 @@ public class GameController {
             errors.add(new ErrorDto("Discount", ErrorType.VALOR_DEMASIADO_ALTO));
         }
 
-        GameEntity entity = gameRepo.getById(id).orElse(null);
-        if (entity == null) {
+        //Si hay herrores lanzo la exepcion
+        Util.thowException(errors);
+
+        //Inicio Transaccion
+
+        //Busco el juego en el repositorio
+        GameEntity updatedGame = tm.inTransaction(()-> {
+            GameEntity entity = gameRepo.getById(id).orElse(null);
+
+            //Si hay errores en el juego mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            if (entity == null) {
+                throw new IllegalArgumentException();
+            }
+
+            //Creo el formulario con los datos del juego actualizados
+
+            GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), percent, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
+
+             return gameRepo.update(id, form).orElse(null);
+        });
+
+        //Si no encuentro el juego agrego el error a la lista
+        if (updatedGame == null) {
             errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
         }
 
+        //Si hay herrores lanzo la exepcion
         Util.thowException(errors);
-
-        GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), percent, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
-
-        GameEntity updatedGame = gameRepo.update(id, form).get();
 
         return Mapper.mapFrom(updatedGame);
     }
@@ -209,16 +276,28 @@ public class GameController {
             errors.add(new ErrorDto("GameState", ErrorType.NO_ENCONTRADO));
         }
 
-        GameEntity entity = gameRepo.getById(id).orElse(null);
-        if (entity == null) {
-            errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
-        }
-
+        //Si el estado ingresado no esta entre los admisibles lanzo la exepcion y no se realiza la transaccion
         Util.thowException(errors);
 
-        GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), entity.getCurrentDescount(), entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
+        //Inicio transaccion
+        GameEntity updatedGame = tm.inTransaction(()-> {
+            //Busco el juego en el repositorio
+            GameEntity entity = gameRepo.getById(id).orElse(null);
 
-        GameEntity updatedGame = gameRepo.update(id, form).get();
+            //Si hay errores en el juego mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            if (entity == null) {
+                errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
+                throw new IllegalArgumentException();
+            }
+
+            //Creo el formulario con los datos del juego actualizados
+            GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), entity.getCurrentDescount(), entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), newState);
+
+            return gameRepo.update(id, form).orElse(null);
+        });
+
+        //Si hay herrores lanzo la exepcion
+        Util.thowException(errors);
 
         return Mapper.mapFrom(updatedGame);
     }
@@ -236,7 +315,7 @@ public class GameController {
         List<ErrorDto> errores = new ArrayList<>();
 
         //Comprueba que el titulo no se repita
-        if (gameRepo.getAll().stream().anyMatch(g -> g.equals(game.tittle()))) {
+        if (gameRepo.getAll().stream().anyMatch(g -> g.getTittle().equals(game.tittle()))) {
             errores.add(new ErrorDto("Tittle", ErrorType.DUPLICADO));
         }
         //Comprueba que la clasificacion de edad del juego este entre las disponibles
