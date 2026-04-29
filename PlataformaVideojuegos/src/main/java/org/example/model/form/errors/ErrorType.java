@@ -7,7 +7,9 @@ public enum ErrorType {
     VALOR_DEMASIADO_BAJO("El valor es demasiado bajo"),
     NO_ENCONTRADO("No se encontró el elemento"),
     DUPLICADO("El elemento está duplicado"),
-    NO_ACTUALIZADO("No se puedo actualizar");
+    NO_ACTUALIZADO("No se puedo actualizar"),
+    NO_ELIMINADO("No se puedo eliminar"),
+    ESTADO_INCORRECTO("Estado Incorrecto"),;
 
     private final String mensaje;
 

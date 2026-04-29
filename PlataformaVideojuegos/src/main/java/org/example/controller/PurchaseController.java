@@ -176,9 +176,10 @@ public class PurchaseController {
                     errors.add(new ErrorDto("PurchaseState", ErrorType.DUPLICADO));
                 }
             }
-            //Si hay errores mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
+            //Si hay errores mando una ilegalArgumentExeption
             if (!errors.isEmpty()){
-                throw new IllegalArgumentException();
+                //Lanzo exepcion si hay errores
+                Util.thowException(errors);
             }
 
             //Realizo el pago y la compra pasa a estado completada. Si no se puede realizar pasa a estado cancelada.
@@ -203,8 +204,7 @@ public class PurchaseController {
                     .orElse(false);
         });
 
-        //Lanzo exepcion si hay errores
-        Util.thowException(errors);
+
 
         return payed;
     }
@@ -318,6 +318,10 @@ public class PurchaseController {
             if (purchase == null) {
                 errors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
             }else {
+                //Compruebo que el estado de la compra este en completada
+                if (purchase.getSatate() != PurchaseState.COMPLETADA) {
+                    errors.add(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO));
+                }
                 //Busco una biblioteca la cual tenga la relacion entre el usuario que compro el juego y el jugo
                 LibraryEntity library = libraryRepo.getByUserGameId(purchase.getIdUser(), purchase.getIdGame()).orElse(null);
                 //Compruebo que la biblioteca exista
@@ -334,6 +338,7 @@ public class PurchaseController {
                     }
                 }
             }
+
             //Busco al usuario que aparece en la compra
             UserEntity user = userRepo.getById(purchase.getIdUser()).orElse(null);
             //Compruebo que el usuario que aparece en la compra exista

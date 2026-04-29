@@ -17,6 +17,7 @@ import org.example.repository.Interface.IGameRepo;
 import org.example.repository.Interface.ILibraryRepo;
 import org.example.repository.Interface.IReviewRepo;
 import org.example.repository.Interface.IUserRepo;
+import org.example.transaction.ITransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +29,18 @@ public class ReviewController {
     private IUserRepo userRepo;
     private IGameRepo gameRepo;
     private ILibraryRepo libraryRepo;
+    public ITransactionManager tm;
 
 
     //Constructor
 
 
-    public ReviewController(IReviewRepo reviewRepo, IUserRepo userRepo, IGameRepo gameRepo, ILibraryRepo libraryRepo) {
+    public ReviewController(IReviewRepo reviewRepo, IUserRepo userRepo, IGameRepo gameRepo, ILibraryRepo libraryRepo, ITransactionManager tm) {
         this.reviewRepo = reviewRepo;
         this.userRepo = userRepo;
         this.gameRepo = gameRepo;
         this.libraryRepo = libraryRepo;
+        this.tm = tm;
     }
 
 
@@ -52,34 +55,52 @@ public class ReviewController {
     public ReviewDTO writeReview(Long idUser, Long idGame, boolean recomended, String reviewText) throws ValidationException {
         List<ErrorDto> errors =  new ArrayList<>();
 
-        UserEntity user = userRepo.getById(idUser).orElse(null);
-        if (user == null) {
-            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
-        }
+        //Inicio Transaccion
+        var reviewUpdated = tm.inTransaction(()->{
 
-        GameEntity game = gameRepo.getById(idGame).orElse(null);
-        if (game == null) {
-            errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
-        }
+            //Compruebo que el usuario exista
+            UserEntity user = userRepo.getById(idUser).orElse(null);
+            if (user == null) {
+                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            }
+            //Compruebo que el juego exista
+            GameEntity game = gameRepo.getById(idGame).orElse(null);
+            if (game == null) {
+                errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+            }
+            //Compruebo que el texto que me hayan pasado tenga algo
+            if (Util.checkCadenaBlankOrEmpty(reviewText)) {
+                errors.add(new ErrorDto("ReviewText", ErrorType.REQUERIDO));
+            }
+            //Si existe el usuario y el juego compruebo si existe una biblioteca que los relacione
+            LibraryEntity libraryFound = null;
+            if (user != null && game != null) {
+                libraryFound = libraryRepo.getByUserGameId(idUser, idGame).orElse(null);
+                if (libraryFound == null){
+                    errors.add(new ErrorDto("LibraryIdGame, LibraryIdUser", ErrorType.NO_ENCONTRADO));
+                }
+            }
 
-        LibraryEntity library = libraryRepo.getByUserGameId(idUser, idGame).orElse(null);
-        if (library == null){
-            errors.add(new ErrorDto("LibraryIdGame, LibraryIdUser", ErrorType.NO_ENCONTRADO));
-        }
+            if (!errors.isEmpty()) {
+                throw  new ValidationException(errors);
+            }
+
+            //Creo el formulario de la reseña
+            ReviewForm form = new ReviewForm(idUser, idGame, recomended, reviewText, libraryFound.getTimePlaying());
+
+            //Validaciones del formulario
+            errors.addAll(form.validate());
+            errors.addAll(validate(form));
+
+            //Si hay errores de validacion del formulario lanzo exepcion
+            if (!errors.isEmpty()) {
+                throw  new ValidationException(errors);
+            }
+
+            return reviewRepo.create(form).orElse(null);
+        });
 
         Util.thowException(errors);
-        errors.clear();
-
-        ReviewForm form = new ReviewForm(idUser, idGame, recomended, reviewText, library.getTimePlaying());
-
-        //Validaciones del formulario
-        errors.addAll(form.validate());
-        errors.addAll(validate(form));
-
-        Util.thowException(errors);
-
-        var reviewOpt = reviewRepo.create(form);
-        var reviewUpdated = reviewOpt.orElseThrow(()-> new IllegalArgumentException("No se puedo crear la biblioteca"));
 
         return Mapper.mapFrom(reviewUpdated);
     }
