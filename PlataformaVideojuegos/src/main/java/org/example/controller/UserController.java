@@ -53,23 +53,18 @@ public class UserController {
         errors.addAll(userForm.validate());
 
         //Inicio transaccion
-        var createdGame = tm.inTransaction(()->{
+        var createdUser = tm.inTransaction(()->{
 
             //LLamo al validate del controlador y guardo la lista de errores
             errors.addAll(validate(userForm));
 
-            //Si hay errores en el usuario mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
-            if(!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+            //Vuelvo a comprobar si hay errores mando una validation exeption
+            Util.throwException(errors);
 
             return userRepo.create(userForm);
         }).orElse(null);
 
-        //Vuelvo a comprobar si hay errores mando una validation exeption
-        Util.thowException(errors);
-
-        return Mapper.mapFrom(createdGame);
+        return Mapper.mapFrom(createdUser);
     }
 
 
@@ -109,10 +104,11 @@ public class UserController {
         });
 
         //Si no encuentra al usuario agrego el error
-        if (user == null) {errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
+        if (user == null) {
+        errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
 
         //Compruebo si hay errores en la lista de errores para lanzar exepcion
-        Util.thowException(errors);
+        Util.throwException(errors);
 
         return Mapper.mapFrom(user);
     }
@@ -129,6 +125,10 @@ public class UserController {
     public UserDTO addBalanceToWallet(Long id, Float money) throws IllegalArgumentException, ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo que id no sea null
+        if (id == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
         //Compruebo que se se haya pasado por parametro alguna cantidad de dinero
         if (money == null) {
             errors.add(new ErrorDto("Money", ErrorType.NO_ENCONTRADO));
@@ -140,7 +140,7 @@ public class UserController {
         }
 
         //En caso de que el money lo hayan pasado mal lanzo la exepcion antes de iniciar la transaccion
-        Util.thowException(errors);
+        Util.throwException(errors);
 
         //Inicio transaccion
         UserEntity updatedUser = tm.inTransaction(()->{
@@ -156,10 +156,8 @@ public class UserController {
 
             }
 
-            //Si hay errores en el usuario mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
-            if(!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+            //Compruebo si hay errores mando una validation exeption
+            Util.throwException(errors);
 
             //Calculo el nuevo saldo del usuario
             float newBalance = userOpt.getPortfolioBalance() + money;
@@ -168,13 +166,6 @@ public class UserController {
 
             return userRepo.update(id, userForm).orElse(null);
         });
-
-        if (updatedUser == null) {
-            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
-        }
-
-        //Vuelvo a comprobar si hay errores mando una validation exeption
-        Util.thowException(errors);
 
         return Mapper.mapFrom(updatedUser);
     }
@@ -190,6 +181,12 @@ public class UserController {
     public UserDTO showBalanceFromWallet(Long id) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo que id no sea null
+        if (id == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        Util.throwException(errors);
+
         //Inicio transaccion
         UserEntity user = tm.inTransaction(()->{
             return userRepo.getById(id).orElse(null);
@@ -201,7 +198,7 @@ public class UserController {
         }
 
         //Compruebo si hay errores y mando una validation exeption en caso de haber
-        Util.thowException(errors);
+        Util.throwException(errors);
 
         return Mapper.mapFrom(user);
     }

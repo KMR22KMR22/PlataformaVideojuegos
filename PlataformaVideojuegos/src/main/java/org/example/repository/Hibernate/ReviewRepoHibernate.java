@@ -20,8 +20,48 @@ public class ReviewRepoHibernate implements IReviewRepo {
     }
 
     @Override
-    public List<ReviewEntity> getByidGame(Long id) {
-        return List.of();
+    public Optional<ReviewEntity> getByUserGameId(Long idUser, Long idGame) {
+        var session = sm.getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ReviewEntity> cq = cb.createQuery(ReviewEntity.class);
+        Root<ReviewEntity> root = cq.from(ReviewEntity.class);
+
+        cq.select(root)
+                .where(
+                        cb.and(
+                                cb.equal(root.get("idUser"), idUser),
+                                cb.equal(root.get("idGame"), idGame)
+                        )
+                );
+
+        return session.createQuery(cq)
+                .uniqueResultOptional();
+    }
+
+    @Override
+    public List<ReviewEntity> getByidGame(Long idGame) {
+        var session = sm.getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ReviewEntity> cq = cb.createQuery(ReviewEntity.class);
+        Root<ReviewEntity> root = cq.from(ReviewEntity.class);
+
+        cq.select(root)
+                .where(cb.equal(root.get("idGame"), idGame));
+
+        return session.createQuery(cq).getResultList();
+    }
+
+    @Override
+    public List<ReviewEntity> getByUserId(Long id) {
+        var session = sm.getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ReviewEntity> cq = cb.createQuery(ReviewEntity.class);
+        Root<ReviewEntity> root = cq.from(ReviewEntity.class);
+
+        cq.select(root)
+                .where(cb.equal(root.get("idUser"), id));
+
+        return session.createQuery(cq).getResultList();
     }
 
     @Override

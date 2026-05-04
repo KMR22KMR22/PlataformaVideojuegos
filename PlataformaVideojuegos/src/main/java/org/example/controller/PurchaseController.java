@@ -66,8 +66,25 @@ public class PurchaseController {
     public PurchaseDTO makePurchase(Long userId, Long gameId, PaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo que el userId no sea null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        //Compruebo que el gameId no sea null
+        if (gameId == null){
+            errors.add(new ErrorDto("gameId", ErrorType.REQUERIDO));
+        }
+        //Compruebo que el paymentMethod no sea null
+        if (paymentMethod == null){
+            errors.add(new ErrorDto("paymentMethod", ErrorType.REQUERIDO));
+        }
+
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
+
         PurchaseEntity purchase = tm.inTransaction(() -> {
 
+            //Busco al juego y el usuario
             GameEntity game = gameRepo.getById(gameId).orElse(null);
             UserEntity user = userRepo.getById(userId).orElse(null);
 
@@ -79,11 +96,6 @@ public class PurchaseController {
             // Compruebo que el juego exista
             if (game == null) {
                 errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
-            }
-
-            // Compruebo método de pago
-            if (paymentMethod == null) {
-                errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
             }
 
             // Si usuario y juego existen, hago validaciones extra
@@ -122,10 +134,8 @@ public class PurchaseController {
                 errors.addAll(validate(user, game));
             }
 
-            // Si hay errores hago rollback
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+            //Compruebo si hay errores para lanzar exepcion
+            Util.throwException(errors);
 
             // Calculo descuento aplicado
             float discount = game.getBasePrice() * game.getCurrentDescount() / 100;
@@ -142,8 +152,6 @@ public class PurchaseController {
             return purchaseRepo.create(purchaseForm).orElse(null);
         });
 
-        Util.thowException(errors);
-
         return Mapper.mapFrom(purchase);
     }
 
@@ -151,36 +159,39 @@ public class PurchaseController {
     /**
      * Crear una nueva transacción para adquirir un juego
      *
-     * @param idPurchase    Id de la compra que se intenta realizar
+     * @param PurchaseId    Id de la compra que se intenta realizar
      * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return Exito en el pago o no
      *
      */
-    public boolean processPayment(Long idPurchase, IPaymentMethod paymentMethod) throws ValidationException {
+    public PurchaseDTO processPayment(Long PurchaseId, IPaymentMethod paymentMethod) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo que el PurchaseId no sea null
+        if (PurchaseId == null){
+            errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
+        }
+        Util.throwException(errors);
+
         //Inicio Transaccion
-        boolean payed = tm.inTransaction(()->{
+        PurchaseEntity payedPurchase = tm.inTransaction(()->{
 
             //Compruebo que el paymentMethod no sea null
             if (paymentMethod == null) {
                 errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
             }
             //Compruebo que la compra exista
-            PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElse(null);
+            PurchaseEntity purchase = purchaseRepo.getById(PurchaseId).orElse(null);
             if (purchase == null) {
                 errors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
             }else {
                 //Compruebo que la compra este en estado pendiente de pagar
                 if (purchase.getSatate() != PurchaseState.PENDIENTE) {
-                    errors.add(new ErrorDto("PurchaseState", ErrorType.DUPLICADO));
+                    errors.add(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO));
                 }
             }
-            //Si hay errores mando una ilegalArgumentExeption
-            if (!errors.isEmpty()){
-                //Lanzo exepcion si hay errores
-                Util.thowException(errors);
-            }
+            //Lanzo exepcion si hay errores
+            Util.throwException(errors);
 
             //Realizo el pago y la compra pasa a estado completada. Si no se puede realizar pasa a estado cancelada.
             //Si la funcion de makePayment() de los paymentMethod manda un validation exeption, quiere decir que hubo un error en el pago, asi que lo capturo en el catch
@@ -190,100 +201,136 @@ public class PurchaseController {
                 var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
                         , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.COMPLETADA);
 
-                purchaseRepo.update(idPurchase, updatedPurchase);
+                purchaseRepo.update(PurchaseId, updatedPurchase);
 
             }catch (ValidationException e){
                 var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
                         , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.CANCELADA);
 
-                purchaseRepo.update(idPurchase, updatedPurchase);
+                purchaseRepo.update(PurchaseId, updatedPurchase);
             }
+            //Devuelvo la compra con su PurchaseState cambiado
+            return purchaseRepo.getById(PurchaseId).orElse(null);
 
-            return purchaseRepo.getById(idPurchase)
-                    .map(p -> p.getSatate() == PurchaseState.COMPLETADA)
-                    .orElse(false);
         });
 
-
-
-        return payed;
+        return Mapper.mapFrom(payedPurchase);
     }
 
 
     /**
      * Ver todas las compras realizadas por un usuario
      *
-     * @param idUser  Id del usuario
+     * @param userId  Id del usuario
      * @param state   estado de las compras
      * @param minDate fecha minima por la cual se va a filtrar
      * @param maxDate fecha maxima por la cual se va a filtrar
      * @return Lista de compras
      *
      */
-    public List<PurchaseEntity> consultPurchasesRecord(Long idUser, Optional<PurchaseState> state, Optional<LocalDate> minDate, Optional<LocalDate> maxDate) throws ValidationException {
+    public List<PurchaseDTO> consultPurchasesRecord(Long userId, Optional<PurchaseState> state, Optional<LocalDate> minDate, Optional<LocalDate> maxDate) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
+        //Compruebo que el userId no sea null
+        if (userId == null){
+            errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
+        }
+        Util.throwException(errors);
+
         //Inicio Transacion
-        List<PurchaseEntity> ordenatedPurchases = tm.inTransaction(()->{
+        List<PurchaseDTO> filteredPurchases = tm.inTransaction(()->{
 
             //Compruebo que el usuario exista
-            UserEntity user = userRepo.getById(idUser).orElse(null);
-            if(user == null){errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
-
-            //Si hay errores mando una ilegalArgumentExeption para que la funcion inTransaction la capture en el catch y haga un rollback de la transaccion
-            if (!errors.isEmpty()){
-                throw new IllegalArgumentException();
+            UserEntity user = userRepo.getById(userId).orElse(null);
+            if(user == null){
+                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
+
+            //Compruebo que el maxDate sea mayor que el minDate
+            if (maxDate.isPresent() && minDate.isPresent()) {
+                if (minDate.get().isAfter(maxDate.get())) {
+                    errors.add(new ErrorDto("PurchaseDate", ErrorType.VALOR_DEMASIADO_BAJO));
+                }
+            }
+
+            //Compruebo si hay errores para mandar la validationExeption
+            Util.throwException(errors);
+
             //Encuentro todas las compras que haya realizado el usuario con el id pasado por parametro
             List<PurchaseEntity> foundPurchases = purchaseRepo.getAll().stream()
-                    .filter(p -> Objects.equals(p.getIdUser(), idUser))
+                    .filter(p -> Objects.equals(p.getIdUser(), userId))
                     .toList();
-            //Si se paso por parametro un estado se filtra por estado
+            //Si se pasó por parámetro un estado se filtra por estado
             if (state.isPresent()) {
                 foundPurchases = foundPurchases.stream()
                         .filter(p -> p.getSatate() == state.get())
                         .toList();
             }
-            //Si se paso por parametro un rango de fecha se filtra
-            if (minDate.isPresent() && maxDate.isPresent()) {
+            //Si se pasó solo fecha mínima
+            if (minDate.isPresent() && maxDate.isEmpty()) {
                 foundPurchases = foundPurchases.stream()
-                        .filter(p -> p.getPurchaseDate().isAfter(minDate.get()) && p.getPurchaseDate().isBefore(maxDate.get()))
+                        .filter(p -> !p.getPurchaseDate().isBefore(minDate.get()))
                         .toList();
             }
 
-            return foundPurchases;
+            //Si se pasó solo fecha máxima
+            if (maxDate.isPresent() && minDate.isEmpty()) {
+                foundPurchases = foundPurchases.stream()
+                        .filter(p -> !p.getPurchaseDate().isAfter(maxDate.get()))
+                        .toList();
+            }
+
+            //Si se pasaron ambas fechas
+            if (minDate.isPresent() && maxDate.isPresent()) {
+                foundPurchases = foundPurchases.stream()
+                        .filter(p ->
+                                !p.getPurchaseDate().isBefore(minDate.get()) &&
+                                        !p.getPurchaseDate().isAfter(maxDate.get()))
+                        .toList();
+            }
+
+
+            return foundPurchases.stream()
+                    .map(p -> Mapper.mapFrom(p))
+                    .toList();
         });
 
-        //Vuelvo a comprobar si hay errores para mandar la validationExeption
-        Util.thowException(errors);
-
-        return ordenatedPurchases;
+        return filteredPurchases;
     }
 
 
     /**
      * Ver información completa de una transacción específica
      *
-     * @param idPurchase id de la compra
-     * @param idUser     id del usuario que realizó la compra
+     * @param purchaseId id de la compra
+     * @param userId     id del usuario que realizó la compra
      * @return PurchaseDTO con todos los detalles de la compra
      *
      */
-    public PurchaseDTO consultPurchaseDetails(Long idPurchase, Long idUser) throws ValidationException {
+    public PurchaseDTO consultPurchaseDetails(Long purchaseId, Long userId) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
+
+        //Compruebo que el PurchaseId y el userId no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        if (purchaseId == null){
+            errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
+        }
+        Util.throwException(errors);
 
         //Inicio Transaccion
 
         PurchaseEntity purchase = tm.inTransaction(()->{
             //busco la compra y la guardo
-            PurchaseEntity pur = purchaseRepo.getById(idPurchase).orElse(null);
+            PurchaseEntity pur = purchaseRepo.getById(purchaseId).orElse(null);
 
             //Compruebo que la compra exista
             if (pur == null) {
                 errors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
             }else {
                 //Compruebo que el idUser coincida con el del usuario que realizo la compra
-                if (!Objects.equals(pur.getIdUser(), idUser)) {
+                if (!Objects.equals(pur.getIdUser(), userId)) {
                     errors.add(new ErrorDto("UserId, PurchaseId", ErrorType.NO_ENCONTRADO));
                 }
             }
@@ -292,7 +339,7 @@ public class PurchaseController {
         });
 
         //Compruebo si hay errores para mandar la validationExeption
-        Util.thowException(errors);
+        Util.throwException(errors);
 
         return Mapper.mapFrom(purchase);
     }
@@ -301,19 +348,25 @@ public class PurchaseController {
     /**
      * Devolver una compra y reintegrar el dinero a la cartera
      *
-     * @param idPurchase id de la compra
+     * @param purchaseId id de la compra
      * @param reason     Rason por la cual el usuario quiere el reembolso
      * @return Confirmacion del reembolso
      *
      */
-    public  void requestRefund(Long idPurchase, String reason) throws ValidationException {
+    public  void requestRefund(Long purchaseId, String reason) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
+
+        //Compruebo que el purchaseId no sea null
+        if (purchaseId == null){
+            errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
+        }
+        Util.throwException(errors);
 
         //Inicio Transaccion
         tm.inTransaction(()->{
 
             //busco la compra y la guardo
-            PurchaseEntity purchase = purchaseRepo.getById(idPurchase).orElse(null);
+            PurchaseEntity purchase = purchaseRepo.getById(purchaseId).orElse(null);
             //Compruebo que la compra exista
             if (purchase == null) {
                 errors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
@@ -322,13 +375,13 @@ public class PurchaseController {
                 if (purchase.getSatate() != PurchaseState.COMPLETADA) {
                     errors.add(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO));
                 }
-                //Busco una biblioteca la cual tenga la relacion entre el usuario que compro el juego y el jugo
+                //Busco una biblioteca la cual tenga la relación entre el usuario que compró el juego y el jugo
                 LibraryEntity library = libraryRepo.getByUserGameId(purchase.getIdUser(), purchase.getIdGame()).orElse(null);
                 //Compruebo que la biblioteca exista
                 if (library == null) {
                     errors.add(new ErrorDto("LibraryIdUser, LibraryIdGame", ErrorType.NO_ENCONTRADO));
                 }else {
-                    //Compruebo que no se exedan los 14 dias luego de la compra del juego o que el usuario no haya jugado mas de 2 horas
+                    //Compruebo que no se excedan los 14 dias luego de la compra del juego o que el usuario no haya jugado mas de 2 horas
                     long days = ChronoUnit.DAYS.between(library.getAcquisitionDate(), LocalDate.now());
                     if (days > REFUND_DAYS_LIMIT) {
                         errors.add(new ErrorDto("PurchaseDate", ErrorType.VALOR_DEMASIADO_ALTO));
@@ -346,12 +399,10 @@ public class PurchaseController {
                 errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
 
-            //compruebo si hay errores
-            if (!errors.isEmpty()){
-                throw new IllegalArgumentException();
-            }
+            //Compruebo si hay errores para mandar la exepcion
+            Util.throwException(errors);
 
-            //obtengo cuanto le costo el juego al usuario y lo guardo
+            //obtengo cuanto el costo el juego al usuario y lo guardo
             float amount = purchase.getDiscountApplicated();
             //Creo al usuario actiualizado reponiendole el dinero
             UserUpdate userForm = new UserUpdate(user.getUserName(), user.getEmail(), user.getPassword(), user.getRealName(), user.getCountry(), user.getBirthDate(), user.getRegistrationDate(), user.getAvatar(), user.getPortfolioBalance() + amount, user.getAccountState());
@@ -361,28 +412,34 @@ public class PurchaseController {
             //Creo la compra actualizada con el estado en reembolsada
             PurchaseUpdate purchaseForm = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate(), purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.REEMBOLSADA);
             //Actualizo la compra
-            PurchaseEntity updatedPurchase = purchaseRepo.update(idPurchase, purchaseForm).orElse(null);
+            PurchaseEntity updatedPurchase = purchaseRepo.update(purchaseId, purchaseForm).orElse(null);
+            //Elimino la biblioteca que vincula al juego con el usuario
+            boolean deleted = false;
+            LibraryEntity library = libraryRepo.getByUserGameId(purchase.getIdUser(), purchase.getIdGame()).orElse(null);
+            if (library != null) {
+                deleted = libraryRepo.delete(library.getId());
+            }
 
             //Compruebo que se haya actualizado el usuario
             if (updatedUser == null) {
                 errors.add(new ErrorDto("User", ErrorType.NO_ACTUALIZADO));
             }
             //Compruebo si se ha actualizado la compra
-            if (updatedPurchase != null) {
+            if (updatedPurchase == null) {
                 errors.add(new ErrorDto("Purchase", ErrorType.NO_ACTUALIZADO));
+            }
+            //compruebo que se eliminó la biblioteca
+            if (!deleted) {
+                errors.add(new ErrorDto("Library", ErrorType.NO_ELIMINADO));
+
             }
 
             //compruebo si hay errores en las actualizaciones y lanzo las exepcion para hacer rollback en caso de algun error
-            if (!errors.isEmpty()){
-                throw new IllegalArgumentException();
-            }
+            Util.throwException(errors);
 
             //Aqui devuelvo un booleano porque la lambda me obliga a devolver algo, pero en verdad todo lo estoy controlando con las exepciones
             return true;
         });
-
-        //Compruebo si hay errores para mandar la exepcion
-        Util.thowException(errors);
 
         //Si no salta ninguna exepcion es que la funcion fue exitosa
     }
@@ -422,28 +479,34 @@ public class PurchaseController {
         if (game == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
+
         if (user == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
 
-        //Compruebo que el usuario exista en el repositorio
-        if (userRepo.getById(user.getId()).isEmpty()) {
-            errors.add(new ErrorDto("IdUser", ErrorType.NO_ENCONTRADO));
-        }
+        if (game != null && user != null) {
 
-        //Compruebo que la cuenta del usuario este activa
-        if (Arrays.stream(AccountState.values()).noneMatch(s -> s.equals(user.getAccountState()))) {
-            errors.add(new ErrorDto("AccountState", ErrorType.FORMATO_INVALIDO));
-        }
+            //Compruebo que el usuario exista en el repositorio
+            if (userRepo.getById(user.getId()).isEmpty()) {
+                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            }
 
-        //Compruebo que el juego exista en el sistema
-        if (gameRepo.getById(game.getId()).isEmpty()) {
-            errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
-        }
+            //Compruebo que la cuenta del usuario esté activa
+            if (user.getAccountState() != AccountState.ACTIVE) {
+                errors.add(new ErrorDto("AccountState", ErrorType.ESTADO_INCORRECTO));
+            }
 
-        //Compruebo que le juego este en estado DISPONIBLE, PREVENTA o ACCESO_ANTICIPADO
-        if (game.getState().equals(GameState.NO_DISPONIBLE) || Arrays.stream(GameState.values()).noneMatch(s -> s.equals(game.getState()))) {
-            errors.add(new ErrorDto("State", ErrorType.NO_ENCONTRADO));
+            //Compruebo que el juego exista en el sistema
+            if (gameRepo.getById(game.getId()).isEmpty()) {
+                errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+            }
+
+            //Compruebo que el juego esté disponible para comprar
+            if (game.getState() == null ||
+                    game.getState() == GameState.NO_DISPONIBLE) {
+
+                errors.add(new ErrorDto("GameState", ErrorType.ESTADO_INCORRECTO));
+            }
         }
 
         return errors;

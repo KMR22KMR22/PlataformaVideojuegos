@@ -11,7 +11,7 @@ public class PaymentUtil {
 
     public static void checkBalance(float gameCost, float balance) throws ValidationException {
         if (gameCost > balance) {
-            Util.thowException(List.of(new ErrorDto("Priece", ErrorType.VALOR_DEMASIADO_ALTO)));
+            Util.throwException(List.of(new ErrorDto("Priece", ErrorType.VALOR_DEMASIADO_ALTO)));
         }
     }
 

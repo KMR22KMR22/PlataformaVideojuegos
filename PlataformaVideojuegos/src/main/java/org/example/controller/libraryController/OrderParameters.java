@@ -4,6 +4,6 @@ public enum OrderParameters {
 
     ALPHABETICAL,
     GAME_TYPE,
-    LAST_SESIO,
+    LAST_SESION,
     ADQUISITION_DATE;
 }

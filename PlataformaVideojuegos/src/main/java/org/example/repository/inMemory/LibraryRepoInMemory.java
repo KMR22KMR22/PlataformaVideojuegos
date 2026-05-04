@@ -7,6 +7,7 @@ import org.example.repository.Interface.ILibraryRepo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class LibraryRepoInMemory implements ILibraryRepo {
@@ -29,7 +30,7 @@ public class LibraryRepoInMemory implements ILibraryRepo {
     @Override
     public Optional<LibraryEntity> getByUserGameId(Long idUser, Long idGame) {
         return getAll().stream()
-                .filter(l -> l.getIdUser() == idUser && l.getIdGame() == idGame)
+                .filter(l -> Objects.equals(l.getIdUser(), idUser) && Objects.equals(l.getIdGame(), idGame))
                 .findFirst();
     }
 

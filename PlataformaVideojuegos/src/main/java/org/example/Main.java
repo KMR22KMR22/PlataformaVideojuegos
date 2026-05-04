@@ -35,8 +35,8 @@ public class Main {
         //UserController userController = new UserController(userRepo, countryRepo);
         //GameController gameController = new GameController(gameRepo);
         //PurchaseController purchaseController = new PurchaseController(purRepo, gameRepo, userRepo, libraryRepo);
-        LibraryController libraryController = new LibraryController(libraryRepo, userRepo, gameRepo);
-        ReviewController reviewController = new ReviewController(reviewRepo, userRepo, gameRepo, libraryRepo);
+        //LibraryController libraryController = new LibraryController(libraryRepo, userRepo, gameRepo);
+        //ReviewController reviewController = new ReviewController(reviewRepo, userRepo, gameRepo, libraryRepo);
 
         //Creo un pais
         //countryRepo.create("Espanha");
@@ -47,9 +47,9 @@ public class Main {
         //Creo una compra
         //purchaseController.makePurchase(1L, 1L, PaymentMethod.TRASFERENCE);
         //creo una biblioteca
-        libraryController.addGameToLibrary(1L, 1L);
+        //libraryController.addGameToLibrary(1L, 1L);
         //Creo una reseña
-        reviewController.writeReview(1L, 1L, true, "Bueniiiisimo rebueniiiisimo, spectacular,aslvhasfbd");
+        //reviewController.writeReview(1L, 1L, true, "Bueniiiisimo rebueniiiisimo, spectacular,aslvhasfbd");
 
         //Compruebo que se haya creado la compra
         List<GameEntity> gameList = new ArrayList<>();

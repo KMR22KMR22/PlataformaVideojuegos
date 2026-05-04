@@ -7,6 +7,7 @@ import org.example.repository.Interface.IReviewRepo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ReviewRepoInMemory implements IReviewRepo {
@@ -22,6 +23,13 @@ public class ReviewRepoInMemory implements IReviewRepo {
     }
 
     @Override
+    public Optional<ReviewEntity> getByUserGameId(Long idUser, Long idGame) {
+        return getAll().stream()
+                .filter(l -> Objects.equals(l.getIdUser(), idUser) && Objects.equals(l.getIdGame(), idGame))
+                .findFirst();
+    }
+
+    @Override
     public Optional<ReviewEntity> getById(Long id) {
         return REVIEWS.stream().filter(review -> review.getId().equals(id)).findFirst();
     }
@@ -29,6 +37,11 @@ public class ReviewRepoInMemory implements IReviewRepo {
     @Override
     public List<ReviewEntity> getByidGame(Long id) {
         return REVIEWS.stream().filter(review -> review.getIdGame().equals(id)).toList();
+    }
+
+    @Override
+    public List<ReviewEntity> getByUserId(Long id) {
+        return REVIEWS.stream().filter(review -> review.getIdUser().equals(id)).toList();
     }
 
     @Override

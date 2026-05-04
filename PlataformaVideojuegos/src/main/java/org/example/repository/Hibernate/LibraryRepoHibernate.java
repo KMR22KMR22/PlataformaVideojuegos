@@ -22,17 +22,20 @@ public class LibraryRepoHibernate implements ILibraryRepo {
     @Override
     public Optional<LibraryEntity> getByUserGameId(Long idUser, Long idGame) {
         var session = sm.getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<LibraryEntity> cq = cb.createQuery(LibraryEntity.class);
+        Root<LibraryEntity> root = cq.from(LibraryEntity.class);
 
-        var library = session.createQuery(
-                        "FROM LibraryEntity l WHERE l.user.id = :idUser AND l.game.id = :idGame",
-                        LibraryEntity.class)
-                .setParameter("idUser", idUser)
-                .setParameter("idGame", idGame)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+        cq.select(root)
+                .where(
+                        cb.and(
+                                cb.equal(root.get("idUser"), idUser),
+                                cb.equal(root.get("idGame"), idGame)
+                        )
+                );
 
-        return Optional.ofNullable(library);
+        return session.createQuery(cq)
+                .uniqueResultOptional();
     }
 
     @Override

@@ -44,14 +44,21 @@ public class LibraryController {
     /**
      * Lista todos los juegos que posee un usuario en su biblioteca
      *
-     * @param idUser Id del usuario que va a comprar el juego
+     * @param userId Id del usuario que va a comprar el juego
      * @param order  Orden en que se muestran los juegos (opcional)
      * @return Lista de bibliotecas con los juegos que posee el usuario
      *
      */
-    public List<LibraryDTO> showPersonalLibrary(Long idUser, Optional<OrderParameters> order) throws ValidationException {
-        
-        List<LibraryDTO> libraries = showLibraryStats(idUser);
+    public List<LibraryDTO> showPersonalLibrary(Long userId, Optional<OrderParameters> order) throws ValidationException {
+        List<ErrorDto> errors = new ArrayList<>();
+        //Compruebo que el userId no sea null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        //Compruebo errores para lanzar exepcion
+        Util.throwException(errors);
+
+        List<LibraryDTO> libraries = showLibraryStats(userId);
 
         if (order.isPresent()) {
 
@@ -67,7 +74,7 @@ public class LibraryController {
                             .sorted((g1, g2) -> g1.game().category().compareToIgnoreCase(g2.game().category()))
                             .toList();
 
-                case LAST_SESIO:
+                case LAST_SESION:
                     return libraries.stream()
                             .sorted((g1, g2) -> g1.lastPlayed().compareTo(g2.lastPlayed()))
                             .toList();
@@ -88,32 +95,39 @@ public class LibraryController {
     /**
      * Agregar un juego adquirido a la biblioteca del usuario
      *
-     * @param idUser Id del usuario que va comprar e jeugo
-     * @param idgame id del juego
+     * @param userId Id del usuario que va comprar e jeugo
+     * @param gameId id del juego
      * @return LibraryDTO con los datos de la libreria que se creó
      *
      */
-    public LibraryDTO addGameToLibrary(Long idgame, Long idUser) throws ValidationException {
+    public LibraryDTO addGameToLibrary(Long gameId, Long userId) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
+
+        //Compruebo que el userId y gameId no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        if (gameId == null){
+            errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
+        }
+
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
 
         //Inicio Transaccion
         var library = tm.inTransaction(()-> {
             //Valido
-            errors.addAll(validate(idgame, idUser));
+            errors.addAll(validate(gameId, userId));
 
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+            //Reviso si hay errores para lanzar exepcion
+            Util.throwException(errors);
 
             //Creo el formulario de la biblioteca
-            LibraryForm libraryForm = new LibraryForm(idUser, idgame, LocalDate.now());
+            LibraryForm libraryForm = new LibraryForm(userId, gameId, LocalDate.now());
 
             return libraryRepo.create(libraryForm).orElse(null);
         });
 
-        //Vuelvo a revisar si hay errores para lanzar exepcion
-        Util.thowException(errors);
-        
         return Mapper.mapFrom(library);
     }
 
@@ -121,30 +135,37 @@ public class LibraryController {
     /**
      * Quita un juego de la biblioteca del usuario
      *
-     * @param idGame Id del juego a comprar
-     * @param idUser Id del usuario que va comprar e jeugo
+     * @param gameId Id del juego a comprar
+     * @param userId Id del usuario que va comprar e jeugo
      * @throws ValidationException
      *
      */
-    public void deleteLibrary(Long idUser, Long idGame) throws ValidationException {
+    public void deleteLibrary(Long userId, Long gameId) throws ValidationException {
         var errors = new ArrayList<ErrorDto>();
+
+        //Compruebo que el userId y gameId no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        if (gameId == null){
+            errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
+        }
+
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
 
         //Inicio Transaccion
         tm.inTransaction(()->{
 
-            LibraryEntity library = libraryRepo.getAll().stream()
-                    .filter(l -> Objects.equals(l.getIdUser(), idUser) && Objects.equals(l.getIdGame(), idGame))
-                    .findFirst()
-                    .orElse(null);
-
+            //Busco la biblioteca
+            LibraryEntity library = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
+            //Compruebo que se haya encontrado la biblioteca
             if (library == null) {
-                errors.add(new ErrorDto("IdLibrary", ErrorType.NO_ENCONTRADO));
+                errors.add(new ErrorDto("Library (UserId, GameId)", ErrorType.NO_ENCONTRADO));
             }
-            
-            //Mando exepcion para que se detenga la ejecucion de la lambda
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+
+            //Reviso si hay errores para lanzar exepcion
+            Util.throwException(errors);
 
             boolean deleted = libraryRepo.delete(library.getId());
             
@@ -154,59 +175,66 @@ public class LibraryController {
             }
             
             //Vuelvo a comprobar si hay errores, ya que si llega a este punto es que no hubo error al encontrar la biblioteca, pero si hubo error al borrarla
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+            Util.throwException(errors);
             
             return true;
             //Aquí devuelvo true solo porque la lambda me obliga, pero no necesito devolver nada, ya que lo estoy controlando todo con las exepciones
         });
-
-        //Vuelvo a revisar si hay errores para lanzar exepcion
-        Util.thowException(errors);
     }
 
 
     /**
      * Registra y actualiza las horas jugadas de un juego
      *
-     * @param idGame Id del juego a comprar
-     * @param idUser Id del usuario que va comprar e jeugo
+     * @param gameId Id del juego a comprar
+     * @param userId Id del usuario que va comprar e jeugo
      * @param time   Tiempo nuevo jugado
      * @return LibraryDTO con las horas de juego actualizadas
      * @throws ValidationException
      *
      */
-    public LibraryDTO updateGameTime(Long idUser, Long idGame, Long time) throws ValidationException {
+    public LibraryDTO updateGameTime(Long userId, Long gameId, Long time) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
+
+        //Compruebo que el userId, gameId y time no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        if (gameId == null){
+            errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
+        }
+        if (time == null){
+            errors.add(new ErrorDto("TimePlaying", ErrorType.REQUERIDO));
+        }
+
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
 
         //Inicio Transaccion
         LibraryEntity libraryEntity = tm.inTransaction(()->{
             //Encuentro la biblioteca que coincida con el id del juego y del usuario
-            LibraryEntity library = libraryRepo.getByUserGameId(idUser, idGame).orElse(null);
+            LibraryEntity library = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
             //Compruebo que el tiempo que entra no sea menor que cero
             if (time <= 0) {
                 errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
             }
             //Compruebo que se haya encontrado la biblioteca
             if (library == null) {
-                errors.add(new ErrorDto("IdLibrary", ErrorType.NO_ENCONTRADO));
-            }
-            
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
+                errors.add(new ErrorDto("Library (UserId, GameId)", ErrorType.NO_ENCONTRADO));
             }
 
+            //Reviso si hay errores para lanzar exepcion
+            Util.throwException(errors);
+
+            //Calculo el nuevo tiempo
             Long updatedTime = library.getTimePlaying() + time;
 
+            //Creo el formulario con el tiempo actualizado
             LibraryUpdate libraryForm = new LibraryUpdate(library.getId(), library.getIdUser(), library.getIdGame(), library.getAcquisitionDate(), updatedTime, library.getLastPlayed(), library.getInstalationState());
 
+            //Actualizo la biblioteca
             return libraryRepo.update(libraryForm.id(), libraryForm).orElse(null);
-            
         });
-        
-        //Vuelvo a revisar si hay errores para lanzar exepcion
-        Util.thowException(errors);
 
         return Mapper.mapFrom(libraryEntity);
     }
@@ -215,27 +243,30 @@ public class LibraryController {
     /**
      * Ver la última vez que se jugó a un juego específico
      *
-     * @param idGame Id del juego a comprar
-     * @param idUser Id del usuario que va comprar e jeugo
+     * @param gameId Id del juego a comprar
+     * @param userId Id del usuario que va comprar e jeugo
      * @return LibraryDTO
      *
      */
-    public LibraryDTO consultLastSession(Long idUser, Long idGame) throws ValidationException {
+    public LibraryDTO consultLastSession(Long userId, Long gameId) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
+
+        //Compruebo que el userId y gameId no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        if (gameId == null){
+            errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
+        }
+
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
 
         //Inicio Transaccion
         LibraryEntity foundLibrary = tm.inTransaction(()->{
             //busco la biblioteca
-            return libraryRepo.getByUserGameId(idUser, idGame).orElse(null);
+            return libraryRepo.getByUserGameId(userId, gameId).orElse(null);
         });
-        
-        //Compruebo que la biblioteca exista
-        if (foundLibrary == null) {
-            errors.add(new ErrorDto("LibraryIDUser and LibraryIDGame", ErrorType.NO_ENCONTRADO));
-        }
-
-        //Compruebo errores para lanzar exepcion
-        Util.thowException(errors);
 
         return Mapper.mapFrom(foundLibrary);
     }
@@ -244,89 +275,99 @@ public class LibraryController {
     /**
      * Buscar juegos en la biblioteca personal según criterios
      *
-     * @param idUser           Id del juego a comprar
+     * @param userId           Id del juego a comprar
      * @param text             Texto por el que se va a filtrar (Optional)
      * @param instalationState estado de instalacion por el que se va a filtrar (Optional)
      * @return Lista con las bibliotecas filtradas
      *
      */
-    public List<LibraryDTO> filterLibrary(Long idUser, Optional<String> text, Optional<InstalationState> instalationState) throws ValidationException {
+    public List<LibraryDTO> filterLibrary(Long userId, Optional<String> text, Optional<InstalationState> instalationState)
+            throws ValidationException {
+
         List<ErrorDto> errors = new ArrayList<>();
 
-        //Inicio Transaccion
-        List<LibraryDTO> librariesFound = tm.inTransaction(()-> {
-            //Compruebo que el usuario exista
-            UserEntity user = userRepo.getById(idUser).orElse(null);
+        //Compruebo que el userId no sea null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
+
+        return tm.inTransaction(() -> {
+
+            // Compruebo que el usuario exista
+            UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
                 errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
             }
 
-            //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
+            // Busco bibliotecas del usuario
             List<LibraryDTO> libraries = libraryRepo.getAll().stream()
-                    .filter(l -> Objects.equals(l.getIdUser(), idUser))
-                    .map(l -> Mapper.mapFrom(l))
+                    .filter(l -> Objects.equals(l.getIdUser(), userId))
+                    .map(Mapper::mapFrom)
                     .toList();
-            //Compruebo que se haya encontrado al menos una biblioteca
+
             if (libraries.isEmpty()) {
                 errors.add(new ErrorDto("LibraryIDUser", ErrorType.NO_ENCONTRADO));
             }
-            //Compruebo si hay algun error
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
+
+            Util.throwException(errors);
+
+            // Filtro por texto
+            if (text.isPresent()) {
+                String t = text.get().trim().toLowerCase();
+                libraries = libraries.stream()
+                        .filter(l -> l.game().title() != null &&
+                                l.game().title().toLowerCase().contains(t))
+                        .toList();
             }
 
-            //Si se ingreso el text o el instalationState filtro por esos parametros
-            if (text.isPresent() || instalationState.isPresent()) {
-                if (text.isPresent()) {
-                    libraries = libraries.stream()
-                            .filter(l -> l.game().title().equals(text))
-                            .toList();
-                }
-                if (instalationState.isPresent()) {
-                    libraries = libraries.stream()
-                            .filter(l -> l.instalationState().equals(instalationState))
-                            .toList();
-                }
+            //Filtro por estado de instalacion
+            if (instalationState.isPresent()) {
+                InstalationState state = instalationState.get();
+                libraries = libraries.stream()
+                        .filter(l -> l.instalationState() == state)
+                        .toList();
             }
+
             return libraries;
         });
-        
-        Util.thowException(errors);
-        
-        return librariesFound;
     }
 
     /**
      * Muestra métricas generales de la biblioteca del usuario
      *
-     * @param idUser Id del usuario que va comprar e jeugo
+     * @param userId Id del usuario que va comprar e jeugo
      * @return Lista con todas las bibliotecas que coincidan con el usuario
      *
      */
-    public List<LibraryDTO> showLibraryStats(Long idUser) throws ValidationException {
+    public List<LibraryDTO> showLibraryStats(Long userId) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
+
+        //Compruebo que el userId y gameId no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        //Compruebo si hay errores para lanzar exepcion
+        Util.throwException(errors);
 
         //Inicio Transaccion
         List<LibraryDTO> libraries = tm.inTransaction(()-> {
             //Compruebo que el usuario exista
-            UserEntity user = userRepo.getById(idUser).orElse(null);
+            UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
                 errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
             }
-            
-            if (!errors.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
+
+            //Reviso si hay errores para lanzar exepcion
+            Util.throwException(errors);
 
             //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
             return libraryRepo.getAll().stream()
-                    .filter(l -> Objects.equals(l.getIdUser(), idUser))
+                    .filter(l -> Objects.equals(l.getIdUser(), userId))
                     .map(l -> Mapper.mapFrom(l))
                     .toList();
         });
-        
-        //Vuelvo a revisar si hay errores para lanzar exepcion
-        Util.thowException(errors);
 
         return libraries;
     }
@@ -335,28 +376,42 @@ public class LibraryController {
     /**
      * Realiza las validaciones de la Biblioteca que necesitan acceso a datos
      *
-     * @param idGame Id del juego a comprar
-     * @param idUser Id del usuario que va comprar e jeugo
+     * @param gameId Id del juego a comprar
+     * @param userId Id del usuario que va comprar e jeugo
      * @return Lista con errores, en caso de no haber devuelve la lista vacia
      *
      */
-    public List<ErrorDto> validate(Long idGame, Long idUser) {
+    public List<ErrorDto> validate(Long gameId, Long userId) {
         List<ErrorDto> errors = new ArrayList<>();
 
-        //Compruebo que el usuario exista en el repositorio
-        if (userRepo.getById(idUser).isEmpty()) {
-            errors.add(new ErrorDto("IdUser", ErrorType.NO_ENCONTRADO));
+        //Compruebo que el userId y gameId no sean null
+        if (userId == null){
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
+        }
+        if (gameId == null){
+            errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
 
-        //Compruebo que el juego exista en el repositorio
-        if (gameRepo.getById(idGame).isEmpty()) {
-            errors.add(new ErrorDto("Idgame", ErrorType.NO_ENCONTRADO));
+        if (userId != null && gameId != null) {
+            //Compruebo que el usuario exista en el repositorio
+            if (userRepo.getById(userId).isEmpty()) {
+                errors.add(new ErrorDto("IdUser", ErrorType.NO_ENCONTRADO));
+            }
+
+            //Compruebo que el juego exista en el repositorio
+            if (gameRepo.getById(gameId).isEmpty()) {
+                errors.add(new ErrorDto("Idgame", ErrorType.NO_ENCONTRADO));
+            }
+
+            if (libraryRepo.getAll().stream()
+                    .anyMatch(l ->
+                            Objects.equals(l.getIdUser(), userId) &&
+                                    Objects.equals(l.getIdGame(), gameId)
+                    )) {
+                errors.add(new ErrorDto("IdGame, IdUser", ErrorType.DUPLICADO));
+            }
         }
 
-        if (libraryRepo.getAll().stream().anyMatch(g -> g.getIdGame().equals(idGame))
-                && libraryRepo.getAll().stream().anyMatch(g -> g.getIdUser().equals(idUser))) {
-            errors.add(new ErrorDto("IdGame, IdUser", ErrorType.DUPLICADO));
-        }
         return errors;
     }
 }
