@@ -46,14 +46,17 @@ public class UserController {
      *
      */
     public UserDTO registerNewUser(UserForm userForm) throws ValidationException {
-
-        List<ErrorDto> errors = new ArrayList<>();
-
-        //LLamo al validate del formulario y guardo la lista de errores
-        errors.addAll(userForm.validate());
+        //Compruebo que el formulario no sea null
+        if (userForm == null){
+            throw new ValidationException(List.of(new ErrorDto("Form", ErrorType.REQUERIDO)));
+        }
 
         //Inicio transaccion
         var createdUser = tm.inTransaction(()->{
+            List<ErrorDto> errors = new ArrayList<>();
+
+            //LLamo al validate del formulario y guardo la lista de errores
+            errors.addAll(userForm.validate());
 
             //LLamo al validate del controlador y guardo la lista de errores
             errors.addAll(validate(userForm));
@@ -122,20 +125,23 @@ public class UserController {
      * @return UserDTO con el saldo actualizado
      *
      */
-    public UserDTO addBalanceToWallet(Long id, Float money) throws IllegalArgumentException, ValidationException {
+    public UserDTO addBalanceToWallet(Long id, Float money) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que id no sea null
         if (id == null){
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        //Compruebo que se se haya pasado por parametro alguna cantidad de dinero
+        //Compruebo que se haya pasado por parametro alguna cantidad de dinero
         if (money == null) {
-            errors.add(new ErrorDto("Money", ErrorType.NO_ENCONTRADO));
+            errors.add(new ErrorDto("Money", ErrorType.REQUERIDO));
         }else {
             //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
-            if (money < MIN_VALUE || money > MAX_VALUE) {
-                errors.add(new ErrorDto("Money", ErrorType.FORMATO_INVALIDO));
+            if (money < MIN_VALUE) {
+                errors.add(new ErrorDto("Money", ErrorType.VALOR_DEMASIADO_BAJO));
+            }
+            if (money > MAX_VALUE){
+                errors.add(new ErrorDto("Money", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }
 
@@ -144,26 +150,29 @@ public class UserController {
 
         //Inicio transaccion
         UserEntity updatedUser = tm.inTransaction(()->{
-            UserEntity userOpt = userRepo.getById(id).orElse(null);
-            if (userOpt == null) {
-                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
+            UserEntity user = userRepo.getById(id).orElse(null);
+            if (user == null) {
+                transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }else{
                 //Compruebo que la cuenta del usuario que se encontró este activa
                 //Si lo meto dentro de este else evito un posible nullPointedExeption en caso de que userOpt no se haya encontrado y sea null e intente hacer un getAccountState()
-                if (!userOpt.getAccountState().equals(AccountState.ACTIVE)) {
-                    errors.add(new ErrorDto("AccountState", ErrorType.FORMATO_INVALIDO));
+                if (!user.getAccountState().equals(AccountState.ACTIVE)) {
+                    transactionErrors.add(new ErrorDto("AccountState", ErrorType.FORMATO_INVALIDO));
                 }
 
             }
-
             //Compruebo si hay errores mando una validation exeption
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Calculo el nuevo saldo del usuario
-            float newBalance = userOpt.getPortfolioBalance() + money;
+            float newBalance = user.getPortfolioBalance() + money;
 
-            UserUpdate userForm = new UserUpdate(userOpt.getUserName(), userOpt.getEmail(), userOpt.getPassword(), userOpt.getRealName(), userOpt.getCountry(), userOpt.getBirthDate(), userOpt.getRegistrationDate(), userOpt.getAvatar(), newBalance, userOpt.getAccountState());
+            //Creo el formulario del usuario con el nuevo saldo
+            UserUpdate userForm = new UserUpdate(user.getUserName(), user.getEmail(), user.getPassword(), user.getRealName(), user.getCountry(), user.getBirthDate(), user.getRegistrationDate(), user.getAvatar(), newBalance, user.getAccountState());
 
+            //Actualizo el usuario
             return userRepo.update(id, userForm).orElse(null);
         });
 
@@ -214,17 +223,25 @@ public class UserController {
     public List<ErrorDto> validate(UserForm user) {
         List<ErrorDto> errores = new ArrayList<>();
 
-        //Valida que el nombre de usuario no se repita
-        if (userRepo.getAll().stream().anyMatch(e -> e.getUserName().equals(user.userName()))) {
-            errores.add(new ErrorDto("Name", ErrorType.DUPLICADO));
-        }
-        //Valida que el email no se repita
-        if (userRepo.getAll().stream().anyMatch(u -> u.getEmail().equals(user.email()))) {
-            errores.add(new ErrorDto("Email", ErrorType.DUPLICADO));
-        }
-        //Valida que el pais coincida con alguno de la lista del repositorio de paises
-        if (countryRepo.getAll().stream().noneMatch(c -> c.name().equals(user.country()))) {
-            errores.add(new ErrorDto("Country", ErrorType.NO_ENCONTRADO));
+        //Compruebo que el formulario no venga null
+        if (user == null) {
+            errores.add(new ErrorDto("UserForm", ErrorType.REQUERIDO));
+        }else {
+            //Guardo todos los usuarios en una variable para no tener que acceder varias veces a la base de datos haciendo un userRepo.getAll()
+            List<UserEntity> users = userRepo.getAll();
+
+            //Valida que el nombre de usuario no se repita
+            if (users.stream().anyMatch(e -> e.getUserName().equals(user.userName()))) {
+                errores.add(new ErrorDto("Name", ErrorType.DUPLICADO));
+            }
+            //Valida que el email no se repita
+            if (users.stream().anyMatch(u -> u.getEmail().equals(user.email()))) {
+                errores.add(new ErrorDto("Email", ErrorType.DUPLICADO));
+            }
+            //Valida que el pais coincida con alguno de la lista del repositorio de paises
+            if (countryRepo.getAll().stream().noneMatch(c -> c.name().equals(user.country()))) {
+                errores.add(new ErrorDto("Country", ErrorType.NO_ENCONTRADO));
+            }
         }
         return errores;
     }

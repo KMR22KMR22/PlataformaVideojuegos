@@ -44,13 +44,17 @@ public class GameController {
      *
      */
     public GameDTO addNewGame(GameForm gameForm) throws ValidationException {
-        List<ErrorDto> errors = new ArrayList<>();
-
-        //LLamo al validate del formulario y guardo la lista de errores
-        errors.addAll(gameForm.validate());
+        //Compruebo que el formulario no sea null
+        if (gameForm == null){
+            throw new ValidationException(List.of(new ErrorDto("Form", ErrorType.REQUERIDO)));
+        }
 
         //Inicio transaccion
         var createdGame = tm.inTransaction(()->{
+            List<ErrorDto> errors = new ArrayList<>();
+
+            //LLamo al validate del formulario y guardo la lista de errores
+            errors.addAll(gameForm.validate());
 
             //LLamo al validate del controlador y guardo la lista de errores
             errors.addAll(validate(gameForm));
@@ -198,11 +202,8 @@ public class GameController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-
         //Encuentro el juego
-        GameEntity game = tm.inTransaction(()-> {
-            return gameRepo.getById(id).orElse(null);
-        });
+        GameEntity game = tm.inTransaction(()-> gameRepo.getById(id).orElse(null));
 
         //Si no encuentro el juego agrego el error a la lista
         if (game == null) {
@@ -242,27 +243,25 @@ public class GameController {
                 errors.add(new ErrorDto("Discount", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }
-
-
         //Si hay herrores lanzo la exepcion
         Util.throwException(errors);
 
         //Inicio Transaccion
-
         //Busco el juego en el repositorio
         GameEntity updatedGame = tm.inTransaction(()-> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
             //Busco el juego
             GameEntity entity = gameRepo.getById(id).orElse(null);
             //Compruebo que haya encontrado el juego
             if (entity == null) {
-                errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
             }
 
             //Si hay herrores lanzo la exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Creo el formulario con los datos del juego actualizados
-
             GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), percent, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
 
              return gameRepo.update(id, form).orElse(null);
@@ -299,20 +298,21 @@ public class GameController {
             errors.add(new ErrorDto("GameState", ErrorType.NO_ENCONTRADO));
         }
 
-        //Si el estado ingresado no esta entre los admisibles lanzo la exepcion y no se realiza la transaccion
+        //Si hay errores lanzo exepcion
         Util.throwException(errors);
 
         //Inicio transaccion
         GameEntity updatedGame = tm.inTransaction(()-> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
             //Busco el juego en el repositorio
             GameEntity entity = gameRepo.getById(id).orElse(null);
-
             //Compruebo que se haya encontrado el juego
             if (entity == null) {
-                errors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("IdGame", ErrorType.NO_ENCONTRADO));
             }
             //Si hay herrores lanzo la exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Creo el formulario con los datos del juego actualizados
             GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), entity.getCurrentDescount(), entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), newState);
@@ -332,7 +332,6 @@ public class GameController {
      *
      */
     public List<ErrorDto> validate(GameForm game) {
-
         List<ErrorDto> errores = new ArrayList<>();
 
         //Compruebo que game no sea null
