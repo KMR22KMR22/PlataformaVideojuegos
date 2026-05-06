@@ -236,7 +236,7 @@ public class PurchaseController {
 
         //Compruebo que el userId no sea null
         if (userId == null){
-            errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
+            errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         Util.throwException(errors);
 
@@ -330,7 +330,6 @@ public class PurchaseController {
 
             //busco la compra y la guardo
             PurchaseEntity pur = purchaseRepo.getById(purchaseId).orElse(null);
-
             //Compruebo que la compra exista
             if (pur == null) {
                 transactionErrors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
@@ -340,12 +339,11 @@ public class PurchaseController {
                     transactionErrors.add(new ErrorDto("UserId, PurchaseId", ErrorType.NO_ENCONTRADO));
                 }
             }
+            //Si hay errores lanzo exepcion
+            Util.throwException(transactionErrors);
             return pur;
             //En este caso no es necesario hacer rollback porque solo se hizo una consulta a la base de datos, no se modifico nada
         });
-
-        //Compruebo si hay errores para mandar la validationExeption
-        Util.throwException(errors);
 
         return Mapper.mapFrom(purchase);
     }
@@ -398,12 +396,15 @@ public class PurchaseController {
                     }
                 }
             }
+            UserEntity user = null;
 
-            //Busco al usuario que aparece en la compra
-            UserEntity user = userRepo.getById(purchase.getIdUser()).orElse(null);
-            //Compruebo que el usuario que aparece en la compra exista
-            if (user == null) {
-                transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            if (purchase != null){
+                //Busco al usuario que aparece en la compra
+                user = userRepo.getById(purchase.getIdUser()).orElse(null);
+                //Compruebo que el usuario que aparece en la compra exista
+                if (user == null) {
+                    transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+                }
             }
 
             //Compruebo si hay errores para mandar la exepcion

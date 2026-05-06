@@ -23,7 +23,7 @@ public class GameRepoHibernate implements IGameRepo {
     public Optional<GameEntity> create(GameForm form) {
 
         var session = sm.getSession();
-        var game = (new GameEntity(-1L, form.tittle(), form.description(), form.developer(), form.launchDate(), form.basePrice(),
+        var game = (new GameEntity(0L, form.tittle(), form.description(), form.developer(), form.launchDate(), form.basePrice(),
                 form.category(), form.gameAgeClasification(), form.availabeLanguages()));
         session.persist(game);
         return Optional.of(game);

@@ -71,33 +71,34 @@ public class ReviewController {
         //Inicio Transaccion
 
         return Mapper.mapFrom(tm.inTransaction(() -> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
             ReviewEntity newReview = null;
 
             //Compruebo que el usuario exista
             UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
-                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
             //Compruebo que el juego exista
             GameEntity game = gameRepo.getById(gameId).orElse(null);
             if (game == null) {
-                errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
             }
             //Compruebo que el texto que me hayan pasado tenga algo
             if (Util.checkCadenaBlankOrEmpty(reviewText)) {
-                errors.add(new ErrorDto("ReviewText", ErrorType.REQUERIDO));
+                transactionErrors.add(new ErrorDto("ReviewText", ErrorType.REQUERIDO));
             }
             //Si existe el usuario y el juego compruebo si existe una biblioteca que los relacione
             LibraryEntity libraryFound = null;
             if (user != null && game != null) {
                 libraryFound = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
                 if (libraryFound == null) {
-                    errors.add(new ErrorDto("LibraryIdGame, LibraryIdUser", ErrorType.NO_ENCONTRADO));
+                    transactionErrors.add(new ErrorDto("LibraryIdGame, LibraryIdUser", ErrorType.NO_ENCONTRADO));
                 }
             }
 
             //Compruebo si hay errores para mandar exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Compruebo si el usuario ya habia hecho una reseña a ese juego anteriormente
             ReviewEntity review = reviewRepo.getByUserGameId(userId, gameId).orElse(null);
@@ -108,10 +109,10 @@ public class ReviewController {
                 ReviewForm form = new ReviewForm(userId, gameId, recommended, reviewText, libraryFound.getTimePlaying());
 
                 //Validaciones del formulario
-                errors.addAll(form.validate());
+                transactionErrors.addAll(form.validate());
 
                 //Si hay errores de validacion del formulario lanzo exepcion
-                Util.throwException(errors);
+                Util.throwException(transactionErrors);
 
                 //Creo la reseña
                 newReview = reviewRepo.create(form).orElse(null);
@@ -149,30 +150,31 @@ public class ReviewController {
 
         //Inicio transaccion
         ReviewEntity deletedReview = tm.inTransaction(() -> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
             ReviewEntity updatedReview = null;
 
             //Compruebo que el usuario exista en el repositorio
             UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
-                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
             //Compruebo que la reseña existe
             ReviewEntity review = reviewRepo.getById(reviewId).orElse(null);
             if (review == null) {
-                errors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
             } else {
                 //Compruebo que la reseña corresponda al usuario
                 if (!Objects.equals(userId, review.getIdUser())) {
-                    errors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
+                    transactionErrors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
                 }
 
                 //Compruebo que la reseña no este previamente eliminada
                 if (Objects.equals(ReviewState.ELIMINADA, review.getState())) {
-                    errors.add(new ErrorDto("ReviewState", ErrorType.DUPLICADO));
+                    transactionErrors.add(new ErrorDto("ReviewState", ErrorType.DUPLICADO));
                 }
 
                 //Compruebo si hay errores para lanzar exepcion
-                Util.throwException(errors);
+                Util.throwException(transactionErrors);
 
                 //Creo el formulario con el estado de la reseña en eliminada
                 ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.ELIMINADA);
@@ -206,14 +208,15 @@ public class ReviewController {
 
         //Inicio transaccion
         return tm.inTransaction(() -> {
-            List<ReviewEntity> reviews = new ArrayList<>();
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+            List<ReviewEntity> reviews;
 
             //Compruebo que el juego exista
             GameEntity game = gameRepo.getById(gameId).orElse(null);
             if (game == null) {
-                errors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
                 //Compruebo si hay errores para lanzar exception
-                Util.throwException(errors);
+                Util.throwException(transactionErrors);
             }
 
             //Busco todas las reseñas que pertenezcan al juego y filtro las que esten en estado publicada
@@ -276,27 +279,29 @@ public class ReviewController {
 
         //Inicio transaccion
         return tm.inTransaction(()-> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
             //Compruebo que el usuario exista
             UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
-                errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
             //Compruebo que la reseña exista
             ReviewEntity review = reviewRepo.getById(reviewId).orElse(null);
             if (review == null) {
-                errors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
             } else {
                 //Compruebo que la reseña pertenezca al usuario
                 if (!Objects.equals(userId, review.getIdUser())) {
-                    errors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
+                    transactionErrors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
                 }
                 //Compruebo que la reseña este en estado publicada
                 if (review.getState() !=  ReviewState.PUBLICADA) {
-                    errors.add(new ErrorDto("ReviewState", ErrorType.ESTADO_INCORRECTO));
+                    transactionErrors.add(new ErrorDto("ReviewState", ErrorType.ESTADO_INCORRECTO));
                 }
             }
             //Compruebo si hay errores para lanzar exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Creo el formulario con el estado de la reseña en oculta
             ReviewUpdate form = new ReviewUpdate(review.getId(), review.getIdUser(), review.getIdGame(), review.isRecommended(), review.getReviwText(), review.getHoursPlayed(), review.getPublicationDate(), review.getLastEditionDate(), ReviewState.OCULTA);

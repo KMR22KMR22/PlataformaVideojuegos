@@ -67,7 +67,7 @@ public class ReviewRepoHibernate implements IReviewRepo {
     @Override
     public Optional<ReviewEntity> create(ReviewForm form) {
         var session = sm.getSession();
-        var review = (new ReviewEntity(-1L, form.idUser(), form.idGame(), form.recommended(), form.reviwText(), form.hoursPlayed()));
+        var review = (new ReviewEntity(0L, form.idUser(), form.idGame(), form.recommended(), form.reviwText(), form.hoursPlayed()));
         session.persist(review);
         return Optional.of(review);
     }

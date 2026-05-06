@@ -116,11 +116,13 @@ public class LibraryController {
 
         //Inicio Transaccion
         var library = tm.inTransaction(()-> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
             //Valido
-            errors.addAll(validate(gameId, userId));
+            transactionErrors.addAll(validate(gameId, userId));
 
             //Reviso si hay errores para lanzar exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Creo el formulario de la biblioteca
             LibraryForm libraryForm = new LibraryForm(userId, gameId, LocalDate.now());
@@ -156,26 +158,27 @@ public class LibraryController {
 
         //Inicio Transaccion
         tm.inTransaction(()->{
+            List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Busco la biblioteca
             LibraryEntity library = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
             //Compruebo que se haya encontrado la biblioteca
             if (library == null) {
-                errors.add(new ErrorDto("Library (UserId, GameId)", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("Library (UserId, GameId)", ErrorType.NO_ENCONTRADO));
             }
 
             //Reviso si hay errores para lanzar exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             boolean deleted = libraryRepo.delete(library.getId());
             
             //Compruebo que se haya eliminado la biblioteca
             if (!deleted){
-                errors.add(new ErrorDto("Library", ErrorType.NO_ELIMINADO));
+                transactionErrors.add(new ErrorDto("Library", ErrorType.NO_ELIMINADO));
             }
             
             //Vuelvo a comprobar si hay errores, ya que si llega a este punto es que no hubo error al encontrar la biblioteca, pero si hubo error al borrarla
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
             
             return true;
             //Aquí devuelvo true solo porque la lambda me obliga, pero no necesito devolver nada, ya que lo estoy controlando todo con las exepciones
@@ -205,6 +208,11 @@ public class LibraryController {
         }
         if (time == null){
             errors.add(new ErrorDto("TimePlaying", ErrorType.REQUERIDO));
+        }else {
+            //Compruebo que el tiempo que entra no sea menor que cero
+            if (time <= 0) {
+                errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
+            }
         }
 
         //Compruebo si hay errores para lanzar exepcion
@@ -212,19 +220,17 @@ public class LibraryController {
 
         //Inicio Transaccion
         LibraryEntity libraryEntity = tm.inTransaction(()->{
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
             //Encuentro la biblioteca que coincida con el id del juego y del usuario
             LibraryEntity library = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
-            //Compruebo que el tiempo que entra no sea menor que cero
-            if (time <= 0) {
-                errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
-            }
             //Compruebo que se haya encontrado la biblioteca
             if (library == null) {
-                errors.add(new ErrorDto("Library (UserId, GameId)", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("Library (UserId, GameId)", ErrorType.NO_ENCONTRADO));
             }
 
             //Reviso si hay errores para lanzar exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Calculo el nuevo tiempo
             Long updatedTime = library.getTimePlaying() + time;
@@ -294,11 +300,12 @@ public class LibraryController {
         Util.throwException(errors);
 
         return tm.inTransaction(() -> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
 
             // Compruebo que el usuario exista
             UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
-                errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
             }
 
             // Busco bibliotecas del usuario
@@ -308,10 +315,10 @@ public class LibraryController {
                     .toList();
 
             if (libraries.isEmpty()) {
-                errors.add(new ErrorDto("LibraryIDUser", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("LibraryIDUser", ErrorType.NO_ENCONTRADO));
             }
 
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             // Filtro por texto
             if (text.isPresent()) {
@@ -352,15 +359,18 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        List<LibraryDTO> libraries = tm.inTransaction(()-> {
+
+        return tm.inTransaction(()-> {
+            List<ErrorDto> transactionErrors = new ArrayList<>();
+
             //Compruebo que el usuario exista
             UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {
-                errors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
+                transactionErrors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
             }
 
             //Reviso si hay errores para lanzar exepcion
-            Util.throwException(errors);
+            Util.throwException(transactionErrors);
 
             //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
             return libraryRepo.getAll().stream()
@@ -368,8 +378,6 @@ public class LibraryController {
                     .map(l -> Mapper.mapFrom(l))
                     .toList();
         });
-
-        return libraries;
     }
 
 
