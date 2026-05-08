@@ -2,10 +2,12 @@ package org.example.controller;
 
 import org.example.exeptions.ValidationException;
 import org.example.mapper.Mapper;
+import org.example.model.dto.game.GameDTO;
 import org.example.model.dto.game.GameState;
 import org.example.model.dto.purchase.PurchaseDTO;
 import org.example.model.dto.purchase.PurchaseState;
 import org.example.model.dto.user.AccountState;
+import org.example.model.dto.user.UserDTO;
 import org.example.model.entidad.GameEntity;
 import org.example.model.entidad.LibraryEntity;
 import org.example.model.entidad.PurchaseEntity;
@@ -15,8 +17,7 @@ import org.example.model.form.errors.ErrorType;
 import org.example.model.form.PurchaseForm;
 import org.example.model.form.updates.PurchaseUpdate;
 import org.example.model.form.updates.UserUpdate;
-import org.example.model.paymentMethod.IPaymentMethod;
-import org.example.model.paymentMethod.PaymentMethod;
+import org.example.model.paymentMethod.*;
 import org.example.repository.Interface.IGameRepo;
 import org.example.repository.Interface.ILibraryRepo;
 import org.example.repository.Interface.IPurchaseRepo;
@@ -83,7 +84,7 @@ public class PurchaseController {
         Util.throwException(errors);
 
         //Inicio transaccion
-        PurchaseEntity purchase = tm.inTransaction(() -> {
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Busco al juego y el usuario
@@ -151,10 +152,13 @@ public class PurchaseController {
                     discountApplied
             );
 
-            return purchaseRepo.create(purchaseForm).orElse(null);
-        });
+            PurchaseEntity updatedPurchase = purchaseRepo.create(purchaseForm).orElse(null);
 
-        return Mapper.mapFrom(purchase);
+            Optional<UserDTO> userDTO = Optional.of(Mapper.mapFrom(user));
+            Optional<GameDTO> gameDTO = Optional.of(Mapper.mapFrom(game));
+
+            return Mapper.mapFrom(updatedPurchase, userDTO, gameDTO);
+        });
     }
 
 
@@ -162,25 +166,21 @@ public class PurchaseController {
      * Crear una nueva transacción para adquirir un juego
      *
      * @param PurchaseId    Id de la compra que se intenta realizar
-     * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return Exito en el pago o no
      *
      */
-    public PurchaseDTO processPayment(Long PurchaseId, IPaymentMethod paymentMethod) throws ValidationException {
+    public PurchaseDTO processPayment(Long PurchaseId) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el PurchaseId no sea null
         if (PurchaseId == null){
             errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
         }
-        //Compruebo que el paymentMethod no sea null
-        if (paymentMethod == null) {
-            errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
-        }
+
         Util.throwException(errors);
 
         //Inicio Transaccion
-        PurchaseEntity payedPurchase = tm.inTransaction(()->{
+        return tm.inTransaction(()->{
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Compruebo que la compra exista
@@ -193,13 +193,43 @@ public class PurchaseController {
                     transactionErrors.add(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO));
                 }
             }
+
+            //Busco al juego y el usuario
+            GameEntity game = gameRepo.getById(purchase.getIdGame()).orElse(null);
+            UserEntity user = userRepo.getById(purchase.getIdUser()).orElse(null);
+
+            // Compruebo que el usuario exista
+            if (user == null) {
+                transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+            }
+
+            // Compruebo que el juego exista
+            if (game == null) {
+                transactionErrors.add(new ErrorDto("GameId", ErrorType.NO_ENCONTRADO));
+            }
+
             //Lanzo exepcion si hay errores
             Util.throwException(transactionErrors);
+
+            //Obtengo el metodo de pago de la compra
+            PaymentMethod purchasePM = purchase.getPaymentMethod();
+
+            //Creo el PaymentMethod
+            IPaymentMethod paymentMethod = PaymentFactory.getPaymentMethod(purchasePM);
+
+
+            //Compruebo que se haya creado el PaymentMethod
+            if (paymentMethod == null) {
+                errors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
+            }
+
+
+
 
             //Realizo el pago y la compra pasa a estado completada. Si no se puede realizar pasa a estado cancelada.
             //Si la funcion de makePayment() de los paymentMethod manda un validation exeption, quiere decir que hubo un error en el pago, asi que lo capturo en el catch
             try {
-                paymentMethod.makePayment(purchase.getDiscountApplicated());
+                paymentMethod.makePayment(purchase.getDiscountApplicated(), purchase.getIdUser());
 
                 var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
                         , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.COMPLETADA);
@@ -213,11 +243,14 @@ public class PurchaseController {
                 purchaseRepo.update(PurchaseId, updatedPurchase);
             }
             //Devuelvo la compra con su PurchaseState cambiado
-            return purchaseRepo.getById(PurchaseId).orElse(null);
+            PurchaseEntity updatedPurchase = purchaseRepo.getById(PurchaseId).orElse(null);
+
+            Optional<UserDTO> userDTO = Optional.of(Mapper.mapFrom(user));
+            Optional<GameDTO> gameDTO = Optional.of(Mapper.mapFrom(game));
+
+            return Mapper.mapFrom(updatedPurchase, userDTO, gameDTO);
 
         });
-
-        return Mapper.mapFrom(payedPurchase);
     }
 
 

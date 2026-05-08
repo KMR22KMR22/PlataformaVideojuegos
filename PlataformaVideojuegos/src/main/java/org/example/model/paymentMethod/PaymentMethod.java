@@ -8,8 +8,5 @@ public enum PaymentMethod {
     PAYPAL,
     STEAM_WALLET,
     TRASFERENCE,
-    OTHER;
-
-
-
+    OTHERS;
 }

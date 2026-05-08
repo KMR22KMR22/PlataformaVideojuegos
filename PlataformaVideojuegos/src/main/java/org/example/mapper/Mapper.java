@@ -12,11 +12,11 @@ import org.example.repository.inMemory.UserRepoInMemory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Mapper {
 
-    private static UserRepoInMemory userRepo = new UserRepoInMemory();
-    private static GameRepoInMemory gameRepo = new GameRepoInMemory();
+
 
     //User
     public static UserDTO mapFrom(UserEntity entity) {
@@ -62,18 +62,17 @@ public class Mapper {
     }
 
     //Purchase
-    public static PurchaseDTO mapFrom(PurchaseEntity entity) {
+    public static PurchaseDTO mapFrom(PurchaseEntity entity, Optional<UserDTO> userDTOOptional, Optional<GameDTO> gameDTOOptional) {
         if (entity == null)
             return null;
 
-        UserDTO userDTO = findUser(entity.getIdUser());
-        GameDTO gameDTO = finGame(entity.getIdGame());
+
         return new PurchaseDTO(
                 entity.getId(),
                 entity.getIdUser(),
-                userDTO,
+                userDTOOptional.orElse(null),
                 entity.getIdGame(),
-                gameDTO,
+                gameDTOOptional.orElse(null),
                 entity.getPurchaseDate(),
                 entity.getPaymentMethod(),
                 entity.getPriceWithoutDiscount(),

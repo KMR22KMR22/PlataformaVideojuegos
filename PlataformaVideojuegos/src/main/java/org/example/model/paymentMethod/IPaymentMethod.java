@@ -4,5 +4,5 @@ import org.example.exeptions.ValidationException;
 
 public interface IPaymentMethod {
 
-    void makePayment(float gameCost) throws ValidationException;
+    void makePayment(float gameCost, Long userId) throws ValidationException ;
 }
