@@ -3,8 +3,10 @@ package org.example.controller.libraryController;
 import org.example.controller.Util;
 import org.example.exeptions.ValidationException;
 import org.example.mapper.Mapper;
+import org.example.model.dto.game.GameDTO;
 import org.example.model.dto.library.InstalationState;
 import org.example.model.dto.library.LibraryDTO;
+import org.example.model.dto.user.UserDTO;
 import org.example.model.entidad.LibraryEntity;
 import org.example.model.entidad.UserEntity;
 import org.example.model.form.errors.ErrorDto;
@@ -115,7 +117,7 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        var library = tm.inTransaction(()-> {
+        return tm.inTransaction(()-> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Valido
@@ -127,10 +129,14 @@ public class LibraryController {
             //Creo el formulario de la biblioteca
             LibraryForm libraryForm = new LibraryForm(userId, gameId, LocalDate.now());
 
-            return libraryRepo.create(libraryForm).orElse(null);
-        });
+            //Creo la biblioteca
+            LibraryEntity createdLibrary = libraryRepo.create(libraryForm).orElse(null);
 
-        return Mapper.mapFrom(library);
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(userRepo.getById(userId).orElse(null)));
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(gameRepo.getById(gameId).orElse(null)));
+
+            return Mapper.mapFrom(createdLibrary, userDTO, gameDTO);
+        });
     }
 
 
@@ -219,7 +225,7 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        LibraryEntity libraryEntity = tm.inTransaction(()->{
+        return tm.inTransaction(()->{
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Encuentro la biblioteca que coincida con el id del juego y del usuario
@@ -239,10 +245,13 @@ public class LibraryController {
             LibraryUpdate libraryForm = new LibraryUpdate(library.getId(), library.getIdUser(), library.getIdGame(), library.getAcquisitionDate(), updatedTime, library.getLastPlayed(), library.getInstalationState());
 
             //Actualizo la biblioteca
-            return libraryRepo.update(libraryForm.id(), libraryForm).orElse(null);
-        });
+            LibraryEntity updatedLibrary = libraryRepo.update(libraryForm.id(), libraryForm).orElse(null);
 
-        return Mapper.mapFrom(libraryEntity);
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(userRepo.getById(userId).orElse(null)));
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(gameRepo.getById(gameId).orElse(null)));
+
+            return Mapper.mapFrom(updatedLibrary, userDTO, gameDTO);
+        });
     }
 
 
@@ -269,12 +278,15 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        LibraryEntity foundLibrary = tm.inTransaction(()->{
+        return tm.inTransaction(()->{
             //busco la biblioteca
-            return libraryRepo.getByUserGameId(userId, gameId).orElse(null);
-        });
+            LibraryEntity foundLibrary = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
 
-        return Mapper.mapFrom(foundLibrary);
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(userRepo.getById(userId).orElse(null)));
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(gameRepo.getById(gameId).orElse(null)));
+
+            return Mapper.mapFrom(foundLibrary, userDTO, gameDTO);
+        });
     }
 
 
@@ -308,11 +320,22 @@ public class LibraryController {
                 transactionErrors.add(new ErrorDto("UserID", ErrorType.NO_ENCONTRADO));
             }
 
-            // Busco bibliotecas del usuario
-            List<LibraryDTO> libraries = libraryRepo.getAll().stream()
-                    .filter(l -> Objects.equals(l.getIdUser(), userId))
-                    .map(Mapper::mapFrom)
-                    .toList();
+            UserDTO userDTO =
+                    Mapper.mapFrom(userRepo.getById(userId).orElse(null));
+
+            List<LibraryDTO> libraries =
+                    libraryRepo.getAll().stream()
+                            .filter(l -> Objects.equals(l.getIdUser(), userId))
+                            .map(l -> Mapper.mapFrom(
+                                    l,
+                                    Optional.ofNullable(userDTO),
+                                    Optional.ofNullable(
+                                            Mapper.mapFrom(
+                                                    gameRepo.getById(l.getIdGame()).orElse(null)
+                                            )
+                                    )
+                            ))
+                            .toList();
 
             if (libraries.isEmpty()) {
                 transactionErrors.add(new ErrorDto("LibraryIDUser", ErrorType.NO_ENCONTRADO));
@@ -373,9 +396,20 @@ public class LibraryController {
             Util.throwException(transactionErrors);
 
             //Encuentro las bibliotecas que coincidan con el jugador y las mapeo a DTOs
+            Optional<UserDTO> userDTO =
+                    Optional.ofNullable(Mapper.mapFrom(user));
+
             return libraryRepo.getAll().stream()
                     .filter(l -> Objects.equals(l.getIdUser(), userId))
-                    .map(l -> Mapper.mapFrom(l))
+                    .map(l -> Mapper.mapFrom(
+                            l,
+                            userDTO,
+                            Optional.ofNullable(
+                                    Mapper.mapFrom(
+                                            gameRepo.getById(l.getIdGame()).orElse(null)
+                                    )
+                            )
+                    ))
                     .toList();
         });
     }

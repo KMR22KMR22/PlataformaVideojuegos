@@ -62,7 +62,7 @@ public class Mapper {
     }
 
     //Purchase
-    public static PurchaseDTO mapFrom(PurchaseEntity entity, Optional<UserDTO> userDTOOptional, Optional<GameDTO> gameDTOOptional) {
+    public static PurchaseDTO mapFrom(PurchaseEntity entity, Optional<UserDTO> userDTO, Optional<GameDTO> gameDTO) {
         if (entity == null)
             return null;
 
@@ -70,9 +70,9 @@ public class Mapper {
         return new PurchaseDTO(
                 entity.getId(),
                 entity.getIdUser(),
-                userDTOOptional.orElse(null),
+                userDTO.orElse(null),
                 entity.getIdGame(),
-                gameDTOOptional.orElse(null),
+                gameDTO.orElse(null),
                 entity.getPurchaseDate(),
                 entity.getPaymentMethod(),
                 entity.getPriceWithoutDiscount(),
@@ -81,18 +81,16 @@ public class Mapper {
     }
 
     //Library
-    public static LibraryDTO mapFrom(LibraryEntity entity) {
+    public static LibraryDTO mapFrom(LibraryEntity entity, Optional<UserDTO> userDTO, Optional<GameDTO> gameDTO) {
         if (entity == null)
             return null;
 
-        UserDTO userDTO = findUser(entity.getIdUser());
-        GameDTO gameDTO = finGame(entity.getIdGame());
         return new LibraryDTO(
                 entity.getId(),
                 entity.getIdUser(),
-                userDTO,
+                userDTO.orElse(null),
                 entity.getIdGame(),
-                gameDTO,
+                gameDTO.orElse(null),
                 entity.getAcquisitionDate(),
                 entity.getTimePlaying(),
                 entity.getLastPlayed(),
@@ -100,18 +98,16 @@ public class Mapper {
     }
 
     //Review
-    public static ReviewDTO mapFrom(ReviewEntity entity) {
+    public static ReviewDTO mapFrom(ReviewEntity entity, Optional<UserDTO> userDTO, Optional<GameDTO> gameDTO) {
         if (entity == null)
             return null;
 
-        UserDTO userDTO = findUser(entity.getIdUser());
-        GameDTO gameDTO = finGame(entity.getIdGame());
         return new ReviewDTO(
                 entity.getId(),
                 entity.getIdUser(),
-                userDTO,
+                userDTO.orElse(null),
                 entity.getIdGame(),
-                gameDTO,
+                gameDTO.orElse(null),
                 entity.isRecommended(),
                 entity.getReviwText(),
                 entity.getHoursPlayed(),
@@ -119,15 +115,4 @@ public class Mapper {
                 entity.getLastEditionDate(),
                 entity.getState());
     }
-
-    public static UserDTO findUser(Long id) {
-        return mapFrom(userRepo.getById(id).get());
-    }
-
-    public static GameDTO finGame(Long id) {
-
-        return mapFrom(gameRepo.getById(id).get());
-    }
-
-
 }

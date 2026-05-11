@@ -5,6 +5,7 @@ import org.example.repository.Interface.ICountryRepo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CountryRepoInMemory implements ICountryRepo {
@@ -22,7 +23,7 @@ public class CountryRepoInMemory implements ICountryRepo {
 
     @Override
     public Optional<Country> getById(Long id) {
-        return COUNTRIES.stream().filter(c -> c.id() == id).findFirst();
+        return COUNTRIES.stream().filter(c -> Objects.equals(c.getId(), id)).findFirst();
     }
 
     @Override
@@ -37,6 +38,6 @@ public class CountryRepoInMemory implements ICountryRepo {
 
     @Override
     public boolean delete(Long id) {
-        return COUNTRIES.removeIf(u -> u.id().equals(id));
+        return COUNTRIES.removeIf(u -> u.getId().equals(id));
     }
 }
