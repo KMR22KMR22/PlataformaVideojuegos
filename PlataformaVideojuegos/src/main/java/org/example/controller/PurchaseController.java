@@ -279,7 +279,8 @@ public class PurchaseController {
         Util.throwException(errors);
 
         //Inicio Transacion
-        List<PurchaseDTO> filteredPurchases = tm.inTransaction(()->{
+
+        return tm.inTransaction(()->{
             List<ErrorDto> transacctionErrors = new ArrayList<>();
 
             //Compruebo que el usuario exista
@@ -348,8 +349,6 @@ public class PurchaseController {
                     ))
                     .toList();
         });
-
-        return filteredPurchases;
     }
 
 

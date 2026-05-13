@@ -3,8 +3,10 @@ package org.example.controller.reviewController;
 import org.example.controller.Util;
 import org.example.exeptions.ValidationException;
 import org.example.mapper.Mapper;
+import org.example.model.dto.game.GameDTO;
 import org.example.model.dto.review.ReviewDTO;
 import org.example.model.dto.review.ReviewState;
+import org.example.model.dto.user.UserDTO;
 import org.example.model.entidad.GameEntity;
 import org.example.model.entidad.LibraryEntity;
 import org.example.model.entidad.ReviewEntity;
@@ -70,7 +72,7 @@ public class ReviewController {
 
         //Inicio Transaccion
 
-        return Mapper.mapFrom(tm.inTransaction(() -> {
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
             ReviewEntity newReview = null;
 
@@ -123,8 +125,12 @@ public class ReviewController {
                 //Actualizo la reseña
                 newReview  = reviewRepo.update(review.getId(), form).orElse(null);
             }
-            return newReview;
-        }));
+
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(user));
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(game));
+
+            return Mapper.mapFrom(newReview, userDTO, gameDTO);
+        });
     }
 
     /**
@@ -149,9 +155,10 @@ public class ReviewController {
         Util.throwException(errors);
 
         //Inicio transaccion
-        ReviewEntity deletedReview = tm.inTransaction(() -> {
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
             ReviewEntity updatedReview = null;
+            GameEntity game = null;
 
             //Compruebo que el usuario exista en el repositorio
             UserEntity user = userRepo.getById(userId).orElse(null);
@@ -163,12 +170,15 @@ public class ReviewController {
             if (review == null) {
                 transactionErrors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
             } else {
+                //Busco al usuario
+                game = gameRepo.getById(review.getIdGame()).orElse(null);
+
                 //Compruebo que la reseña corresponda al usuario
                 if (!Objects.equals(userId, review.getIdUser())) {
                     transactionErrors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
                 }
 
-                //Compruebo que la reseña no este previamente eliminada
+                //Compruebo que la reseña no esté previamente eliminado
                 if (Objects.equals(ReviewState.ELIMINADA, review.getState())) {
                     transactionErrors.add(new ErrorDto("ReviewState", ErrorType.DUPLICADO));
                 }
@@ -181,9 +191,12 @@ public class ReviewController {
                 //Actualizo la reseña
                 updatedReview = reviewRepo.update(reviewId, form).orElse(null);
             }
-            return updatedReview;
+
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(user));
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(game));
+
+            return Mapper.mapFrom(updatedReview, userDTO, gameDTO);
         });
-        return Mapper.mapFrom(deletedReview);
     }
 
 
@@ -250,7 +263,19 @@ public class ReviewController {
                     }
                 }
             }
-            return reviews.stream().map(r -> Mapper.mapFrom(r)).toList();
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(game));
+
+            return reviews.stream()
+                    .map(r -> Mapper.mapFrom(
+                            r,
+                            Optional.ofNullable(
+                                    Mapper.mapFrom(
+                                            userRepo.getById(r.getIdUser()).orElse(null)
+                                    )
+                            ),
+                            gameDTO
+                    ))
+                    .toList();
         });
     }
 
@@ -308,7 +333,12 @@ public class ReviewController {
             //Actualizo la reseña
             var updatedReview = reviewRepo.update(reviewId, form).orElse(null);
 
-            return Mapper.mapFrom(updatedReview);
+            GameEntity game = gameRepo.getById(review.getIdGame()).orElse(null);
+
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(user));
+            Optional<GameDTO> gameDTO = Optional.ofNullable(Mapper.mapFrom(game));
+
+            return Mapper.mapFrom(updatedReview, userDTO, gameDTO);
         });
     }
 
@@ -360,7 +390,19 @@ public class ReviewController {
                 }
             }
 
-            return reviews.stream().map(r -> Mapper.mapFrom(r)).toList();
+            Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(user));
+
+            return reviews.stream()
+                    .map(r -> Mapper.mapFrom(
+                            r,
+                            userDTO,
+                            Optional.ofNullable(
+                                    Mapper.mapFrom(
+                                            gameRepo.getById(r.getIdGame()).orElse(null)
+                                    )
+                            )
+                    ))
+                    .toList();
         });
     }
 }
