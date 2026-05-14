@@ -47,12 +47,12 @@ public class UserController {
      */
     public UserDTO registerNewUser(UserForm userForm) throws ValidationException {
         //Compruebo que el formulario no sea null
-        if (userForm == null){
+        if (userForm == null) {
             throw new ValidationException(List.of(new ErrorDto("Form", ErrorType.REQUERIDO)));
         }
 
         //Inicio transaccion
-        var createdUser = tm.inTransaction(()->{
+        var createdUser = tm.inTransaction(() -> {
             List<ErrorDto> errors = new ArrayList<>();
 
             //LLamo al validate del formulario y guardo la lista de errores
@@ -71,10 +71,10 @@ public class UserController {
     }
 
 
-
     /**
      * Muestra la información de un usuario específico
      * Si se le pasa el id y el nombre la funcion busca al usuario por id
+     *
      * @param id   id del usuario (optional)
      * @param name nombre del usuario (optional)
      * @return UserDTO con los datos del usuario encontrado
@@ -92,7 +92,7 @@ public class UserController {
         }
 
         //Inicio transaccion
-        UserEntity user = tm.inTransaction(()->{
+        UserEntity user = tm.inTransaction(() -> {
 
             if (id.isPresent()) {
                 return userRepo.getById(id.get()).orElse(null);
@@ -108,7 +108,8 @@ public class UserController {
 
         //Si no encuentra al usuario agrego el error
         if (user == null) {
-        errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));}
+            errors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
+        }
 
         //Compruebo si hay errores en la lista de errores para lanzar exepcion
         Util.throwException(errors);
@@ -129,18 +130,18 @@ public class UserController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que id no sea null
-        if (id == null){
+        if (id == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         //Compruebo que se haya pasado por parametro alguna cantidad de dinero
         if (money == null) {
             errors.add(new ErrorDto("Money", ErrorType.REQUERIDO));
-        }else {
+        } else {
             //Compruebo que la cantidad de saldo que intenta agregar el usuario está entre 5 y 500
             if (money < MIN_VALUE) {
                 errors.add(new ErrorDto("Money", ErrorType.VALOR_DEMASIADO_BAJO));
             }
-            if (money > MAX_VALUE){
+            if (money > MAX_VALUE) {
                 errors.add(new ErrorDto("Money", ErrorType.VALOR_DEMASIADO_ALTO));
             }
         }
@@ -149,13 +150,13 @@ public class UserController {
         Util.throwException(errors);
 
         //Inicio transaccion
-        UserEntity updatedUser = tm.inTransaction(()->{
+        UserEntity updatedUser = tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             UserEntity user = userRepo.getById(id).orElse(null);
             if (user == null) {
                 transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
-            }else{
+            } else {
                 //Compruebo que la cuenta del usuario que se encontró este activa
                 //Si lo meto dentro de este else evito un posible nullPointedExeption en caso de que userOpt no se haya encontrado y sea null e intente hacer un getAccountState()
                 if (!user.getAccountState().equals(AccountState.ACTIVE)) {
@@ -191,13 +192,13 @@ public class UserController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que id no sea null
-        if (id == null){
+        if (id == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         Util.throwException(errors);
 
         //Inicio transaccion
-        UserEntity user = tm.inTransaction(()->{
+        UserEntity user = tm.inTransaction(() -> {
             return userRepo.getById(id).orElse(null);
         });
 
@@ -213,9 +214,9 @@ public class UserController {
     }
 
 
-
     /**
      * Realiza las validaciones del UserForm que necesitan acceso a datos
+     *
      * @param user Formulario con los datos introducidos por el usuario
      * @return Lista con errores, en caso de no haber devuelve la lista vacia
      *
@@ -226,7 +227,7 @@ public class UserController {
         //Compruebo que el formulario no venga null
         if (user == null) {
             errores.add(new ErrorDto("UserForm", ErrorType.REQUERIDO));
-        }else {
+        } else {
             //Guardo todos los usuarios en una variable para no tener que acceder varias veces a la base de datos haciendo un userRepo.getAll()
             List<UserEntity> users = userRepo.getAll();
 

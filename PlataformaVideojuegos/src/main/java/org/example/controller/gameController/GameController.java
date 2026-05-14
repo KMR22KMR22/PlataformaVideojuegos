@@ -45,12 +45,12 @@ public class GameController {
      */
     public GameDTO addNewGame(GameForm gameForm) throws ValidationException {
         //Compruebo que el formulario no sea null
-        if (gameForm == null){
+        if (gameForm == null) {
             throw new ValidationException(List.of(new ErrorDto("Form", ErrorType.REQUERIDO)));
         }
 
         //Inicio transaccion
-        var createdGame = tm.inTransaction(()->{
+        var createdGame = tm.inTransaction(() -> {
             List<ErrorDto> errors = new ArrayList<>();
 
             //LLamo al validate del formulario y guardo la lista de errores
@@ -88,10 +88,10 @@ public class GameController {
         if (texto.isEmpty() && category.isEmpty() && minPrice.isEmpty()
                 && maxPrice.isEmpty() && ageClasification.isEmpty() && gameState.isEmpty()) {
             errors.add(new ErrorDto("text,category,minPricy,maxPrice,ageClasification,gameState", ErrorType.REQUERIDO));
-        }else {
+        } else {
             //Comprueba que el precio maximo no sea menor al precio minimo
             if (minPrice.isPresent() && maxPrice.isPresent()) {
-                if (minPrice.get() > maxPrice.get()){
+                if (minPrice.get() > maxPrice.get()) {
                     errors.add(new ErrorDto("MinPriece, MaxPriece", ErrorType.FORMATO_INVALIDO));
                 }
             }
@@ -103,7 +103,7 @@ public class GameController {
 
         //Inicio la transaccion
 
-        return tm.inTransaction(()->{
+        return tm.inTransaction(() -> {
 
             //Filtro la lista de juegos del repositorio, la mapeo a DTO y devuelvo una lista con los juegos que coincidan con todos los parametros de busqueda a la vez
             return gameRepo.getAll().stream()
@@ -142,7 +142,6 @@ public class GameController {
     }
 
 
-
     /**
      * Lista todos los juegos disponibles en la plataforma
      *
@@ -155,7 +154,7 @@ public class GameController {
         //Inicio Transaccion
 
         //Guardo los juegos almacenados en el repositorio los cuales esten como disponible en una lista
-        List<GameDTO> games = tm.inTransaction(()-> {
+        List<GameDTO> games = tm.inTransaction(() -> {
             return gameRepo.getAll().stream()
                     .filter(g -> g.getState() != GameState.NO_DISPONIBLE)
                     .map(g -> Mapper.mapFrom(g))
@@ -196,14 +195,14 @@ public class GameController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que id no sea null
-        if (id == null){
+        if (id == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
         Util.throwException(errors);
 
         //Inicio Transaccion
         //Encuentro el juego
-        GameEntity game = tm.inTransaction(()-> gameRepo.getById(id).orElse(null));
+        GameEntity game = tm.inTransaction(() -> gameRepo.getById(id).orElse(null));
 
         //Si no encuentro el juego agrego el error a la lista
         if (game == null) {
@@ -229,13 +228,13 @@ public class GameController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el id no sea null
-        if (id == null){
+        if (id == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
         //Copruebo que el porciento que se quiere aplicar no sea null y esté en un rango correcto
-        if (percent == null){
+        if (percent == null) {
             errors.add(new ErrorDto("Discount", ErrorType.REQUERIDO));
-        }else{
+        } else {
             if (percent < MIN_DISCOUNT) {
                 errors.add(new ErrorDto("Discount", ErrorType.VALOR_DEMASIADO_BAJO));
             }
@@ -248,7 +247,7 @@ public class GameController {
 
         //Inicio Transaccion
         //Busco el juego en el repositorio
-        GameEntity updatedGame = tm.inTransaction(()-> {
+        GameEntity updatedGame = tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Busco el juego
@@ -264,7 +263,7 @@ public class GameController {
             //Creo el formulario con los datos del juego actualizados
             GameUpdate form = new GameUpdate(entity.getId(), entity.getTittle(), entity.getDescription(), entity.getDeveloper(), entity.getLaunchDate(), entity.getBasePrice(), percent, entity.getCategory(), entity.getAgeClasification(), entity.getAvailabeLanguages(), entity.getState());
 
-             return gameRepo.update(id, form).orElse(null);
+            return gameRepo.update(id, form).orElse(null);
         });
 
         return Mapper.mapFrom(updatedGame);
@@ -284,11 +283,11 @@ public class GameController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que id no sea null
-        if (id == null){
+        if (id == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
         //Compruebo que el newState no sea null
-        if (newState == null){
+        if (newState == null) {
             errors.add(new ErrorDto("GameState", ErrorType.REQUERIDO));
         }
         //Compruebo que el nuevo estado esté entre los admisibles
@@ -302,7 +301,7 @@ public class GameController {
         Util.throwException(errors);
 
         //Inicio transaccion
-        GameEntity updatedGame = tm.inTransaction(()-> {
+        GameEntity updatedGame = tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Busco el juego en el repositorio
@@ -337,7 +336,7 @@ public class GameController {
         //Compruebo que game no sea null
         if (game == null) {
             errores.add(new ErrorDto("GameForm", ErrorType.REQUERIDO));
-        }else {
+        } else {
             //Comprueba que el titulo no se repita
             if (gameRepo.getAll().stream().anyMatch(g -> g.getTittle().equals(game.tittle()))) {
                 errores.add(new ErrorDto("Tittle", ErrorType.DUPLICADO));

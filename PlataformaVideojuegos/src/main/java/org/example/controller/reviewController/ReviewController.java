@@ -48,10 +48,10 @@ public class ReviewController {
     /**
      * Crear una nueva reseña para un juego que el usuario posee
      *
-     * @param userId     id del usuario que hace la reseña
-     * @param gameId     id del juego al qeu se le hace la reseña
+     * @param userId      id del usuario que hace la reseña
+     * @param gameId      id del juego al qeu se le hace la reseña
      * @param recommended Se recomienda o no
-     * @param reviewText texto de la reseña
+     * @param reviewText  texto de la reseña
      * @return ReviewDTO con los datos de la reseña
      * @throws ValidationException
      *
@@ -118,12 +118,12 @@ public class ReviewController {
 
                 //Creo la reseña
                 newReview = reviewRepo.create(form).orElse(null);
-            }else {
+            } else {
                 //Creo el formulario actualizado de la reseña
                 ReviewUpdate form = new ReviewUpdate(review.getId(), userId, gameId, recommended, reviewText, libraryFound.getTimePlaying(), review.getPublicationDate(), LocalDate.now(), review.getState());
 
                 //Actualizo la reseña
-                newReview  = reviewRepo.update(review.getId(), form).orElse(null);
+                newReview = reviewRepo.update(review.getId(), form).orElse(null);
             }
 
             Optional<UserDTO> userDTO = Optional.ofNullable(Mapper.mapFrom(user));
@@ -203,9 +203,9 @@ public class ReviewController {
     /**
      * Realiza las validaciones del UserForm que necesitan acceso a datos
      *
-     * @param gameId     Id del juego
+     * @param gameId      Id del juego
      * @param recommended Se recomienda o no
-     * @param order      Parametro para realizar la busqueda
+     * @param order       Parametro para realizar la busqueda
      * @return Lista de reseñas con estadísticas generales
      *
      */
@@ -303,7 +303,7 @@ public class ReviewController {
         Util.throwException(errors);
 
         //Inicio transaccion
-        return tm.inTransaction(()-> {
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Compruebo que el usuario exista
@@ -321,7 +321,7 @@ public class ReviewController {
                     transactionErrors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
                 }
                 //Compruebo que la reseña este en estado publicada
-                if (review.getState() !=  ReviewState.PUBLICADA) {
+                if (review.getState() != ReviewState.PUBLICADA) {
                     transactionErrors.add(new ErrorDto("ReviewState", ErrorType.ESTADO_INCORRECTO));
                 }
             }
@@ -361,7 +361,7 @@ public class ReviewController {
         Util.throwException(errors);
 
         //Inicio transaccion
-        return tm.inTransaction(()-> {
+        return tm.inTransaction(() -> {
             //Compruebo que el usuario exista, si no lanzo exepcion
             UserEntity user = userRepo.getById(userId).orElse(null);
             if (user == null) {

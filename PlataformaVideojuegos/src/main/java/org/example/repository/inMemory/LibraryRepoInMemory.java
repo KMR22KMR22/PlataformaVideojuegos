@@ -35,12 +35,13 @@ public class LibraryRepoInMemory implements ILibraryRepo {
     }
 
     @Override
-    public List<LibraryEntity> getAll() {return new ArrayList<>(LIBRARIES);
+    public List<LibraryEntity> getAll() {
+        return new ArrayList<>(LIBRARIES);
     }
 
     @Override
     public Optional<LibraryEntity> update(Long id, LibraryUpdate form) {
-        getById(id).orElseThrow(()-> new IllegalArgumentException("Libreria no encontrada"));
+        getById(id).orElseThrow(() -> new IllegalArgumentException("Libreria no encontrada"));
 
         var libraryUpdated = new LibraryEntity(form.id(), form.idUser(), form.idGame(), form.acquisitionDate(), form.timePlaying(), form.lastPlayed(), form.instalationState());
         LIBRARIES.removeIf(p -> p.getId().equals(id));

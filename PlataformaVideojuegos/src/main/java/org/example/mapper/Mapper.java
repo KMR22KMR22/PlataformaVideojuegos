@@ -17,7 +17,6 @@ import java.util.Optional;
 public class Mapper {
 
 
-
     //User
     public static UserDTO mapFrom(UserEntity entity) {
         if (entity == null)

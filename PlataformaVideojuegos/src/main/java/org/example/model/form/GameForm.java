@@ -137,8 +137,7 @@ public record GameForm(
 
         if (launchDate == null) {
             errores.add(new ErrorDto("LaunchDate", ErrorType.REQUERIDO));
-        }
-        else if (launchDate.isBefore(LocalDate.now())) {
+        } else if (launchDate.isBefore(LocalDate.now())) {
             errores.add(new ErrorDto("LaunchDate", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         return errores;
@@ -205,24 +204,5 @@ public record GameForm(
             }
         }
         return errores;
-    }
-
-    public static void main(String[] args) throws ValidationException {
-        List<ErrorDto> errores = new ArrayList<>();
-        GameForm game = new GameForm(
-                "Elden Ring",
-                "An open-world action RPG with challenging combat and deep lore.",
-                "FromSoftware",
-                null,
-                59.99f,
-                "RPG",
-                GameAgeClasification.PEGI_18,
-                List.of("Español"));
-
-        errores.addAll(game.validate());
-
-        if (!errores.isEmpty()) {
-            throw  new ValidationException(errores);
-        }
     }
 }

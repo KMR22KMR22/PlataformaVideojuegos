@@ -197,10 +197,4 @@ public class GameEntity {
                 ", currentDescount=" + currentDescount + ", category='" + category + '\'' + ", gameAgeClasification="
                 + gameAgeClasification + ", availabeLanguages=" + availabeLanguages + ", State=" + State + '}';
     }
-
-
-    public static void main(String[] args) {
-        var session = HibernateUtil.getSessionFactory().openSession();
-        session.close();
-    }
 }

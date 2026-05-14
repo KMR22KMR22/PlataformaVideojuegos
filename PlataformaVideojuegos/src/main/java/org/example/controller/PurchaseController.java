@@ -42,7 +42,6 @@ public class PurchaseController {
     public ITransactionManager tm;
 
 
-
     //Constructor
 
 
@@ -58,8 +57,8 @@ public class PurchaseController {
     /**
      * Crear una nueva transacción para adquirir un juego
      *
-     * @param userId          Id del usuario que intenta comprar
-     * @param gameId          Id del juego que se intenta comprar
+     * @param userId        Id del usuario que intenta comprar
+     * @param gameId        Id del juego que se intenta comprar
      * @param paymentMethod metodo mediante el cual el usuario va a pagar
      * @return PurchaseDTO creada
      *
@@ -68,15 +67,15 @@ public class PurchaseController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId no sea null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         //Compruebo que el gameId no sea null
-        if (gameId == null){
+        if (gameId == null) {
             errors.add(new ErrorDto("gameId", ErrorType.REQUERIDO));
         }
         //Compruebo que el paymentMethod no sea null
-        if (paymentMethod == null){
+        if (paymentMethod == null) {
             errors.add(new ErrorDto("paymentMethod", ErrorType.REQUERIDO));
         }
 
@@ -167,7 +166,7 @@ public class PurchaseController {
     /**
      * Crear una nueva transacción para adquirir un juego
      *
-     * @param purchaseId    Id de la compra que se intenta realizar
+     * @param purchaseId Id de la compra que se intenta realizar
      * @return Exito en el pago o no
      *
      */
@@ -175,14 +174,14 @@ public class PurchaseController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el PurchaseId no sea null
-        if (purchaseId == null){
+        if (purchaseId == null) {
             errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
         }
 
         Util.throwException(errors);
 
         //Inicio Transaccion
-        return tm.inTransaction(()->{
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
             GameEntity game = null;
             UserEntity user = null;
@@ -191,7 +190,7 @@ public class PurchaseController {
             PurchaseEntity purchase = purchaseRepo.getById(purchaseId).orElse(null);
             if (purchase == null) {
                 transactionErrors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
-            }else {
+            } else {
                 //Busco al juego y el usuario
                 game = gameRepo.getById(purchase.getIdGame()).orElse(null);
                 user = userRepo.getById(purchase.getIdUser()).orElse(null);
@@ -239,7 +238,7 @@ public class PurchaseController {
 
                     purchaseRepo.update(purchaseId, updatedPurchase).orElseThrow(() -> new ValidationException(List.of(new ErrorDto("Purchase", ErrorType.NO_ACTUALIZADO))));
 
-                }catch (ValidationException e ){
+                } catch (ValidationException e) {
                     var updatedPurchase = new PurchaseUpdate(purchase.getId(), purchase.getIdUser(), purchase.getIdGame(), purchase.getPurchaseDate()
                             , purchase.getPaymentMethod(), purchase.getPriceWithoutDiscount(), purchase.getDiscountApplicated(), PurchaseState.CANCELADA);
 
@@ -273,19 +272,19 @@ public class PurchaseController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId no sea null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         Util.throwException(errors);
 
         //Inicio Transacion
 
-        return tm.inTransaction(()->{
+        return tm.inTransaction(() -> {
             List<ErrorDto> transacctionErrors = new ArrayList<>();
 
             //Compruebo que el usuario exista
             UserEntity user = userRepo.getById(userId).orElse(null);
-            if(user == null){
+            if (user == null) {
                 transacctionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
 
@@ -364,17 +363,17 @@ public class PurchaseController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el PurchaseId y el userId no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        if (purchaseId == null){
+        if (purchaseId == null) {
             errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
         }
         Util.throwException(errors);
 
         //Inicio Transaccion
 
-        return tm.inTransaction(()->{
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
             UserEntity user = userRepo.getById(userId).orElse(null);
 
@@ -385,7 +384,7 @@ public class PurchaseController {
                 transactionErrors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
             }
             //Compruebo que el usuario exista
-            if (user == null){
+            if (user == null) {
                 transactionErrors.add(new ErrorDto("UserId", ErrorType.NO_ENCONTRADO));
             }
 
@@ -416,17 +415,17 @@ public class PurchaseController {
      * @return Confirmacion del reembolso
      *
      */
-    public  void requestRefund(Long purchaseId, String reason) throws ValidationException {
+    public void requestRefund(Long purchaseId, String reason) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el purchaseId no sea null
-        if (purchaseId == null){
+        if (purchaseId == null) {
             errors.add(new ErrorDto("PurchaseId", ErrorType.REQUERIDO));
         }
         Util.throwException(errors);
 
         //Inicio Transaccion
-        tm.inTransaction(()->{
+        tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //busco la compra y la guardo
@@ -434,7 +433,7 @@ public class PurchaseController {
             //Compruebo que la compra exista
             if (purchase == null) {
                 transactionErrors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
-            }else {
+            } else {
                 //Compruebo que el estado de la compra este en completada
                 if (purchase.getSatate() != PurchaseState.COMPLETADA) {
                     transactionErrors.add(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO));
@@ -444,7 +443,7 @@ public class PurchaseController {
                 //Compruebo que la biblioteca exista
                 if (library == null) {
                     transactionErrors.add(new ErrorDto("LibraryIdUser, LibraryIdGame", ErrorType.NO_ENCONTRADO));
-                }else {
+                } else {
                     //Compruebo que no se excedan los 14 dias luego de la compra del juego o que el usuario no haya jugado mas de 2 horas
                     long days = ChronoUnit.DAYS.between(library.getAcquisitionDate(), LocalDate.now());
                     if (days > REFUND_DAYS_LIMIT) {
@@ -457,7 +456,7 @@ public class PurchaseController {
             }
             UserEntity user = null;
 
-            if (purchase != null){
+            if (purchase != null) {
                 //Busco al usuario que aparece en la compra
                 user = userRepo.getById(purchase.getIdUser()).orElse(null);
                 //Compruebo que el usuario que aparece en la compra exista

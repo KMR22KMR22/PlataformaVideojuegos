@@ -54,7 +54,7 @@ public class LibraryController {
     public List<LibraryDTO> showPersonalLibrary(Long userId, Optional<OrderParameters> order) throws ValidationException {
         List<ErrorDto> errors = new ArrayList<>();
         //Compruebo que el userId no sea null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         //Compruebo errores para lanzar exepcion
@@ -106,10 +106,10 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId y gameId no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        if (gameId == null){
+        if (gameId == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
 
@@ -117,7 +117,7 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        return tm.inTransaction(()-> {
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Valido
@@ -152,10 +152,10 @@ public class LibraryController {
         var errors = new ArrayList<ErrorDto>();
 
         //Compruebo que el userId y gameId no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        if (gameId == null){
+        if (gameId == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
 
@@ -163,7 +163,7 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        tm.inTransaction(()->{
+        tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Busco la biblioteca
@@ -177,15 +177,15 @@ public class LibraryController {
             Util.throwException(transactionErrors);
 
             boolean deleted = libraryRepo.delete(library.getId());
-            
+
             //Compruebo que se haya eliminado la biblioteca
-            if (!deleted){
+            if (!deleted) {
                 transactionErrors.add(new ErrorDto("Library", ErrorType.NO_ELIMINADO));
             }
-            
+
             //Vuelvo a comprobar si hay errores, ya que si llega a este punto es que no hubo error al encontrar la biblioteca, pero si hubo error al borrarla
             Util.throwException(transactionErrors);
-            
+
             return true;
             //Aquí devuelvo true solo porque la lambda me obliga, pero no necesito devolver nada, ya que lo estoy controlando todo con las exepciones
         });
@@ -206,15 +206,15 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId, gameId y time no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        if (gameId == null){
+        if (gameId == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
-        if (time == null){
+        if (time == null) {
             errors.add(new ErrorDto("TimePlaying", ErrorType.REQUERIDO));
-        }else {
+        } else {
             //Compruebo que el tiempo que entra no sea menor que cero
             if (time <= 0) {
                 errors.add(new ErrorDto("TimePlaying", ErrorType.VALOR_DEMASIADO_BAJO));
@@ -225,7 +225,7 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        return tm.inTransaction(()->{
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Encuentro la biblioteca que coincida con el id del juego y del usuario
@@ -267,10 +267,10 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId y gameId no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        if (gameId == null){
+        if (gameId == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
 
@@ -278,7 +278,7 @@ public class LibraryController {
         Util.throwException(errors);
 
         //Inicio Transaccion
-        return tm.inTransaction(()->{
+        return tm.inTransaction(() -> {
             //busco la biblioteca
             LibraryEntity foundLibrary = libraryRepo.getByUserGameId(userId, gameId).orElse(null);
 
@@ -305,7 +305,7 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId no sea null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         //Compruebo si hay errores para lanzar exepcion
@@ -375,7 +375,7 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId y gameId no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
         //Compruebo si hay errores para lanzar exepcion
@@ -383,7 +383,7 @@ public class LibraryController {
 
         //Inicio Transaccion
 
-        return tm.inTransaction(()-> {
+        return tm.inTransaction(() -> {
             List<ErrorDto> transactionErrors = new ArrayList<>();
 
             //Compruebo que el usuario exista
@@ -427,10 +427,10 @@ public class LibraryController {
         List<ErrorDto> errors = new ArrayList<>();
 
         //Compruebo que el userId y gameId no sean null
-        if (userId == null){
+        if (userId == null) {
             errors.add(new ErrorDto("UserId", ErrorType.REQUERIDO));
         }
-        if (gameId == null){
+        if (gameId == null) {
             errors.add(new ErrorDto("GameId", ErrorType.REQUERIDO));
         }
 
