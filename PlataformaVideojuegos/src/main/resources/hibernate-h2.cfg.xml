@@ -26,5 +26,6 @@
         <mapping class="org.example.model.entidad.PurchaseEntity"/>
         <mapping class="org.example.model.entidad.UserEntity"/>
         <mapping class="org.example.model.entidad.ReviewEntity"/>
+        <mapping class="org.example.model.entidad.Country"/>
     </session-factory>
 </hibernate-configuration>

@@ -22,7 +22,7 @@ public class UserRepoHibernate implements IUserRepo {
     @Override
     public Optional<UserEntity> create(UserForm form) {
         var session = sm.getSession();
-        var user = (new UserEntity(0L, form.userName(), form.email(), form.password(), form.realName(), form.country(),
+        var user = (new UserEntity(null, form.userName(), form.email(), form.password(), form.realName(), form.country(),
                 form.birthDate(), form.avatar(), 0));
         session.persist(user);
         return Optional.of(user);

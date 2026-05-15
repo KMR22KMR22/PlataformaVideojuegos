@@ -5,7 +5,7 @@ import org.example.model.dto.review.ReviewState;
 
 import java.time.LocalDate;
 
-@Table(name = "juegos")
+@Table(name = "resena")
 @Entity
 public class ReviewEntity {
 

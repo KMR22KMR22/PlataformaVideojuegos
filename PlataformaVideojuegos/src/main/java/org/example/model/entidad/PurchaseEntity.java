@@ -6,7 +6,7 @@ import org.example.model.dto.purchase.PurchaseState;
 import org.example.model.paymentMethod.PaymentMethod;
 import java.time.LocalDate;
 
-@Table(name = "juegos")
+@Table(name = "compra")
 @Entity
 public class PurchaseEntity {
 

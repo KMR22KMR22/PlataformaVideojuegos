@@ -20,7 +20,7 @@ public class CountryRepoHibernate implements ICountryRepo {
     @Override
     public Optional<Country> create(String form) {
         var session = sm.getSession();
-        var country = new Country(0L, form);
+        var country = new Country(null, form);
         session.persist(country);
         return Optional.of(country);
     }

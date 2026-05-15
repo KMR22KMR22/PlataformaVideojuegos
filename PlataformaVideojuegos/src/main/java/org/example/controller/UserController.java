@@ -239,10 +239,6 @@ public class UserController {
             if (users.stream().anyMatch(u -> u.getEmail().equals(user.email()))) {
                 errores.add(new ErrorDto("Email", ErrorType.DUPLICADO));
             }
-            //Valida que el pais coincida con alguno de la lista del repositorio de paises
-            if (countryRepo.getAll().stream().noneMatch(c -> c.getName().equals(user.country()))) {
-                errores.add(new ErrorDto("Country", ErrorType.NO_ENCONTRADO));
-            }
         }
         return errores;
     }
