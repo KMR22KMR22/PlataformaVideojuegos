@@ -1,7 +1,6 @@
 package org.example.model.form;
 
 import org.example.controller.Util;
-import org.example.exeptions.ValidationException;
 import org.example.model.dto.game.GameAgeClasification;
 import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
@@ -192,7 +191,7 @@ public record GameForm(
      */
     private List<ErrorDto> validateLanguages() {
         List<ErrorDto> errores = new ArrayList<>();
-        List<String> languages = new ArrayList<>();
+        List<String> languages;
 
         //Si el array no es null en la posicion cero es que el usuario le puso idiomas al juego, y si no es que esta vacio
         if (availabeLanguages.getFirst() != null) {

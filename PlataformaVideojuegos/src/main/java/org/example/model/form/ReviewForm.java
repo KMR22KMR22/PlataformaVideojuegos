@@ -37,11 +37,11 @@ public record ReviewForm(Long idUser,
         }
         if (hoursPlayed == null) {
             errors.add(new ErrorDto("HoursPlayed", ErrorType.REQUERIDO));
+        }else {
+            if (hoursPlayed < 0) {
+                errors.add(new ErrorDto("HoursPlayed", ErrorType.VALOR_DEMASIADO_BAJO));
+            }
         }
-        if (hoursPlayed < 0) {
-            errors.add(new ErrorDto("HoursPlayed", ErrorType.VALOR_DEMASIADO_BAJO));
-        }
-
         return errors;
     }
 
