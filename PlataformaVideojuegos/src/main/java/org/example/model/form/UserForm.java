@@ -3,8 +3,6 @@ package org.example.model.form;
 import org.example.controller.Util;
 import org.example.model.form.errors.ErrorDto;
 import org.example.model.form.errors.ErrorType;
-
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -128,7 +126,7 @@ public record UserForm(
             errores.add(new ErrorDto("Password", ErrorType.REQUERIDO));
         }
         if (password.length() < PASS_L) {
-            errores.add(new ErrorDto("Password", ErrorType.VALOR_DEMASIADO_ALTO));
+            errores.add(new ErrorDto("Password", ErrorType.VALOR_DEMASIADO_BAJO));
         }
         if (!password.matches(".*[A-Z].*") ||
                 !password.matches(".*[a-z].*") ||
@@ -186,13 +184,12 @@ public record UserForm(
 
         if (birthDate == null) {
             errores.add(new ErrorDto("BirthDate", ErrorType.REQUERIDO));
-        }
-        if (Period.between(birthDate, LocalDate.now()).getYears() < MIN_AGE) {
+        }else {if (Period.between(birthDate, LocalDate.now()).getYears() < MIN_AGE) {
             errores.add(new ErrorDto("BirthDate", ErrorType.VALOR_DEMASIADO_BAJO));
         }
-        if (birthDate.isAfter(LocalDate.now())) {
-            errores.add(new ErrorDto("BirthDate", ErrorType.VALOR_DEMASIADO_ALTO));
-        }
+            if (birthDate.isAfter(LocalDate.now())) {
+                errores.add(new ErrorDto("BirthDate", ErrorType.VALOR_DEMASIADO_ALTO));
+            }}
         return errores;
     }
 
