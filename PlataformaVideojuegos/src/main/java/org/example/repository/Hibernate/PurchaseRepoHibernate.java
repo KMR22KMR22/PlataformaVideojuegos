@@ -22,7 +22,7 @@ public class PurchaseRepoHibernate implements IPurchaseRepo {
     @Override
     public Optional<PurchaseEntity> create(PurchaseForm form) {
         var session = sm.getSession();
-        var purchase = (new PurchaseEntity(0L, form.idUser(), form.idGame(), form.paymentMethod(), form.priceWithoutDiscount(), form.discountApplicated()));
+        var purchase = (new PurchaseEntity(null, form.idUser(), form.idGame(), form.paymentMethod(), form.priceWithoutDiscount(), form.discountApplicated()));
         session.persist(purchase);
         return Optional.of(purchase);
     }

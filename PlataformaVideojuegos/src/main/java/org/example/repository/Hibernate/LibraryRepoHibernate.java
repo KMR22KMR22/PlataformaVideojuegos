@@ -41,7 +41,7 @@ public class LibraryRepoHibernate implements ILibraryRepo {
     @Override
     public Optional<LibraryEntity> create(LibraryForm form) {
         var session = sm.getSession();
-        var library = (new LibraryEntity(0L, form.idUser(), form.idGame(), form.acquisitionDate()));
+        var library = (new LibraryEntity(null, form.idUser(), form.idGame(), form.acquisitionDate()));
         session.persist(library);
         return Optional.of(library);
     }
