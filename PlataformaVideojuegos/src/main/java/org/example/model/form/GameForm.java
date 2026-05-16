@@ -177,8 +177,12 @@ public record GameForm(
     private List<ErrorDto> validateAgeClasification() {
         List<ErrorDto> errores = new ArrayList<>();
 
-        if (Util.checkCadenaBlankOrEmpty(gameAgeClasification.name())) {
+        if (gameAgeClasification == null) {
             errores.add(new ErrorDto("AgeClasification", ErrorType.REQUERIDO));
+        }else {
+            if (Util.checkCadenaBlankOrEmpty(gameAgeClasification.name())) {
+                errores.add(new ErrorDto("AgeClasification", ErrorType.REQUERIDO));
+            }
         }
         return errores;
     }
@@ -194,12 +198,17 @@ public record GameForm(
         List<String> languages;
 
         //Si el array no es null en la posicion cero es que el usuario le puso idiomas al juego, y si no es que esta vacio
-        if (availabeLanguages.getFirst() != null) {
+        if (availabeLanguages != null) {
+            //Compruebo que no haya ningun idioma que tenga más de 200 caracteres
             languages = availabeLanguages.stream()
                     .filter(l -> l.length() > MAX_LANG)
                     .toList();
             if (!languages.isEmpty()) {
                 errores.add(new ErrorDto("Languages", ErrorType.FORMATO_INVALIDO));
+            }
+            //Compruebo que se haya pasado al menos un idioma
+            if (availabeLanguages.isEmpty()){
+                errores.add(new ErrorDto("Languages", ErrorType.REQUERIDO));
             }
         }
         return errores;

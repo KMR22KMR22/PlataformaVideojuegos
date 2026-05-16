@@ -168,9 +168,9 @@ public class ReviewController {
             //Compruebo que la reseña existe
             ReviewEntity review = reviewRepo.getById(reviewId).orElse(null);
             if (review == null) {
-                transactionErrors.add(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO));
+                throw new ValidationException(List.of(new ErrorDto("ReviewId", ErrorType.NO_ENCONTRADO)));
             } else {
-                //Busco al usuario
+                //Busco el juego
                 game = gameRepo.getById(review.getIdGame()).orElse(null);
 
                 //Compruebo que la reseña corresponda al usuario
@@ -178,7 +178,7 @@ public class ReviewController {
                     transactionErrors.add(new ErrorDto("UserId, ReviewId", ErrorType.NO_ENCONTRADO));
                 }
 
-                //Compruebo que la reseña no esté previamente eliminado
+                //Compruebo que la reseña no esté previamente eliminada
                 if (Objects.equals(ReviewState.ELIMINADA, review.getState())) {
                     transactionErrors.add(new ErrorDto("ReviewState", ErrorType.DUPLICADO));
                 }

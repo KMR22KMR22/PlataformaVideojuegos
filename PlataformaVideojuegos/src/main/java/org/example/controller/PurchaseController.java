@@ -189,7 +189,7 @@ public class PurchaseController {
             //Compruebo que la compra exista
             PurchaseEntity purchase = purchaseRepo.getById(purchaseId).orElse(null);
             if (purchase == null) {
-                transactionErrors.add(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO));
+                throw new ValidationException(List.of(new ErrorDto("PurchaseId", ErrorType.NO_ENCONTRADO)));
             } else {
                 //Busco al juego y el usuario
                 game = gameRepo.getById(purchase.getIdGame()).orElse(null);
@@ -216,17 +216,15 @@ public class PurchaseController {
                 //Obtengo el metodo de pago de la compra
                 PaymentMethod purchasePM = purchase.getPaymentMethod();
 
-                //Creo el PaymentMethod
-                IPaymentMethod paymentMethod = PaymentFactory.getPaymentMethod(purchasePM, userRepo);
-
-
-                //Compruebo que se haya creado el PaymentMethod
-                if (paymentMethod == null) {
-                    transactionErrors.add(new ErrorDto("PaymentMethod", ErrorType.REQUERIDO));
+                if (purchasePM == null) {
+                    transactionErrors.add(new ErrorDto("PaymentMethod", ErrorType.NO_ENCONTRADO));
                 }
 
                 //Compruebo si hay errores
                 Util.throwException(transactionErrors);
+
+                //Creo el PaymentMethod
+                IPaymentMethod paymentMethod = PaymentFactory.getPaymentMethod(purchasePM, userRepo);
 
                 //Realizo el pago y la compra pasa a estado completada. Si no se puede realizar pasa a estado cancelada.
                 //Si la funcion de makePayment() de los paymentMethod manda un validation exeption, quiere decir que hubo un error en el pago, asi que lo capturo en el catch
@@ -252,8 +250,6 @@ public class PurchaseController {
 
                 return Mapper.mapFrom(updatedPurchase, userDTO, gameDTO);
             }
-
-            return null;
         });
     }
 
@@ -436,7 +432,7 @@ public class PurchaseController {
             } else {
                 //Compruebo que el estado de la compra este en completada
                 if (purchase.getSatate() != PurchaseState.COMPLETADA) {
-                    transactionErrors.add(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO));
+                    throw new ValidationException(List.of(new ErrorDto("PurchaseState", ErrorType.ESTADO_INCORRECTO)));
                 }
                 //Busco una biblioteca la cual tenga la relación entre el usuario que compró el juego y el jugo
                 LibraryEntity library = libraryRepo.getByUserGameId(purchase.getIdUser(), purchase.getIdGame()).orElse(null);
@@ -468,7 +464,7 @@ public class PurchaseController {
             //Compruebo si hay errores para mandar la exepcion
             Util.throwException(transactionErrors);
 
-            //obtengo cuanto el costo el juego al usuario y lo guardo
+            //obtengo cuanto le costo el juego al usuario y lo guardo
             float amount = purchase.getDiscountApplicated();
             //Creo al usuario actiualizado reponiendole el dinero
             UserUpdate userForm = new UserUpdate(user.getUserName(), user.getEmail(), user.getPassword(), user.getRealName(), user.getCountry(), user.getBirthDate(), user.getRegistrationDate(), user.getAvatar(), user.getPortfolioBalance() + amount, user.getAccountState());
